@@ -1,13 +1,8 @@
-import configparser
+import os
 import openai
 
-def get_api_key():
-    config = configparser.ConfigParser()
-    config.read('key.ini')
-    return config['openai']['api_key']
-
 def chat():
-    openai.api_key = get_api_key()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     conversation = [{"role": "system", "content": "You are a helpful assistant."}]
 
     while True:
@@ -24,7 +19,7 @@ def chat():
                 "content": assistant_message["content"],
             }
             conversation.append(assistant_response)
-            print("Assistant: " + assistant_message["content"])
+            print("\nAssistant: " + assistant_message["content"] + "\n\n")
         else:
             break
 

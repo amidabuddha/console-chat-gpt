@@ -8,13 +8,13 @@ Here are examples how to set the environment variable on different operating sys
 
    - On Unix/Linux/macOS:
      ```
-     export API_KEY="OPENAI_API_KEY"
+     export OPENAI_API_KEY="OPENAI_API_KEY"
      ```
    - On Windows (Command Prompt):
      ```
-     set API_KEY="OPENAI_API_KEY"
+     set OPENAI_API_KEY="OPENAI_API_KEY"
      ```
    - On Windows (PowerShell):
      ```
-     $env:API_KEY="OPENAI_API_KEY"
+     $env:OPENAI_API_KEY="OPENAI_API_KEY"
      ```
