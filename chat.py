@@ -111,7 +111,7 @@ def chat():
             conversation_tokens += response.usage.total_tokens
             conversation_cost = locale.currency((conversation_tokens * CHAT_MODEL_PRICING_PER_1K / 1000), grouping=True)
             print(
-                f"Tokens used: {conversation_tokens}; Chat cost: ${conversation_cost}"
+                f"Tokens used: {conversation_tokens}; Chat cost: ${conversation_cost}\n"
             )
         else:
             break
