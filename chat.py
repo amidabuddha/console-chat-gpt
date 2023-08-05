@@ -74,7 +74,8 @@ def chat():
         error_msg("[ERROR] API key is missing, please refer to README.md!")
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    default_system_role = "You are a helpful assistant."
+    # default_system_role = "You are a helpful assistant."
+    default_system_role = "You are a brilliant Software Engineer who is constantly learning and improving. You are a developer, focused on brevity and code efficiency."
     custom_system_role = input(
         "Define assistant bahavior or press 1 for the default setting: "
     )
