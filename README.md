@@ -12,6 +12,9 @@ The ultimate command line interface for chatting with the ChatGPT! Save time and
 
 </div>
 
+- [Installation and Usage](#unstallation-and-usage)
+- [How to submit long text with line breaks](#how-to-submit-long-text)
+  
 ---
 
 **DISCLAIMER:**
