@@ -3,7 +3,15 @@ import openai
 
 def chat():
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    conversation = [{"role": "system", "content": "You are a helpful assistant."}]
+    default_system_role = "You are a helpful assistant."
+    custom_system_role = input("Define assistant bahavior or press 1 for the default setting: ")
+
+    if custom_system_role == "1":
+        system_role = default_system_role
+    else:
+        system_role = custom_system_role
+
+    conversation = [{"role": "system", "content": system_role}]
 
     while True:
         user_prompt = input("User: ")
