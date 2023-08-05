@@ -53,3 +53,5 @@ tool.
     ```
 6. Enjoy
 
+## How to submit long text with line breaks
+With source code or any other text with multiline content as input use the `whitespace_remover.py` tool to preformat the request and them paste it into the CLI prompt.
