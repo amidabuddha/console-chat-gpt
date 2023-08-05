@@ -27,7 +27,7 @@ def error_msg(text: str) -> None:
 
 
 def coloring_for_code(
-    text: str, color: str, on_color: (str, None), signal: bool = False, is_skip=False
+        text: str, color: str, on_color: (str, None), signal: bool = False, is_skip=False
 ):
     if signal and not is_skip:
         return colored(text, color, on_color)
@@ -88,33 +88,33 @@ def chat():
 
     while True:
         user_prompt = input(prettify("User: ", USER_PROMPT_COLOR))
-        if user_prompt.lower() not in ("exit", "quit", "bye"):
-            user_message = {"role": "user", "content": user_prompt}
-            conversation.append(user_message)
-            response = openai.ChatCompletion.create(
-                model=CHAT_MODEL, messages=conversation
-            )
-            assistant_message = response.choices[0].message
-            assistant_response = {
-                "role": "assistant",
-                "content": assistant_message["content"],
-            }
-            conversation.append(assistant_response)
-            print(
-                prettify(
-                    f"{handle_code(assistant_message['content'])}",
-                    ASSISTANT_RESPONSE_COLOR,
-                    True,
-                )
-            )
-            # TO-DO: prettify
-            conversation_tokens += response.usage.total_tokens
-            conversation_cost = locale.currency((conversation_tokens * CHAT_MODEL_PRICING_PER_1K / 1000), grouping=True)
-            print(
-                f"Tokens used: {conversation_tokens}; Chat cost: ${conversation_cost}\n"
-            )
-        else:
+        if user_prompt.lower() in ("exit", "quit", "bye"):
             break
+
+        user_message = {"role": "user", "content": user_prompt}
+        conversation.append(user_message)
+        response = openai.ChatCompletion.create(
+            model=CHAT_MODEL, messages=conversation
+        )
+        assistant_message = response.choices[0].message
+        assistant_response = {
+            "role": "assistant",
+            "content": assistant_message["content"],
+        }
+        conversation.append(assistant_response)
+        print(
+            prettify(
+                f"{handle_code(assistant_message['content'])}",
+                ASSISTANT_RESPONSE_COLOR,
+                True,
+            )
+        )
+        conversation_tokens += response.usage.total_tokens
+        conversation_cost = locale.currency((conversation_tokens * CHAT_MODEL_PRICING_PER_1K / 1000), grouping=True)
+        print(
+            f"Tokens used: {colored(str(conversation_tokens), 'yellow')};"
+            f" Chat cost: {colored(conversation_cost, 'green')}"
+        )
 
 
 if __name__ == "__main__":
