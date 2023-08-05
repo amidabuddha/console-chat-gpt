@@ -3,17 +3,21 @@ import openai
 import sys
 from termcolor import colored
 import signal
+import locale
 
 USER_PROMPT_COLOR = "blue"
 ASSISTANT_PROMPT_COLOR = "yellow"
 ASSISTANT_RESPONSE_COLOR = "cyan"
 CHAT_MODEL = "gpt-3.5-turbo"
+CHAT_MODEL_PRICING_PER_1K = 0.0015
 CODE_COLOR = "red"
 CODE_BACKGROUND = None
 
+locale.setlocale(locale.LC_ALL, "")
+
 
 def signal_handler(sig, frame):
-    print(colored('\n[WARN] You pressed Ctrl+C! Bye!', "yellow"))
+    print(colored("\n[WARN] You pressed Ctrl+C! Bye!", "yellow"))
     sys.exit(0)
 
 
@@ -22,11 +26,13 @@ def error_msg(text: str) -> None:
     sys.exit(1)
 
 
-def coloring_for_code(text: str, color: str, on_color: (str, None), signal: bool = False, is_skip=False):
+def coloring_for_code(
+    text: str, color: str, on_color: (str, None), signal: bool = False, is_skip=False
+):
     if signal and not is_skip:
         return colored(text, color, on_color)
     if is_skip:
-        return ''
+        return ""
     return colored(text, ASSISTANT_RESPONSE_COLOR)
 
 
@@ -43,18 +49,22 @@ def handle_code(text: str) -> str:
         if word.startswith("```python") or word.startswith("```"):
             enable_color = True if not enable_color else False
             skip_shit = True if not skip_shit else False
-        result.append(coloring_for_code(word, CODE_COLOR, CODE_BACKGROUND, enable_color, skip_shit))
+        result.append(
+            coloring_for_code(
+                word, CODE_COLOR, CODE_BACKGROUND, enable_color, skip_shit
+            )
+        )
         skip_shit = False
-    print(result)
     result = clean_up(result)
-    print(result)
-    return '\n'.join(result)
+    return "\n".join(result)
 
 
 def prettify(text: str, color: str, assistant: bool = False) -> str:
     if assistant:
-        return f"{colored('Assistant:', ASSISTANT_PROMPT_COLOR, attrs=['bold', 'underline'])} " \
-               f"{colored(text, color)}\n"
+        return (
+            f"{colored('Assistant:', ASSISTANT_PROMPT_COLOR, attrs=['bold', 'underline'])} "
+            f"{colored(text, color)}\n"
+        )
     return colored(text, color, attrs=["bold"])
 
 
@@ -64,7 +74,9 @@ def chat():
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
     default_system_role = "You are a helpful assistant."
-    custom_system_role = input("Define assistant bahavior or press 1 for the default setting: ")
+    custom_system_role = input(
+        "Define assistant bahavior or press 1 for the default setting: "
+    )
 
     if custom_system_role == "1":
         system_role = default_system_role
@@ -72,6 +84,7 @@ def chat():
         system_role = custom_system_role
 
     conversation = [{"role": "system", "content": system_role}]
+    conversation_tokens = 0
 
     while True:
         user_prompt = input(prettify("User: ", USER_PROMPT_COLOR))
@@ -87,12 +100,24 @@ def chat():
                 "content": assistant_message["content"],
             }
             conversation.append(assistant_response)
-            print(prettify(f"{handle_code(assistant_message['content'])}", ASSISTANT_RESPONSE_COLOR, True))
+            print(
+                prettify(
+                    f"{handle_code(assistant_message['content'])}",
+                    ASSISTANT_RESPONSE_COLOR,
+                    True,
+                )
+            )
+            # TO-DO: prettify
+            conversation_tokens += response.usage.total_tokens
+            conversation_cost = locale.currency((conversation_tokens * CHAT_MODEL_PRICING_PER_1K / 1000), grouping=True)
+            print(
+                f"Tokens used: {conversation_tokens}; Chat cost: ${conversation_cost}"
+            )
         else:
             break
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     chat()
     signal.pause()
