@@ -9,7 +9,8 @@ USER_PROMPT_COLOR = "blue"
 ASSISTANT_PROMPT_COLOR = "yellow"
 ASSISTANT_RESPONSE_COLOR = "cyan"
 CHAT_MODEL = "gpt-3.5-turbo"
-CHAT_MODEL_PRICING_PER_1K = 0.0015
+CHAT_MODEL_INPUT_PRICING_PER_1K = 0.0015
+CHAT_MODEL_OUTPUT_PRICING_PER_1K = 0.002
 CODE_COLOR = "red"
 CODE_BACKGROUND = None
 
@@ -85,6 +86,8 @@ def chat():
 
     conversation = [{"role": "system", "content": system_role}]
     conversation_tokens = 0
+    conversation_prompt_tokens = 0
+    conversation_completions_tokens = 0
 
     while True:
         user_prompt = input(prettify("User: ", USER_PROMPT_COLOR))
@@ -110,10 +113,14 @@ def chat():
             )
         )
         conversation_tokens += response.usage.total_tokens
-        conversation_cost = locale.currency((conversation_tokens * CHAT_MODEL_PRICING_PER_1K / 1000), grouping=True)
+        conversation_prompt_tokens += response.usage.prompt_tokens
+        conversation_completions_tokens += response.usage.completion_tokens
+        conversation_prompt_cost = conversation_prompt_tokens * CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
+        conversation_completions_cost = conversation_completions_tokens * CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
+        conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
         print(
             f"Tokens used: {colored(str(conversation_tokens), 'yellow')};"
-            f" Chat cost: {colored(conversation_cost, 'green')}"
+            f" Chat cost: {colored(conversation_cost, 'green')}\n"
         )
 
 
