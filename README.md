@@ -14,6 +14,11 @@ tool.
 
 </div>
 
+---
+
+**DISCLAIMER:**
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation or relationship with OpenAI in any form.
+
 ## Installation and Usage:
 
 1. Clone the repository:
