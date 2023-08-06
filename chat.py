@@ -105,14 +105,19 @@ def chat():
                 continue_chat += ".json"
             file_path = f"{BASE_PATH}/{continue_chat}"
             if os.path.isfile(file_path):
-                with open(file_path, 'r') as file:
-                    conversation = json.load(file)
-                    break
+                try:
+                    with open(file_path, 'r') as file:
+                        conversation = json.load(file)
+                        break
+                except json.JSONDecodeError as e:
+                    print("Error decoding JSON:", e)
+                    sys.exit(1)
+                except Exception as e:
+                    print("Error:", e)
+                    sys.exit(1)
             else:
                 continue_chat = input(info_msg((f"The file '{continue_chat}' does not exist in the current directory. Enter a valid file name or press 'ENTER' to abort: ")))
-                if continue_chat:
-                    continue
-                else:
+                if not continue_chat:
                     sys.exit(0)
     else:
         default_system_role = config["CHAT"]["default_system_role"]
