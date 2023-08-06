@@ -2,16 +2,16 @@
 # Otherwise, it won't be recognised
 # Also, don't forget to place your API Token
 
-[CHAT]
-API_TOKEN = "YOUR_OPENAI_API_KEY"
+[chat]
+api_token = "YOUR_OPENAI_API_KEY"
 default_system_role = "You are a brilliant Software Engineer who is constantly learning and improving. You are a developer, focused on brevity and code efficiency."
-MODEL = "gpt-3.5-turbo"
-TEMPERATURE = 1
-MODEL_INPUT_PRICING_PER_1K = 0.0015
-MODEL_OUTPUT_PRICING_PER_1K = 0.002
+model = "gpt-3.5-turbo"
+temperature = 1
+model_input_pricing_per_1k = 0.0015
+model_output_pricing_per_1k = 0.002
 
-[COLORS]
-CODE = "red"
-USER_PROMPT = "blue"
-ASSISTANT_PROMPT = "yellow"
-ASSISTANT_RESPONSE = "cyan"
+[colors]
+code = "red"
+user_prompt = "blue"
+assistant_prompt = "yellow"
+assistant_response = "cyan"

@@ -12,7 +12,7 @@ from termcolor import colored
 
 
 def fetch_api_token() -> str:
-    token: str = chat_section.get("API_TOKEN")
+    token: str = chat_section.get("api_token")
     if token:
         return token
     error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
@@ -31,22 +31,22 @@ CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
 config = toml.load(check_exist(CONFIG_PATH))
 
 # Config Sections
-chat_section = config["CHAT"]
-colors_section = config["COLORS"]
+chat_section = config["chat"]
+colors_section = config["colors"]
 
 # Color settings
-USER_PROMPT_COLOR = colors_section.get("USER_PROMPT")
-ASSISTANT_PROMPT_COLOR = colors_section.get("ASSISTANT_PROMPT")
-ASSISTANT_RESPONSE_COLOR = colors_section.get("ASSISTANT_RESPONSE")
-CODE_COLOR = colors_section.get("CODE")
+USER_PROMPT_COLOR = colors_section.get("user_prompt")
+ASSISTANT_PROMPT_COLOR = colors_section.get("assistant_prompt")
+ASSISTANT_RESPONSE_COLOR = colors_section.get("assistant_response")
+CODE_COLOR = colors_section.get("code")
 
 # Model settings
 API_TOKEN = fetch_api_token()
-CHAT_MODEL = chat_section.get("MODEL")
-CHAT_TEMPERATURE = float(chat_section.get("TEMPERATURE"))
-CHAT_MODEL_INPUT_PRICING_PER_1K = float(chat_section.get("MODEL_INPUT_PRICING_PER_1K"))
+CHAT_MODEL = chat_section.get("model")
+CHAT_TEMPERATURE = float(chat_section.get("temperature"))
+CHAT_MODEL_INPUT_PRICING_PER_1K = float(chat_section.get("model_input_pricing_per_1k"))
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = float(
-    chat_section.get("MODEL_OUTPUT_PRICING_PER_1K")
+    chat_section.get("model_output_pricing_per_1k")
 )
 
 locale.setlocale(locale.LC_ALL, "")
