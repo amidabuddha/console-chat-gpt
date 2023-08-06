@@ -88,16 +88,10 @@ def chat():
     if not custom_temperature:
         chat_temperature = CHAT_TEMPERATURE
     else:
-        # try:
-        #     chat_temperature = int(custom_temperature)
-        #     if chat_temperature < 0 or chat_temperature > 2:
-        #         print("Value outside of range!")
-        #         sys.exit(0)
-        # except ValueError as e:
         try:
             chat_temperature = float(custom_temperature)
             if chat_temperature < 0 or chat_temperature > 2:
-                print("Value outside of range!")
+                print("Value outside of allowed range!")
                 sys.exit(0)
         except ValueError as e:
             print("Incorrect value:", e)
