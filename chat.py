@@ -5,6 +5,7 @@ from termcolor import colored
 import signal
 import locale
 import configparser
+import json
 
 # Global Variables
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -129,6 +130,9 @@ def chat():
         assistant_message = response.choices[0].message
         assistant_response = dict(role="assistant", content=assistant_message["content"])
         conversation.append(assistant_response)
+
+        with open('messages.json', 'w') as log_file:
+            json.dump(conversation, log_file, indent=4)
 
         print(coloring(ASSISTANT_PROMPT_COLOR, ASSISTANT_RESPONSE_COLOR,
                        assistant=handle_code(assistant_message['content'])))
