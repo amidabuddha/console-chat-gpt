@@ -98,15 +98,33 @@ def print_costs(used_tokens, conversation_prompt_tokens, conversation_completion
 
 def chat():
     openai.api_key = fetch_token()
-    default_system_role = config["CHAT"]["default_system_role"]
-    custom_system_role = input(info_msg("Define assistant behavior or press 'ENTER' for the default setting: "))
-
-    if not custom_system_role:
-        system_role = default_system_role
+    continue_chat = input(info_msg("Press 'ENTER' for a new chat, or the full name of the json file holding previous messages list: "))
+    if continue_chat:
+        while True:
+            if not continue_chat.endswith(".json"):
+                continue_chat += ".json"
+            file_path = f"{BASE_PATH}/{continue_chat}"
+            if os.path.isfile(file_path):
+                with open(file_path, 'r') as file:
+                    conversation = json.load(file)
+                    break
+            else:
+                continue_chat = input(info_msg((f"The file '{continue_chat}' does not exist in the current directory. Enter a valid file name or press 'ENTER' to abort: ")))
+                if continue_chat:
+                    continue
+                else:
+                    sys.exit(0)
     else:
-        system_role = custom_system_role
+        default_system_role = config["CHAT"]["default_system_role"]
+        custom_system_role = input(info_msg("Define assistant behavior or press 'ENTER' for the default setting: "))
 
-    conversation = [{"role": "system", "content": system_role}]
+        if not custom_system_role:
+            system_role = default_system_role
+        else:
+            system_role = custom_system_role
+
+        conversation = [{"role": "system", "content": system_role}]
+    
     conversation_tokens = 0
     conversation_prompt_tokens = 0
     conversation_completions_tokens = 0
