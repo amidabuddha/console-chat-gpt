@@ -24,7 +24,7 @@ def check_exist(path: str) -> str:
 
 # Load the config file
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
-CONFIG_PATH = f"{BASE_PATH}/config.toml"
+CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
 
 config = toml.load(check_exist(CONFIG_PATH))
 
@@ -144,7 +144,7 @@ def chat():
         while True:
             if not continue_chat.endswith(".json"):
                 continue_chat += ".json"
-            file_path = f"{BASE_PATH}/{continue_chat}"
+            file_path = os.path.join(BASE_PATH, continue_chat)
             if os.path.isfile(file_path):
                 try:
                     with open(file_path, "r") as file:
@@ -230,7 +230,7 @@ def chat():
                         USER_PROMPT_COLOR,
                     )
                 )
-                file_path = f"{BASE_PATH}/{file_prompt}"
+                file_path = os.path.join(BASE_PATH, file_prompt)
 
                 if os.path.isfile(file_path):
                     with open(file_path, "r") as file:
