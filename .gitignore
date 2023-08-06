@@ -1,5 +1,4 @@
 .idea
 *.json
-memo
 *.txt
 !requirements.txt
