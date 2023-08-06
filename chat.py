@@ -1,34 +1,20 @@
 import json
 import locale
 import os
-import shutil
 import signal
 import sys
-from datetime import datetime
 
 import openai
 import toml
 from termcolor import colored
 
-
-def fetch_api_token() -> str:
-    token: str = config["chat"]["api_token"]
-    if not token:
-        error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
-    return token
-
-
-def check_exist(path: str) -> str:
-    if not os.path.exists(path):
-        error_msg(f"No such file as - {path}")
-    return path
-
+import helpers
 
 # Load the config file
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
 
-config = toml.load(check_exist(CONFIG_PATH))
+config = toml.load(helpers.check_exist(CONFIG_PATH))
 
 # Color settings
 USER_PROMPT_COLOR = config["colors"]["user_prompt"]
@@ -37,7 +23,7 @@ ASSISTANT_RESPONSE_COLOR = config["colors"]["assistant_response"]
 CODE_COLOR = config["colors"]["code"]
 
 # Model settings
-API_TOKEN = fetch_api_token()
+API_TOKEN = helpers.fetch_api_token(config["chat"]["api_token"], CONFIG_PATH)
 CHAT_MODEL = config["chat"]["model"]
 CHAT_TEMPERATURE = config["chat"]["temperature"]
 CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model_input_pricing_per_1k"]
@@ -46,102 +32,10 @@ CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model_output_pricing_per_1k"]
 locale.setlocale(locale.LC_ALL, "")
 
 
-def signal_handler(sig, frame) -> None:
-    """
-    Handle ctrl+c (SIGINT) rather than crash
-    """
-    print(colored("\n[WARN] You pressed Ctrl+C! Bye!", "yellow"))
-    sys.exit(0)
-
-
-def coloring(*colors, **data) -> (str, None):
-    kattrs = data.pop("kattrs", None)  # Key attributes
-    vattrs = data.pop("vattrs", None)  # Value attributes
-
-    for key, value in data.items():
-        key = " ".join(key.split("_")) if key.count("_") else key
-        if len(data.keys()) == 1:
-            return f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}"
-        print(
-            f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}"
-        )
-
-
-def code_coloring(text: str, color: str, on_color: bool = False, skip=False):
-    if on_color and not skip:
-        return colored(text, color)
-    if skip:
-        return ""
-    return colored(text, ASSISTANT_RESPONSE_COLOR)
-
-
-def error_msg(text: str) -> None:
-    print(colored(f"[ERROR] {text}", "red"))
-    sys.exit(1)
-
-
-def info_msg(text: str) -> str:
-    return colored(text, "blue")
-
-
-def handle_code(text: str) -> str:
-    result = []
-    words = text.split("\n")
-    enable_color = False
-    skip_add = False
-    for word in words:
-        if word.startswith("```"):
-            enable_color = True if not enable_color else False
-            skip_add = True if not skip_add else False
-        result.append(code_coloring(word, CODE_COLOR, enable_color, skip_add))
-        skip_add = False
-    return "\n".join([x for x in result if x])
-
-
-def custom_input(prompt: str) -> str:
-    while True:
-        data = input(prompt)
-        if data:
-            if data.lower() in ("exit", "quit", "bye"):
-                save_chat()
-                sys.exit(0)
-            return data
-        print(coloring("yellow", "red", warning="Don't leave it empty, please :)"))
-
-
-def print_costs(
-    used_tokens, conversation_prompt_tokens, conversation_completions_tokens
-):
-    conversation_prompt_cost = (
-        conversation_prompt_tokens * CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
-    )
-    conversation_completions_cost = (
-        conversation_completions_tokens * CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
-    )
-    conversation_cost = locale.currency(
-        (conversation_prompt_cost + conversation_completions_cost), grouping=True
-    )
-    coloring(None, "green", tokens_used=used_tokens, chat_cost=conversation_cost)
-
-
-def save_chat():
-    save_chat = input(
-        info_msg(
-            "Press 'ENTER' to quit or 's' to save this chat to the current directory."
-        )
-    )
-    if save_chat.lower() == "s":
-        file_name = "messages.json"
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        saved_chat = f"{os.path.splitext(file_name)[0]}_{timestamp}{os.path.splitext(file_name)[1]}"
-        shutil.copy(file_name, saved_chat)
-        print(f"Chat conversation saved to {saved_chat}")
-
-
 def chat():
     openai.api_key = API_TOKEN
     continue_chat = input(
-        info_msg(
+        helpers.info_msg(
             "Press 'ENTER' for a new chat, or the full name of the json file holding previous messages list: "
         )
     )
@@ -163,7 +57,7 @@ def chat():
                     sys.exit(1)
             else:
                 continue_chat = input(
-                    info_msg(
+                    helpers.info_msg(
                         (
                             f"The file '{continue_chat}' does not exist in the current directory. Enter a valid file name or press 'ENTER' to abort: "
                         )
@@ -174,7 +68,7 @@ def chat():
     else:
         default_system_role = config["chat"]["default_system_role"]
         custom_system_role = input(
-            info_msg(
+            helpers.info_msg(
                 "Define assistant behavior or press 'ENTER' for the default setting: "
             )
         )
@@ -187,7 +81,7 @@ def chat():
         conversation = [{"role": "system", "content": system_role}]
 
     custom_temperature = input(
-        info_msg(
+        helpers.info_msg(
             "Enter a value between 0 and 2 to define chat output randomness or press 'ENTER' for the default setting (1): "
         )
     )
@@ -208,13 +102,15 @@ def chat():
     conversation_completions_tokens = 0
 
     while True:
-        user_prompt = custom_input(colored("User: ", USER_PROMPT_COLOR))
+        user_prompt = helpers.custom_input(colored("User: ", USER_PROMPT_COLOR))
         # TODO: Replace IF statements with case and increase Python requirement to 3.10+
         if user_prompt.lower() == "cost":
-            print_costs(
+            helpers.print_costs(
                 conversation_tokens,
                 conversation_prompt_tokens,
                 conversation_completions_tokens,
+                CHAT_MODEL_INPUT_PRICING_PER_1K,
+                CHAT_MODEL_OUTPUT_PRICING_PER_1K,
             )
             continue
 
@@ -229,7 +125,7 @@ def chat():
         if user_prompt.lower() == "file":
             skip = False
             while not skip:
-                file_prompt = custom_input(
+                file_prompt = helpers.custom_input(
                     colored(
                         "Enter the desired filename to pass its content as prompt: ",
                         USER_PROMPT_COLOR,
@@ -244,7 +140,7 @@ def chat():
                         break
                 else:
                     another_try = input(
-                        info_msg(
+                        helpers.info_msg(
                             (
                                 f"The file '{file_prompt}' does not exist in the current directory. Press ENTER to try again or any other key to abort."
                             )
@@ -273,10 +169,10 @@ def chat():
             json.dump(conversation, log_file, indent=4)
 
         print(
-            coloring(
+            helpers.coloring(
                 ASSISTANT_PROMPT_COLOR,
                 ASSISTANT_RESPONSE_COLOR,
-                assistant=handle_code(assistant_message["content"]),
+                assistant=helpers.handle_code(assistant_message["content"], CODE_COLOR),
             )
         )
 
@@ -286,6 +182,6 @@ def chat():
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGINT, helpers.signal_handler)
     chat()
     signal.pause()

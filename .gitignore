@@ -3,3 +3,4 @@
 *.txt
 !requirements.txt
 config.toml
+__pycache__
