@@ -47,33 +47,17 @@ The intention and implementation of this code are entirely unconnected and unrel
    python3 -m pip install -r requirements.txt
    ```
 
-4. Export your API key, which you can grab from [HERE](https://platform.openai.com/account/api-keys):
+4. Get your API key from [HERE](https://platform.openai.com/account/api-keys)
 
-   - On Unix/Linux/macOS:
+5. Copy `config.ini.sample` into `config.ini`, replace the text "YOUR_OPENAI_API_KEY" with your API key and save the new config file. Feel free to change any of the other defaults as per your needs.
 
-   ```shell
-   export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
-   ```
-
-   - On Windows (Command Prompt):
-
-   ```shell
-   set OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
-   ```
-
-   - On Windows (PowerShell):
-
-   ```shell
-   $env:OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
-   ```
-
-5. Run the executable:
+6. Run the executable:
 
    ```shell
    python3 chat.py
    ```
 
-6. Enjoy
+7. Enjoy
 
 ## How to submit long text with line breaks
 

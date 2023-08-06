@@ -4,7 +4,7 @@
 # DO NOT use quotes, else it might result in unexpected behaviour.
 
 [CHAT]
-API_TOKEN =
+API_TOKEN = YOUR_OPENAI_API_KEY
 default_system_role = You are a brilliant Software Engineer who is constantly learning and improving. You are a developer, focused on brevity and code efficiency.
 MODEL = gpt-3.5-turbo
 TEMPERATURE = 1
