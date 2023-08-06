@@ -12,7 +12,7 @@ from termcolor import colored
 
 
 def fetch_api_token() -> str:
-    token: str = chat_section.get("api_token")
+    token: str = chat_section["api_token"]
     if token:
         return token
     error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
@@ -35,19 +35,17 @@ chat_section = config["chat"]
 colors_section = config["colors"]
 
 # Color settings
-USER_PROMPT_COLOR = colors_section.get("user_prompt")
-ASSISTANT_PROMPT_COLOR = colors_section.get("assistant_prompt")
-ASSISTANT_RESPONSE_COLOR = colors_section.get("assistant_response")
-CODE_COLOR = colors_section.get("code")
+USER_PROMPT_COLOR = colors_section["user_prompt"]
+ASSISTANT_PROMPT_COLOR = colors_section["assistant_prompt"]
+ASSISTANT_RESPONSE_COLOR = colors_section["assistant_response"]
+CODE_COLOR = colors_section["code"]
 
 # Model settings
 API_TOKEN = fetch_api_token()
-CHAT_MODEL = chat_section.get("model")
-CHAT_TEMPERATURE = float(chat_section.get("temperature"))
-CHAT_MODEL_INPUT_PRICING_PER_1K = float(chat_section.get("model_input_pricing_per_1k"))
-CHAT_MODEL_OUTPUT_PRICING_PER_1K = float(
-    chat_section.get("model_output_pricing_per_1k")
-)
+CHAT_MODEL = chat_section["model"]
+CHAT_TEMPERATURE = chat_section["temperature"]
+CHAT_MODEL_INPUT_PRICING_PER_1K = chat_section["model_input_pricing_per_1k"]
+CHAT_MODEL_OUTPUT_PRICING_PER_1K = chat_section["model_output_pricing_per_1k"]
 
 locale.setlocale(locale.LC_ALL, "")
 
@@ -178,7 +176,7 @@ def chat():
                 if not continue_chat:
                     sys.exit(0)
     else:
-        default_system_role = config["CHAT"]["default_system_role"]
+        default_system_role = chat_section["default_system_role"]
         custom_system_role = input(
             info_msg(
                 "Define assistant behavior or press 'ENTER' for the default setting: "
