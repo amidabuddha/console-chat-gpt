@@ -120,20 +120,31 @@ def chat():
 
         if user_prompt.lower() in ["help", "commands"]:
             # TODO: Make it more comprehensive
-            print("You can use cost and exit")
-            continue
+                print("You can use the following commands:")
+                print("\tcost - Display conversation costs.")
+                print("\tfile - Process a file.")
+                print("\texit - Exit the program.")
+                continue
 
         if user_prompt.lower() == "file":
-            print("Enter the desired filename to pass its content as prompt:")
-            file_prompt = custom_input(colored("User: ", USER_PROMPT_COLOR))
-            file_path = f"{BASE_PATH}/{file_prompt}"
+            skip = False
+            while not skip:
+                file_prompt = custom_input(colored("Enter the desired filename to pass its content as prompt: ", USER_PROMPT_COLOR))
+                file_path = f"{BASE_PATH}/{file_prompt}"
 
-            if os.path.isfile(file_path):
-                with open(file_path, 'r') as file:
-                    user_prompt = file.read()
-                    file.close()
-            else:
-                print(f"The file '{file_prompt}' does not exist in the current directory.")
+                if os.path.isfile(file_path):
+                    with open(file_path, 'r') as file:
+                        user_prompt = file.read()
+                        file.close()
+                        break
+                else:
+                    another_try = input(info_msg((f"The file '{file_prompt}' does not exist in the current directory. Press ENTER to try again or any other key to abort.")))
+                    if not another_try:
+                        continue
+                    else:
+                        skip = True
+                        break
+            if skip:
                 continue
                 
         user_message = {"role": "user", "content": user_prompt}
