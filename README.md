@@ -77,12 +77,19 @@ The intention and implementation of this code are entirely unconnected and unrel
 
 ## How to submit long text with line breaks
 
-With source code or any other text with multiline content as input use the `prompt_formatter.py` tool to preformat the request and then paste it into the CLI prompt.
+With source code or any other text with multiline content as input use the `prompt_formatter.py` tool to preformat the request and then pass it into the CLI user prompt.
 
-1. Store the content in a file
-2. Pass the file name as an argument to the tool executable.
+1. Store the content in a source file
+2. Pass the source file name as an argument to the tool executable. 
 
 Example:
    ```shell
    python3 prompt_formatter.py chat.py
    ```
+3. The result will be a target file with appended "_modified.txt" to the original file name.
+
+Example: `chat_modified.txt`
+
+4. Add additional modification to the produced target file if needed
+5. Start the chat executable as described above and enter `file` as an user prompt
+6. In the next user prompt enter only the filename that contains the full prompt

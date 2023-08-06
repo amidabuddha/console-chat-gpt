@@ -83,6 +83,8 @@ def custom_input(prompt: str) -> str:
     while True:
         data = input(prompt)
         if data:
+            if data.lower() in ("exit", "quit", "bye"):
+                sys.exit(0)
             return data
         print(coloring("yellow", "red", warning="Don't leave it empty, please :)"))
 
@@ -112,9 +114,6 @@ def chat():
     while True:
         user_prompt = custom_input(colored("User: ", USER_PROMPT_COLOR))
         # TODO: Replace IF statements with case and increase Python requirement to 3.10+
-        if user_prompt.lower() in ("exit", "quit", "bye"):
-            sys.exit(0)
-
         if user_prompt.lower() == "cost":
             print_costs(conversation_tokens, conversation_prompt_tokens, conversation_completions_tokens)
             continue
@@ -124,6 +123,19 @@ def chat():
             print("You can use cost and exit")
             continue
 
+        if user_prompt.lower() == "file":
+            print("Enter the desired filename to pass its content as prompt:")
+            file_prompt = custom_input(colored("User: ", USER_PROMPT_COLOR))
+            file_path = f"{BASE_PATH}/{file_prompt}"
+
+            if os.path.isfile(file_path):
+                with open(file_path, 'r') as file:
+                    user_prompt = file.read()
+                    file.close()
+            else:
+                print(f"The file '{file_prompt}' does not exist in the current directory.")
+                continue
+                
         user_message = {"role": "user", "content": user_prompt}
         conversation.append(user_message)
         response = openai.ChatCompletion.create(model=CHAT_MODEL, messages=conversation)
