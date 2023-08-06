@@ -1,6 +1,12 @@
+import configparser
+import json
+import locale
 import os
-import openai
+import shutil
+import signal
 import sys
+from datetime import datetime
+import openai
 from termcolor import colored
 import signal
 import locale
@@ -25,6 +31,7 @@ def check_exist(path: str) -> str:
 # Load the config file
 BASE_PATH = dirname(realpath(__file__))
 CONFIG_PATH = f"{BASE_PATH}/config.ini"
+
 config = configparser.ConfigParser()
 config.read(check_exist(CONFIG_PATH))
 
@@ -108,6 +115,7 @@ def custom_input(prompt: str) -> str:
         data = input(prompt)
         if data:
             if data.lower() in ("exit", "quit", "bye"):
+                save_chat()
                 sys.exit(0)
             return data
         print(coloring("yellow", "red", warning="Don't leave it empty, please :)"))
@@ -127,6 +135,14 @@ def print_costs(
     )
     coloring(None, "green", tokens_used=used_tokens, chat_cost=conversation_cost)
 
+def save_chat():
+    save_chat = input(info_msg("Press 'ENTER' to quit or 's' to save this chat to the current directory."))
+    if save_chat.lower() == "s":
+        file_name = "messages.json"
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        saved_chat = f"{os.path.splitext(file_name)[0]}_{timestamp}{os.path.splitext(file_name)[1]}"
+        shutil.copy(file_name, saved_chat)
+        print(f"Chat conversation saved to {saved_chat}")
 
 def chat():
     openai.api_key = API_TOKEN
