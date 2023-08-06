@@ -13,15 +13,15 @@ from termcolor import colored
 
 def fetch_api_token() -> str:
     token: str = config["chat"]["api_token"]
-    if token:
-        return token
-    error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
+    if not token:
+        error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
+    return token
 
 
 def check_exist(path: str) -> str:
-    if os.path.isfile(path):
-        return path
-    error_msg(f"No such file as - {path}")
+    if not os.path.exists(path):
+        error_msg(f"No such file as - {path}")
+    return path
 
 
 # Load the config file
