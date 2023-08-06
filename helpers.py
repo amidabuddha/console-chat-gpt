@@ -102,12 +102,14 @@ def print_costs(
 
 
 def save_chat():
-    save_chat = input(
-        info_msg(
-            "Press 'ENTER' to quit or 's' to save this chat to the current directory."
-        )
-    )
-    if save_chat.lower() == "s":
+    if (
+        input(
+            info_msg(
+                "Press 'ENTER' to quit or 's' to save this chat to the current directory."
+            )
+        ).lower()
+        == "s"
+    ):
         file_name = "messages.json"
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         saved_chat = f"{os.path.splitext(file_name)[0]}_{timestamp}{os.path.splitext(file_name)[1]}"
