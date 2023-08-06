@@ -49,7 +49,7 @@ The intention and implementation of this code are entirely unconnected and unrel
 
 4. Get your API key from [HERE](https://platform.openai.com/account/api-keys)
 
-5. Copy `config.ini.sample` into `config.ini`, replace the text "YOUR_OPENAI_API_KEY" with your API key and save the new config file. Feel free to change any of the other defaults as per your needs.
+5. Copy `config.toml.sample` into `config.toml`, replace the text "YOUR_OPENAI_API_KEY" with your API key and save the new config file. Feel free to change any of the other defaults as per your needs.
 
 6. Run the executable:
 
