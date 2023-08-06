@@ -1,4 +1,3 @@
-import configparser
 import json
 import locale
 import os
@@ -10,10 +9,7 @@ import openai
 from termcolor import colored
 import signal
 import locale
-import configparser
-import json
-from os.path import dirname, realpath, isfile
-
+import toml
 
 def fetch_api_token() -> str:
     token: str = chat_section.get("API_TOKEN")
@@ -21,19 +17,16 @@ def fetch_api_token() -> str:
         return token
     error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
 
-
 def check_exist(path: str) -> str:
-    if isfile(path):
+    if os.path.isfile(path):
         return path
     error_msg(f"No such file as - {path}")
 
-
 # Load the config file
-BASE_PATH = dirname(realpath(__file__))
-CONFIG_PATH = f"{BASE_PATH}/config.ini"
+BASE_PATH = os.path.dirname(os.path.realpath(__file__))
+CONFIG_PATH = f"{BASE_PATH}/config.toml"
 
-config = configparser.ConfigParser()
-config.read(check_exist(CONFIG_PATH))
+config = toml.load(check_exist(CONFIG_PATH))
 
 # Config Sections
 chat_section = config["CHAT"]
@@ -50,12 +43,8 @@ API_TOKEN = fetch_api_token()
 CHAT_MODEL = chat_section.get("MODEL")
 CHAT_TEMPERATURE = float(chat_section.get("TEMPERATURE"))
 CHAT_MODEL_INPUT_PRICING_PER_1K = float(chat_section.get("MODEL_INPUT_PRICING_PER_1K"))
-CHAT_MODEL_OUTPUT_PRICING_PER_1K = float(
-    chat_section.get("MODEL_OUTPUT_PRICING_PER_1K")
-)
+CHAT_MODEL_OUTPUT_PRICING_PER_1K = float(chat_section.get("MODEL_OUTPUT_PRICING_PER_1K"))
 
-config = configparser.ConfigParser()
-config.read(CONFIG_PATH)
 locale.setlocale(locale.LC_ALL, "")
 
 
