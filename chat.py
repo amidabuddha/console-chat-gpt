@@ -5,11 +5,11 @@ import shutil
 import signal
 import sys
 from datetime import datetime
+
 import openai
-from termcolor import colored
-import signal
-import locale
 import toml
+from termcolor import colored
+
 
 def fetch_api_token() -> str:
     token: str = chat_section.get("API_TOKEN")
@@ -17,10 +17,12 @@ def fetch_api_token() -> str:
         return token
     error_msg(f"Please make sure that the API token is inside {CONFIG_PATH}")
 
+
 def check_exist(path: str) -> str:
     if os.path.isfile(path):
         return path
     error_msg(f"No such file as - {path}")
+
 
 # Load the config file
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -43,7 +45,9 @@ API_TOKEN = fetch_api_token()
 CHAT_MODEL = chat_section.get("MODEL")
 CHAT_TEMPERATURE = float(chat_section.get("TEMPERATURE"))
 CHAT_MODEL_INPUT_PRICING_PER_1K = float(chat_section.get("MODEL_INPUT_PRICING_PER_1K"))
-CHAT_MODEL_OUTPUT_PRICING_PER_1K = float(chat_section.get("MODEL_OUTPUT_PRICING_PER_1K"))
+CHAT_MODEL_OUTPUT_PRICING_PER_1K = float(
+    chat_section.get("MODEL_OUTPUT_PRICING_PER_1K")
+)
 
 locale.setlocale(locale.LC_ALL, "")
 
@@ -99,6 +103,7 @@ def handle_code(text: str) -> str:
         skip_add = False
     return "\n".join([x for x in result if x])
 
+
 def custom_input(prompt: str) -> str:
     while True:
         data = input(prompt)
@@ -124,14 +129,20 @@ def print_costs(
     )
     coloring(None, "green", tokens_used=used_tokens, chat_cost=conversation_cost)
 
+
 def save_chat():
-    save_chat = input(info_msg("Press 'ENTER' to quit or 's' to save this chat to the current directory."))
+    save_chat = input(
+        info_msg(
+            "Press 'ENTER' to quit or 's' to save this chat to the current directory."
+        )
+    )
     if save_chat.lower() == "s":
         file_name = "messages.json"
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         saved_chat = f"{os.path.splitext(file_name)[0]}_{timestamp}{os.path.splitext(file_name)[1]}"
         shutil.copy(file_name, saved_chat)
         print(f"Chat conversation saved to {saved_chat}")
+
 
 def chat():
     openai.api_key = API_TOKEN
