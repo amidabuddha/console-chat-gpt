@@ -1,3 +1,6 @@
+import sys
+
+
 def replace_special_characters(filename):
     # Read the contents of the file and replace special characters
     with open(filename, 'r') as file:
@@ -10,8 +13,12 @@ def replace_special_characters(filename):
 
     print(f"Success! Modified content saved in {new_filename}")
 
-# Prompt the user for the filename
-filename = input("Enter the filename: ")
+
+# Get the filename as an argument
+if len(sys.argv) < 2:
+    print("Please provide the filename as an argument.")
+else:
+    filename = sys.argv[1]
 
 # Call the function
 replace_special_characters(filename)
