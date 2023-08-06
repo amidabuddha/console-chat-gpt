@@ -1,11 +1,15 @@
-import os
-import openai
-import sys
-from termcolor import colored
-import signal
-import locale
 import configparser
 import json
+import locale
+import os
+import shutil
+import signal
+import sys
+from datetime import datetime
+
+import openai
+from termcolor import colored
+
 
 # Global Variables
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -13,11 +17,12 @@ CONFIG_PATH = f"{BASE_PATH}/config.ini"
 USER_PROMPT_COLOR = "blue"
 ASSISTANT_PROMPT_COLOR = "yellow"
 ASSISTANT_RESPONSE_COLOR = "cyan"
+CODE_COLOR = "red"
 CHAT_MODEL = "gpt-3.5-turbo"
-CHAT_TEMPERATURE = 1
 CHAT_MODEL_INPUT_PRICING_PER_1K = 0.0015
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = 0.002
-CODE_COLOR = "red"
+CHAT_TEMPERATURE = 1
+
 
 config = configparser.ConfigParser()
 config.read(CONFIG_PATH)
@@ -85,6 +90,7 @@ def custom_input(prompt: str) -> str:
         data = input(prompt)
         if data:
             if data.lower() in ("exit", "quit", "bye"):
+                save_chat()
                 sys.exit(0)
             return data
         print(coloring("yellow", "red", warning="Don't leave it empty, please :)"))
@@ -96,6 +102,14 @@ def print_costs(used_tokens, conversation_prompt_tokens, conversation_completion
     conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
     coloring(None, "green", tokens_used=used_tokens, chat_cost=conversation_cost)
 
+def save_chat():
+    save_chat = input(info_msg("Press 'ENTER' to quit or 's' to save this chat to the current directory."))
+    if save_chat == "s":
+        file_name = "messages.json"
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        saved_chat = f"{os.path.splitext(file_name)[0]}_{timestamp}{os.path.splitext(file_name)[1]}"
+        shutil.copy(file_name, saved_chat)
+        print(f"Chat conversation saved to {saved_chat}")
 
 def chat():
     openai.api_key = fetch_token()
