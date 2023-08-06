@@ -2,3 +2,4 @@
 *.json
 *.txt
 !requirements.txt
+config.ini
