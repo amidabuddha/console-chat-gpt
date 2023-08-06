@@ -14,6 +14,7 @@ USER_PROMPT_COLOR = "blue"
 ASSISTANT_PROMPT_COLOR = "yellow"
 ASSISTANT_RESPONSE_COLOR = "cyan"
 CHAT_MODEL = "gpt-3.5-turbo"
+CHAT_TEMPERATURE = 1
 CHAT_MODEL_INPUT_PRICING_PER_1K = 0.0015
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = 0.002
 CODE_COLOR = "red"
@@ -130,6 +131,19 @@ def chat():
 
         conversation = [{"role": "system", "content": system_role}]
     
+    custom_temperature = input(info_msg("Enter a value between 0 and 2 to define chat output randomness or press 'ENTER' for the default setting (1): "))
+    if not custom_temperature:
+        chat_temperature = CHAT_TEMPERATURE
+    else:
+        try:
+            chat_temperature = int(custom_temperature)
+        except ValueError as e:
+            try:
+                chat_temperature = float(custom_temperature)
+            except ValueError as e:
+                print("Incorrect value:", e)
+                sys.exit(1)
+
     conversation_tokens = 0
     conversation_prompt_tokens = 0
     conversation_completions_tokens = 0
@@ -172,7 +186,7 @@ def chat():
                 
         user_message = {"role": "user", "content": user_prompt}
         conversation.append(user_message)
-        response = openai.ChatCompletion.create(model=CHAT_MODEL, messages=conversation)
+        response = openai.ChatCompletion.create(model=CHAT_MODEL, messages=conversation, temperature=chat_temperature)
         assistant_message = response.choices[0].message
         assistant_response = dict(role="assistant", content=assistant_message["content"])
         conversation.append(assistant_response)
