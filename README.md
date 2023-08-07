@@ -1,6 +1,6 @@
 <div align="center">
 
-# consoleChatGPT
+# console-chat-gpt
 
 The ultimate command line interface for chatting with the ChatGPT! Save time and effort with this simple yet effective tool.
 
@@ -26,19 +26,19 @@ The intention and implementation of this code are entirely unconnected and unrel
 1. Clone the repository:
 
    ```shell
-   git clone https://github.com/amidabuddha/consoleChatGPT.git
+   git clone https://github.com/amidabuddha/console-chat-gpt.git
    ```
 
 2. Go inside the folder:
 
    ```shell
-   cd consoleChatGPT
+   cd console-chat-gpt
    ```
 
    - Note that if the alias is missing on Windows you should use:
 
    ```shell
-   Set-Location "consoleChatGPT"
+   Set-Location "console-chat-gpt"
    ```
 
 3. Install the necessary dependencies:
