@@ -9,6 +9,7 @@ import toml
 from termcolor import colored
 
 import helpers
+import styling
 
 # Load the config file
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -35,7 +36,7 @@ locale.setlocale(locale.LC_ALL, "")
 def chat():
     openai.api_key = API_TOKEN
     continue_chat = input(
-        helpers.info_msg(
+        styling.info_msg(
             "Press 'ENTER' for a new chat, or the full name of the json file holding previous messages list: "
         )
     )
@@ -57,7 +58,7 @@ def chat():
                     sys.exit(1)
             else:
                 continue_chat = input(
-                    helpers.info_msg(
+                    styling.info_msg(
                         (
                             f"The file '{continue_chat}' does not exist in the current directory. Enter a valid file name or press 'ENTER' to abort: "
                         )
@@ -68,7 +69,7 @@ def chat():
     else:
         default_system_role = config["chat"]["default_system_role"]
         custom_system_role = input(
-            helpers.info_msg(
+            styling.info_msg(
                 "Define assistant behavior or press 'ENTER' for the default setting: "
             )
         )
@@ -81,7 +82,7 @@ def chat():
         conversation = [{"role": "system", "content": system_role}]
 
     custom_temperature = input(
-        helpers.info_msg(
+        styling.info_msg(
             "Enter a value between 0 and 2 to define chat output randomness or press 'ENTER' for the default setting (1): "
         )
     )
@@ -120,6 +121,9 @@ def chat():
             print("\tcost - Display conversation costs.")
             print("\tfile - Process a file.")
             print("\texit - Exit the program.")
+            print("")
+            print("\thelp - Display this help message.")
+            print("\tcommands - Display this list of commands.")
             continue
 
         if user_prompt.lower() == "file":
@@ -140,7 +144,7 @@ def chat():
                         break
                 else:
                     another_try = input(
-                        helpers.info_msg(
+                        styling.info_msg(
                             (
                                 f"The file '{file_prompt}' does not exist in the current directory. Press ENTER to try again or any other key to abort."
                             )
@@ -169,10 +173,10 @@ def chat():
             json.dump(conversation, log_file, indent=4)
 
         print(
-            helpers.coloring(
+            styling.coloring(
                 ASSISTANT_PROMPT_COLOR,
                 ASSISTANT_RESPONSE_COLOR,
-                assistant=helpers.handle_code(assistant_message["content"], CODE_COLOR),
+                assistant=styling.handle_code(assistant_message["content"], CODE_COLOR),
             )
         )
 
