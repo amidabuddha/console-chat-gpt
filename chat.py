@@ -113,7 +113,7 @@ def chat():
     conversation_completions_tokens = 0
 
     while True:
-        user_prompt = helpers.custom_input(colored("User: ", USER_PROMPT_COLOR))
+        user_prompt = helpers.custom_input(colored("\nUser: ", USER_PROMPT_COLOR))
         # TODO: Replace IF statements with case and increase Python requirement to 3.10+
         if user_prompt.lower() == "cost":
             helpers.print_costs(
