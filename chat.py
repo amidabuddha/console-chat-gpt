@@ -16,6 +16,7 @@ BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
 
 config = toml.load(helpers.check_exist(CONFIG_PATH))
+roles = config["chat"]["roles"].keys()
 
 # Color settings
 USER_PROMPT_COLOR = config["colors"]["user_prompt"]
@@ -68,22 +69,31 @@ def chat():
                     sys.exit(0)
     else:
         default_system_role = config["chat"]["default_system_role"]
-        custom_system_role = input(
+        print(
             styling.info_msg(
-                "Define assistant behavior or press 'ENTER' for the default setting: "
+                f"\nDefine assistant behavior below or press 'ENTER' for the default role \"{default_system_role}\""
             )
         )
-
+        role_list = {}
+        for role in roles:
+            role_list[role[0]] = role
+            print(styling.info_msg(f"({role[0]}){role[1:]}"))
+        custom_system_role = input(
+            styling.info_msg(
+                "To use any of the listed enter the desired role name first letter.\nTo specify a custom behavior yourself please enter a detailed role description: "
+            )
+        )
         if not custom_system_role:
-            system_role = default_system_role
+            system_role = config["chat"]["roles"][default_system_role]
+        elif custom_system_role in role_list:
+            system_role = config["chat"]["roles"][role_list[custom_system_role]]
         else:
             system_role = custom_system_role
-
         conversation = [{"role": "system", "content": system_role}]
 
     custom_temperature = input(
         styling.info_msg(
-            "Enter a value between 0 and 2 to define chat output randomness or press 'ENTER' for the default setting (1): "
+            "\nEnter a value between 0 and 2 to define chat output randomness or press 'ENTER' for the default setting (1): "
         )
     )
     if not custom_temperature:
