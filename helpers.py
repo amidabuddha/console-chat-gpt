@@ -1,14 +1,16 @@
+import json
 import locale
 import os
+import string
 import sys
 from datetime import datetime
-from simple_term_menu import TerminalMenu
-from termcolor import colored
-import json
-import styling
-import string
+
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter
+from simple_term_menu import TerminalMenu
+from termcolor import colored
+
+import styling
 
 
 def fetch_api_token(token: str, path: str) -> str:
@@ -17,7 +19,9 @@ def fetch_api_token(token: str, path: str) -> str:
     config.toml
     """
     if not token:
-        styling.custom_print("error", f"Please make sure that the API token is inside {path}", 1)
+        styling.custom_print(
+            "error", f"Please make sure that the API token is inside {path}", 1
+        )
     return token
 
 
@@ -31,19 +35,24 @@ def check_exist(path: str) -> str:
 
 
 def print_costs(
-        conversation_tokens: float,
-        conversation_prompt_tokens: float,
-        conversation_completions_tokens: float,
-        input_cost: float,
-        output_cost: float):
+    conversation_tokens: float,
+    conversation_prompt_tokens: float,
+    conversation_completions_tokens: float,
+    input_cost: float,
+    output_cost: float,
+):
     """
     Calculates the price for the given conversation.
     Prints the total used tokens and price.
     """
     conversation_prompt_cost = conversation_prompt_tokens * input_cost / 1000
     conversation_completions_cost = conversation_completions_tokens * output_cost / 1000
-    conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
-    styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)
+    conversation_cost = locale.currency(
+        (conversation_prompt_cost + conversation_completions_cost), grouping=True
+    )
+    styling.coloring(
+        None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost
+    )
 
 
 def help_info():
@@ -57,10 +66,10 @@ def help_info():
         "save - Save the current convo.",
         "",
         "help - Display this help message.",
-        "commands - Display this list of commands."
+        "commands - Display this list of commands.",
     ]
     print("You can use the following commands:")
-    print('\n'.join(f'\t{command}' for command in commands))
+    print("\n".join(f"\t{command}" for command in commands))
 
 
 def handle_base_menu(opt: str):
@@ -91,7 +100,7 @@ def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str
     enum_options = []
     counter = 1
     letters_counter = 0
-    options = base_options + default_options
+    options = ["Skip"] + base_options + ["Exit"]
     for opt in options:
         match opt:
             case "Skip":
@@ -103,7 +112,9 @@ def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str
                     enum_options.append("[{}] {}".format(counter, opt))
                     counter += 1
                 else:
-                    letters = [x for x in list(string.ascii_lowercase) if x not in ["s", "x"]]
+                    letters = [
+                        x for x in list(string.ascii_lowercase) if x not in ["s", "x"]
+                    ]
                     enum_options.append("[{}]{}".format(letters[letters_counter], opt))
                     letters_counter += 1
     terminal_menu = TerminalMenu(enum_options, title=title)
@@ -150,7 +161,10 @@ def continue_chat_menu(chat_path: str):
     all_chats = os.listdir(chat_path)
     if not len(all_chats):
         return continue_chat("Skip", chat_path)
-    return continue_chat(base_chat_menu("Would you like to continue a previous chat?:", all_chats), chat_path)
+    return continue_chat(
+        base_chat_menu("Would you like to continue a previous chat?:", all_chats),
+        chat_path,
+    )
 
 
 def roles_chat_menu(roles: dict, default_role: str) -> str:
@@ -162,7 +176,9 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
     roles_names.append("Add New")
     selected_role = base_chat_menu("Select a role:", roles_names, add_nums=False)
     if selected_role == "Add New":
-        return input(colored("Your custom role: ", "blue"))
+        return input(
+            colored("Enter a detailed description of your custom role: ", "blue")
+        )
     role = roles.get(selected_role)
     if not role:
         return roles.get(default_role)
@@ -173,17 +189,31 @@ def handle_temperature(default_temperature: float) -> float:
     """
     Handles the chat temperature (randomness).
     """
-    correct_temp = False
     temp = ""
-    styling.custom_print("info", "Enter a value between 0 and 2 to define chat output randomness")
-    while not correct_temp:
+    lines = 1
+    styling.custom_print(
+        "info", "Enter a value between 0 and 2 to define chat output randomness"
+    )
+    while True:
         try:
-            temp = input(styling.colored("Press 'ENTER' for the default setting (1): ", "blue"))
+            temp = input(
+                styling.colored(
+                    f"Press 'ENTER' for the default setting ({default_temperature}): ",
+                    "blue",
+                )
+            )
             float_temp = float(temp)
             if 2 >= float_temp >= 0:
+                lines += 1
+                for line in range(lines):
+                    print("\033[F\033[K", end="")
                 return float(float_temp)
+            lines += 1
         except ValueError:
+            lines += 1
             if temp == "":
+                for line in range(lines):
+                    print("\033[F\033[K", end="")
                 return default_temperature
             continue
 
@@ -204,7 +234,9 @@ def file_prompt():
                 user_prompt = file.read()
             return user_prompt
     except KeyboardInterrupt:
-        styling.custom_print("info", "Cancelled the file selection, continuing with the chat.")
+        styling.custom_print(
+            "info", "Cancelled the file selection, continuing with the chat."
+        )
         return False
 
 
@@ -214,13 +246,19 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     """
     if ask:
         while True:
-            agreement = input(colored("Would you like to save the chat before you go? y/n: ", "yellow")).lower()
-            if agreement == "n":
+            agreement = input(
+                colored(
+                    "Would you like to save the chat before you go? y/n: ", "yellow"
+                )
+            ).lower()
+            if agreement == "n" or not agreement:
                 styling.custom_print("info", "Goodbye! :)")
                 sys.exit(0)
             elif agreement == "y":
                 break
-    chat_name = input(colored("Give a name to the chat or hit 'Enter' for default name: ", "yellow"))
+    chat_name = input(
+        colored("Give a name to the chat or hit 'Enter' for default name: ", "yellow")
+    )
     if not chat_name:
         base_name = "messages"
         timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
