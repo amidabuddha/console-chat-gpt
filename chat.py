@@ -1,7 +1,6 @@
 import json
 import locale
 import os
-import signal
 import sys
 
 import openai
@@ -14,9 +13,11 @@ import styling
 # Load the config file
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
+CHATS_PATH = os.path.join(BASE_PATH, "chats")
 
 config = toml.load(helpers.check_exist(CONFIG_PATH))
-roles = config["chat"]["roles"].keys()
+ALL_ROLES: dict = config["chat"]["roles"]
+DEFAULT_ROLE = config["chat"]["default_system_role"]
 
 # Color settings
 USER_PROMPT_COLOR = config["colors"]["user_prompt"]
@@ -35,133 +36,59 @@ locale.setlocale(locale.LC_ALL, "")
 
 
 def chat():
+    chat_temperature = CHAT_TEMPERATURE
     openai.api_key = API_TOKEN
-    continue_chat = input(
-        styling.info_msg(
-            "Press 'ENTER' for a new chat, or the full name of the json file holding previous messages list: "
-        )
-    )
+    continue_chat = helpers.continue_chat_menu(CHATS_PATH)
     if continue_chat:
-        while True:
-            if not continue_chat.endswith(".json"):
-                continue_chat += ".json"
-            file_path = os.path.join(BASE_PATH, continue_chat)
-            if os.path.isfile(file_path):
-                try:
-                    with open(file_path, "r") as file:
-                        conversation = json.load(file)
-                        break
-                except json.JSONDecodeError as e:
-                    print("Error decoding JSON:", e)
-                    sys.exit(1)
-                except Exception as e:
-                    print("Error:", e)
-                    sys.exit(1)
-            else:
-                continue_chat = input(
-                    styling.info_msg(
-                        (
-                            f"The file '{continue_chat}' does not exist in the current directory. Enter a valid file name or press 'ENTER' to abort: "
-                        )
-                    )
-                )
-                if not continue_chat:
-                    sys.exit(0)
+        conversation = continue_chat
     else:
-        default_system_role = config["chat"]["default_system_role"]
-        print(
-            styling.info_msg(
-                f"\nDefine assistant behavior below or press 'ENTER' for the default role \"{default_system_role}\""
-            )
-        )
-        role_list = {}
-        for role in roles:
-            role_list[role[0]] = role
-            print(styling.info_msg(f"({role[0]}){role[1:]}"))
-        custom_system_role = input(
-            styling.info_msg(
-                "To use any of the listed enter the desired role name first letter.\nTo specify a custom behavior yourself please enter a detailed role description: "
-            )
-        )
-        if not custom_system_role:
-            system_role = config["chat"]["roles"][default_system_role]
-        elif custom_system_role in role_list:
-            system_role = config["chat"]["roles"][role_list[custom_system_role]]
-        else:
-            system_role = custom_system_role
-        conversation = [{"role": "system", "content": system_role}]
-
-    custom_temperature = input(
-        styling.info_msg(
-            "\nEnter a value between 0 and 2 to define chat output randomness or press 'ENTER' for the default setting (1): "
-        )
-    )
-    if not custom_temperature:
-        chat_temperature = CHAT_TEMPERATURE
-    else:
-        try:
-            chat_temperature = float(custom_temperature)
-            if chat_temperature < 0 or chat_temperature > 2:
-                print("Value outside of allowed range!")
-                sys.exit(0)
-        except ValueError as e:
-            print("Incorrect value:", e)
-            sys.exit(1)
+        role = helpers.roles_chat_menu(ALL_ROLES, DEFAULT_ROLE)
+        conversation = [{"role": "system", "content": role}]
+        chat_temperature = helpers.handle_temperature(CHAT_TEMPERATURE)
 
     conversation_tokens = 0
     conversation_prompt_tokens = 0
     conversation_completions_tokens = 0
 
     while True:
-        user_prompt = helpers.custom_input(colored("\nUser: ", USER_PROMPT_COLOR))
-        # TODO: Replace IF statements with case and increase Python requirement to 3.10+
-        if user_prompt.lower() == "cost":
-            helpers.print_costs(
-                conversation_tokens,
-                conversation_prompt_tokens,
-                conversation_completions_tokens,
-                CHAT_MODEL_INPUT_PRICING_PER_1K,
-                CHAT_MODEL_OUTPUT_PRICING_PER_1K,
-            )
-            continue
-
-        if user_prompt.lower() in ["help", "commands"]:
-            helpers.help_info()
-            continue
-
-        if user_prompt.lower() == "file":
-            skip = False
-            while not skip:
-                file_prompt = helpers.custom_input(
-                    colored(
-                        "Enter the desired filename to pass its content as prompt: ",
-                        USER_PROMPT_COLOR,
+        try:
+            user_input = input(colored("User: ", USER_PROMPT_COLOR))
+        except KeyboardInterrupt:
+            print()
+            helpers.save_chat(CHATS_PATH, conversation, ask=True)
+            sys.exit(1)
+        match user_input.lower():
+            case "help" | "commands":
+                helpers.help_info()
+                continue
+            case "cost":
+                helpers.print_costs(
+                    conversation_tokens,
+                    conversation_prompt_tokens,
+                    conversation_completions_tokens,
+                    CHAT_MODEL_INPUT_PRICING_PER_1K,
+                    CHAT_MODEL_OUTPUT_PRICING_PER_1K,
+                )
+                continue
+            case "file":
+                user_input = helpers.file_prompt()
+                if not user_input:
+                    continue
+            case "save":
+                helpers.save_chat(CHATS_PATH, conversation)
+                continue
+            case "exit" | "quit" | "bye":
+                helpers.save_chat(CHATS_PATH, conversation, ask=True)
+                sys.exit(0)
+            case "":
+                print(
+                    styling.coloring(
+                        "yellow", "red", warning="Don't leave it empty, please :)"
                     )
                 )
-                file_path = os.path.join(BASE_PATH, file_prompt)
-
-                if os.path.isfile(file_path):
-                    with open(file_path, "r") as file:
-                        user_prompt = file.read()
-                        file.close()
-                        break
-                else:
-                    another_try = input(
-                        styling.info_msg(
-                            (
-                                f"The file '{file_prompt}' does not exist in the current directory. Press ENTER to try again or any other key to abort."
-                            )
-                        )
-                    )
-                    if not another_try:
-                        continue
-                    else:
-                        skip = True
-                        break
-            if skip:
                 continue
 
-        user_message = {"role": "user", "content": user_prompt}
+        user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
         response = openai.ChatCompletion.create(
             model=CHAT_MODEL, messages=conversation, temperature=chat_temperature
@@ -171,10 +98,8 @@ def chat():
             role="assistant", content=assistant_message["content"]
         )
         conversation.append(assistant_response)
-
         with open("messages.json", "w", encoding="utf-8") as log_file:
             json.dump(conversation, log_file, indent=4, ensure_ascii=False)
-
         print(
             styling.coloring(
                 ASSISTANT_PROMPT_COLOR,
@@ -189,6 +114,7 @@ def chat():
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, helpers.signal_handler)
-    chat()
-    signal.pause()
+    try:
+        chat()
+    except KeyboardInterrupt:
+        print("Cashd")

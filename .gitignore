@@ -4,3 +4,5 @@
 !requirements.txt
 config.toml
 __pycache__
+chats
+v1_chat.py
