@@ -126,14 +126,7 @@ def chat():
             continue
 
         if user_prompt.lower() in ["help", "commands"]:
-            # TODO: Make it more comprehensive
-            print("You can use the following commands:")
-            print("\tcost - Display conversation costs.")
-            print("\tfile - Process a file.")
-            print("\texit - Exit the program.")
-            print("")
-            print("\thelp - Display this help message.")
-            print("\tcommands - Display this list of commands.")
+            helpers.help_info()
             continue
 
         if user_prompt.lower() == "file":
