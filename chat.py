@@ -21,7 +21,7 @@ if not os.path.exists(CONFIG_PATH):
 if not os.path.exists(CHATS_PATH):
     os.mkdir(CHATS_PATH)
 
-# Chat settings
+# Conversation settings
 config = toml.load(helpers.check_exist(CONFIG_PATH))
 ALL_ROLES: dict = config["chat"]["roles"]
 DEFAULT_ROLE = config["chat"]["default_system_role"]
@@ -40,7 +40,7 @@ CHAT_TEMPERATURE = config["chat"]["temperature"]
 CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model_input_pricing_per_1k"]
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model_output_pricing_per_1k"]
 
-locale.setlocale(locale.LC_ALL, "")
+locale.setlocale(locale.LC_ALL, "en_US")
 
 
 def chat():
