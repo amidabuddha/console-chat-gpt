@@ -82,6 +82,10 @@ def chat():
                 user_input = helpers.file_prompt()
                 if not user_input:
                     continue
+            case "format":
+                user_input = helpers.format()
+                if not user_input:
+                    continue
             case "save":
                 helpers.save_chat(CHATS_PATH, conversation)
                 continue

@@ -54,9 +54,10 @@ def help_info():
     """
     commands = [
         "cost - Display conversation costs.",
-        "file - Process a file.",
+        "file - Submit long text from a file to the chat.",
+        "format - Format multiline pasted text to a single line before seding to the chat.",
+        "save - Save the current conversation to a file.",
         "exit - Exit the program.",
-        "save - Save the current convo.",
         "",
         "help - Display this help message.",
         "commands - Display this list of commands.",
@@ -183,7 +184,7 @@ def handle_temperature(default_temperature: float) -> float:
     styling.custom_print("info", "Enter a value between 0 and 2 to define chat output randomness")
     while True:
         try:
-            temp = input(styling.colored(f"Press 'ENTER' for the default setting ({default_temperature}): ", "blue", ))
+            temp = input(colored(f"Press 'ENTER' for the default setting ({default_temperature}): ", "blue", ))
             float_temp = float(temp)
             if 2 >= float_temp >= 0:
                 lines += 1
@@ -214,11 +215,27 @@ def file_prompt():
                 continue
             with open(user_input, "r") as file:
                 user_prompt = file.read()
+                user_prompt.replace('\n', '\\n').replace('\"', '\\\"')
+                context = input(colored("Add any additional clarification in front of the submitted text or press 'ENTER' to continue: ", "blue"))
+                if context:
+                    user_prompt = context + ":\n" + user_prompt
             return user_prompt
     except KeyboardInterrupt:
         styling.custom_print("info", "Cancelled the file selection, continuing with the chat.")
         return False
 
+def format():
+    """
+    Formats a multiline chat input.
+    """
+    styling.custom_print("info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
+    content = sys.stdin.read()
+    if content:
+        content.replace('\n', '\\n').replace('\"', '\\\"')
+        context = input(colored("Add any additional clarification in front of the formatted text or press 'ENTER' to continue: ", "blue"))
+        if context:
+            content = context + ":\n" + content
+    return content
 
 def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     """
@@ -245,3 +262,4 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(conversation, file, indent=4, ensure_ascii=False)
     styling.custom_print("ok", f"File saved at - {file_path}")
+    
