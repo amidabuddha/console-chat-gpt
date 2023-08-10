@@ -1,8 +1,13 @@
 <div align="center">
 
-# console-chat-gpt
+<h1>
 
-The ultimate command line interface for chatting with the ChatGPT! Save time and effort with this simple yet effective tool.
+console-chat-gpt
+
+</h1>
+
+The ultimate command line interface for chatting with the ChatGPT! Save time and effort with this simple yet effective
+tool.
 
 <h3>
 
@@ -10,17 +15,33 @@ The ultimate command line interface for chatting with the ChatGPT! Save time and
 
 </h3>
 
+ <h4 align="center">
+  <a href="https://github.com/amidabuddha/consoleChatGPT/blob/main/LICENSE.md">
+  <img src="https://img.shields.io/github/license/amidabuddha/consoleChatGPT" alt="Released under the Apache license." />
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Working on Python 3.10+" />
+  <img src="https://img.shields.io/github/stars/amidabuddha/consoleChatGPT"/>
+  <img src="http://hits.dwyl.com/amidabuddha/consoleChatGPT.svg"/>
+  <img src="https://img.shields.io/github/issues/amidabuddha/consoleChatGPT"/>
+  <img src="https://img.shields.io/github/forks/amidabuddha/consoleChatGPT"/>
+  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-blue"/>
+</h4>
+
 </div>
 
+---
+### Table of content
 - [Installation and Usage](#installation-and-usage)
 - [How to submit long text with line breaks](#how-to-submit-long-text-with-line-breaks)
-  
+
 ---
 
-**DISCLAIMER:**
+<font color="pink">**DISCLAIMER:**</font>
 
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation or relationship with OpenAI in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation
+or relationship with OpenAI in any form.
 
+---
 ## Installation and Usage:
 The script should work fine in Linux and macOS terminals. There might be some libraries that are currenlty not supported on Windows, the recommneded use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
 
