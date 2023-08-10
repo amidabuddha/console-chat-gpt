@@ -46,6 +46,11 @@ The intention and implementation of this code are entirely unconnected and unrel
    ```shell
    python3 -m pip install -r requirements.txt
    ```
+      - On Windows you may have to use:
+
+   ```shell
+   python.exe -m pip install -r requirements.txt
+   ```
 
 4. Get your API key from [HERE](https://platform.openai.com/account/api-keys)
 
