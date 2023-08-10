@@ -160,10 +160,14 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
     If you don't like them, you can create your own.
     """
     roles_names = list(roles.keys())
-    roles_names.append("Add New")
-    selected_role = base_chat_menu("Select a role:", roles_names, add_nums=False)
-    if selected_role == "Add New":
-        return input(colored("Enter a detailed description of your custom role: ", "blue"))
+    roles_names.remove(default_role)
+    roles_names.append("Add New system behavior")
+    selected_role = base_chat_menu(f"Select a role or skip to use the default one \"{default_role}\":", roles_names, add_nums=False)
+    if selected_role == "Add New system behavior":
+        try:
+            return input(colored("Enter a detailed description of your custom role: ", "blue"))
+        except KeyboardInterrupt:
+            styling.custom_print("info", "Cancelled the custom role creation, continuing with the chat.")
     role = roles.get(selected_role)
     if not role:
         return roles.get(default_role)
