@@ -81,11 +81,7 @@ def chat():
                 helpers.save_chat(CHATS_PATH, conversation, ask=True)
                 sys.exit(0)
             case "":
-                print(
-                    styling.coloring(
-                        "yellow", "red", warning="Don't leave it empty, please :)"
-                    )
-                )
+                styling.custom_print("warn", "Don't leave it empty, please :)")
                 continue
 
         user_message = {"role": "user", "content": user_input}
@@ -117,4 +113,4 @@ if __name__ == "__main__":
     try:
         chat()
     except KeyboardInterrupt:
-        print("Cashd")
+        styling.custom_print("error", "Caught interrupt!")

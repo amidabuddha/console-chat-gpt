@@ -2,6 +2,7 @@ import sys
 from termcolor import colored
 import re
 
+
 def coloring(*colors, **data) -> (str, None):
     """
     Accept colors as *args (*colors) - max 2
