@@ -228,14 +228,18 @@ def format():
     """
     Formats a multiline chat input.
     """
-    styling.custom_print("info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
-    content = sys.stdin.read()
-    if content:
-        content.replace('\n', '\\n').replace('\"', '\\\"')
-        context = input(colored("Add any additional clarification in front of the formatted text or press 'ENTER' to continue: ", "blue"))
-        if context:
-            content = context + ":\n" + content
-    return content
+    try:
+        styling.custom_print("info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
+        content = sys.stdin.read()
+        if content:
+            content.replace('\n', '\\n').replace('\"', '\\\"')
+            context = input(colored("Add any additional clarification in front of the formatted text or press 'ENTER' to continue: ", "blue"))
+            if context:
+                content = context + ":\n" + content
+        return content
+    except KeyboardInterrupt:
+        styling.custom_print("info", "Cancelled the multiline text, continuing with the chat.")
+
 
 def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     """
