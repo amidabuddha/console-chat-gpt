@@ -56,8 +56,8 @@ The script should work fine in Linux and macOS terminals. There might be some li
 
 ## How to submit long text with line breaks
 
-With source code or any other text with multiline content as input there are two helper commands that can submit it:
+With source code or any other text with multiline content as input there are the following helper commands available to submit it:
 
-1. format - this command will provide prompt to paste the content into the terminal
+`format` - this command will provide prompt to paste the content into the terminal
 
-2. file - this command may be used if the desired content is too long to be submitted via paste
+`file` - this command may be used if the desired content is too long to be submitted via paste
