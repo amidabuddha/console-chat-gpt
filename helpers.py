@@ -55,7 +55,7 @@ def help_info():
     commands = [
         "cost - Display conversation costs.",
         "file - Submit long text from a file to the chat.",
-        "format - Format multiline pasted text to a single line before seding to the chat.",
+        "format - Format multiline pasted text to a single line before sending to the chat.",
         "save - Save the current conversation to a file.",
         "exit - Exit the program.",
         "",
@@ -142,6 +142,7 @@ def continue_chat(selected_item: str, chat_path: str):
     full_path = os.path.join(chat_path, selected_item)
     return handle_json_files(full_path)
 
+
 def continue_chat_menu(chat_path: str):
     """
     Given a Base Path craws a subdir called "chats"
@@ -163,7 +164,8 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
     roles_names = list(roles.keys())
     roles_names.remove(default_role)
     roles_names.append("Add New system behavior")
-    selected_role = base_chat_menu(f"Select a role or skip to use the default one \"{default_role}\":", roles_names, add_nums=False)
+    selected_role = base_chat_menu(f'Select a role or skip to use the default one "{default_role}":', roles_names,
+                                   add_nums=False)
     if selected_role == "Add New system behavior":
         try:
             return input(colored("Enter a detailed description of your custom role: ", "blue"))
@@ -216,7 +218,9 @@ def file_prompt():
             with open(user_input, "r") as file:
                 user_prompt = file.read()
                 user_prompt.replace('\n', '\\n').replace('\"', '\\\"')
-                context = input(colored("Add any additional clarification in front of the submitted text or press 'ENTER' to continue: ", "blue"))
+                context = input(colored(
+                    "Add any additional clarification in front of the submitted text or press 'ENTER' to continue: ",
+                    "blue"))
                 if context:
                     user_prompt = context + ":\n" + user_prompt
             return user_prompt
@@ -224,7 +228,8 @@ def file_prompt():
         styling.custom_print("info", "Cancelled the file selection, continuing with the chat.")
         return False
 
-def format():
+
+def format_multiline():
     """
     Formats a multiline chat input.
     """
@@ -233,7 +238,9 @@ def format():
         content = sys.stdin.read()
         if content:
             content.replace('\n', '\\n').replace('\"', '\\\"')
-            context = input(colored("Add any additional clarification in front of the formatted text or press 'ENTER' to continue: ", "blue"))
+            context = input(colored(
+                "Add any additional clarification in front of the formatted text or press 'ENTER' to continue: ",
+                "blue"))
             if context:
                 content = context + ":\n" + content
         return content
@@ -266,4 +273,3 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(conversation, file, indent=4, ensure_ascii=False)
     styling.custom_print("ok", f"File saved at - {file_path}")
-    

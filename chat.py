@@ -83,7 +83,7 @@ def chat():
                 if not user_input:
                     continue
             case "format":
-                user_input = helpers.format()
+                user_input = helpers.format_multiline()
                 if not user_input:
                     continue
             case "save":
