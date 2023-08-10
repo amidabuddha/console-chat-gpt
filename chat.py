@@ -12,16 +12,14 @@ import styling
 
 # Load the config file
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
-if os.path.exists("config.toml"):
-    CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
-else:
-    styling.custom_print("error", "Please use the \"config.toml.sample\" to create your configuration.")
-    sys.exit(0)
-if os.path.exists("chats"):    
-    CHATS_PATH = os.path.join(BASE_PATH, "chats")
-else:
-    os.mkdir("chats")
-    CHATS_PATH = os.path.join(BASE_PATH, "chats")
+CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
+CHATS_PATH = os.path.join(BASE_PATH, "chats")
+
+if not os.path.exists(CONFIG_PATH):
+    styling.custom_print("error", 'Please use the "config.toml.sample" to create your configuration.', 1)
+
+if not os.path.exists(CHATS_PATH):
+    os.mkdir(CHATS_PATH)
 
 config = toml.load(helpers.check_exist(CONFIG_PATH))
 ALL_ROLES: dict = config["chat"]["roles"]

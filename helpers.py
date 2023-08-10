@@ -141,7 +141,6 @@ def continue_chat(selected_item: str, chat_path: str):
     full_path = os.path.join(chat_path, selected_item)
     return handle_json_files(full_path)
 
-
 def continue_chat_menu(chat_path: str):
     """
     Given a Base Path craws a subdir called "chats"
@@ -149,8 +148,6 @@ def continue_chat_menu(chat_path: str):
     the whole function.
     :return: a string which is later handled by continue_chat()
     """
-    if not os.path.exists(chat_path):
-        os.mkdir(chat_path)
     all_chats = os.listdir(chat_path)
     if not len(all_chats):
         return continue_chat("Skip", chat_path)
