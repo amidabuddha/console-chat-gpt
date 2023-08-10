@@ -40,7 +40,7 @@ CHAT_TEMPERATURE = config["chat"]["temperature"]
 CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model_input_pricing_per_1k"]
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model_output_pricing_per_1k"]
 
-locale.setlocale(locale.LC_ALL, "en_US")
+locale.setlocale(locale.LC_ALL, "en_US.utf8")
 
 
 def chat():
