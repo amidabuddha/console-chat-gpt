@@ -73,7 +73,9 @@ The script should work fine in Linux and macOS terminals. There might be some li
    python3 chat.py
    ```
 
-7. Enjoy
+7. Use the `help` command within the chat to check the available options.
+
+8. Enjoy
 
 ## How to submit long text with line breaks
 
