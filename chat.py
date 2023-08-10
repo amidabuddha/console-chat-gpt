@@ -21,9 +21,11 @@ if not os.path.exists(CONFIG_PATH):
 if not os.path.exists(CHATS_PATH):
     os.mkdir(CHATS_PATH)
 
+# Chat settings
 config = toml.load(helpers.check_exist(CONFIG_PATH))
 ALL_ROLES: dict = config["chat"]["roles"]
 DEFAULT_ROLE = config["chat"]["default_system_role"]
+DEBUG = config["chat"]["debug"]
 
 # Color settings
 USER_PROMPT_COLOR = config["colors"]["user_prompt"]
@@ -100,8 +102,9 @@ def chat():
             role="assistant", content=assistant_message["content"]
         )
         conversation.append(assistant_response)
-        with open("messages.json", "w", encoding="utf-8") as log_file:
-            json.dump(conversation, log_file, indent=4, ensure_ascii=False)
+        if DEBUG:
+            with open("messages.json", "w", encoding="utf-8") as log_file:
+                json.dump(conversation, log_file, indent=4, ensure_ascii=False)
         print(
             styling.coloring(
                 ASSISTANT_PROMPT_COLOR,
