@@ -111,7 +111,7 @@ def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str
     terminal_menu = TerminalMenu(enum_options, title=title)
     menu_entry_index = terminal_menu.show()
     if menu_entry_index is None:
-        styling.custom_print("error", "Keyboard interrupt or 'hack' detected", 1)
+        styling.custom_print("error", "Keyboard interrupt or 'hack' detected", 130)
     return handle_base_menu(options[menu_entry_index])
 
 
@@ -224,8 +224,7 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
         while True:
             agreement = input(colored("Would you like to save the chat before you go? y/n: ", "yellow")).lower()
             if agreement == "n" or not agreement:
-                styling.custom_print("info", "Goodbye! :)")
-                sys.exit(0)
+                styling.custom_print("info", "Goodbye! :)", 0)
             elif agreement == "y":
                 break
     chat_name = input(colored("Give a name to the chat or hit 'Enter' for default name: ", "yellow"))

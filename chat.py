@@ -16,7 +16,7 @@ CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
 CHATS_PATH = os.path.join(BASE_PATH, "chats")
 
 if not os.path.exists(CONFIG_PATH):
-    styling.custom_print("error", 'Please use the "config.toml.sample" to create your configuration.', 1)
+    styling.custom_print("error", 'Please use the "config.toml.sample" to create your configuration.', 2)
 
 if not os.path.exists(CHATS_PATH):
     os.mkdir(CHATS_PATH)
@@ -62,7 +62,7 @@ def chat():
         except KeyboardInterrupt:
             print()
             helpers.save_chat(CHATS_PATH, conversation, ask=True)
-            sys.exit(1)
+            sys.exit(130)
         match user_input.lower():
             case "help" | "commands":
                 helpers.help_info()
@@ -119,4 +119,4 @@ if __name__ == "__main__":
     try:
         chat()
     except KeyboardInterrupt:
-        styling.custom_print("error", "Caught interrupt!")
+        styling.custom_print("error", "Caught interrupt!", 130)
