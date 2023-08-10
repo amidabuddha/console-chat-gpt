@@ -22,6 +22,7 @@ The ultimate command line interface for chatting with the ChatGPT! Save time and
 The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation or relationship with OpenAI in any form.
 
 ## Installation and Usage:
+The script should work fine in Linux and macOS terminals. There might be some libraries that are currenlty not supported on Windows, the recommneded use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
 
 1. Clone the repository:
 
@@ -35,21 +36,10 @@ The intention and implementation of this code are entirely unconnected and unrel
    cd console-chat-gpt
    ```
 
-   - Note that if the alias is missing on Windows you should use:
-
-   ```shell
-   Set-Location "console-chat-gpt"
-   ```
-
 3. Install the necessary dependencies:
 
    ```shell
    python3 -m pip install -r requirements.txt
-   ```
-      - On Windows you may have to use:
-
-   ```shell
-   python.exe -m pip install -r requirements.txt
    ```
 
 4. Get your API key from [HERE](https://platform.openai.com/account/api-keys)
