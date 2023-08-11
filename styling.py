@@ -53,6 +53,9 @@ def handle_code_v2(text: str, code_color: str) -> str:
     except (IndexError, AttributeError):
         language = "python"
 
+    if not language:
+        language = "python"
+
     formatter = TerminalFormatter()
     catch_code = re.findall(catch_code_regex, text, re.DOTALL)
     clear_code = [re.sub(clear_code_regex, '', x) for x in catch_code]
