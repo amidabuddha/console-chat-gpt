@@ -1,3 +1,5 @@
+---
+
 <div align="center">
 
 <h1>
@@ -6,8 +8,7 @@ console-chat-gpt
 
 </h1>
 
-The ultimate command line interface for chatting with the ChatGPT! Save time and effort with this simple yet effective
-tool.
+The ultimate command line interface for chatting with ChatGPT! Save time and effort with this simple yet effective tool.
 
 <h3>
 
@@ -30,51 +31,59 @@ tool.
 </div>
 
 ---
-### Table of content
-- [Examples and preview](#examples-and-preview)
+
+## Table of Contents
 - [Features](#features)
+- [Examples and Preview](#examples-and-preview)
 - [Installation and Usage](#installation-and-usage)
----
-
-<font color="pink">**DISCLAIMER:**</font>
-
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation
-or relationship with OpenAI in any form.
 
 ---
 
-# Features:
-
-- Chat saving
-  - Upon accidentally hitting ctrl+c (SIGINT).
-  - Upon accidentally hitting ctrl+d (EOF).
-  - Upon request via the `Save` command.
-  - Custom naming of chats.
-- Reading a prompt or content from a file via the `file` command.
-- Pasting a multiline content inside the chat via the `format` command.
-- Code formatting and coloring. 
-- Adjustable colors.
-- Costs calculator via the `cost` command.
-- **A nice team that is active in adding features and fixing bugs.**
+**DISCLAIMER:**
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation or relationship with OpenAI in any form.
 
 ---
 
-## Examples and preview
-1. Upon executing the script, the first thing you'll be prompted is to continue an old chat:
-    <img src="examples/start_chat.png" alt="init" width=auto height=130 />
-    > You can use the arrow keys to navigate, or you can use your keyboard. The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function
-2. Afterward, you will have the ability to select how the AI should behave:
-    <img src="examples/roles.png" alt="add" width=auto height=200 />
-    > Those are roles set inside your config.toml. You can also add/remove or adjust.
-3. The last prompt you'll see is regarding the so-called temperature (randomness):
-    <img src="examples/temperature.png" alt="key" width=auto height=auto />
-4. The script also contains a help menu with built-in commands which you might find helpful:
-    <img src="examples/built-in_commands.png" alt="preview" width=auto height=180 />
-5. The script also supports language formatting and coloring:</br>
-    <img src="examples/example_python.png" alt="Removal" width=auto height=auto />
+# Features
 
+- **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over how the app works.
+- **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and interactive experience.
+- **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the conversation.
+- **Color Customization**: Personalize the interface by customizing the colors used in the app.
+- **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
+- **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
+- **Conversation History**: Review previous interactions and save conversations for future reference, providing context and continuity.
+- **Token Limit Alerts**: Get alerts when approaching the maximum allowed token limit to manage conversation length effectively.
+- **Cost Estimation**: Inquire about estimated costs of the chat based on the number of tokens used for better cost management.
+- **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of progress.
+- **A nice team**: Actively adding features, open for ideas and fixing bugs.
+
+Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance personalization, control, and convenience.
 
 ---
+
+## Examples and Preview
+1. Upon execution of the script, you'll be prompted to continue an old chat:
+    ![start_chat](examples/start_chat.png)
+   > Use arrow keys or keyboard to navigate.
+   >The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
+
+2. Select how the AI should behave:
+   ![roles](examples/roles.png)
+   > These roles are set inside your `config.toml`. You can add/remove or adjust them.
+
+3. Prompt for temperature (randomness):
+   ![temperature](examples/temperature.png)
+
+4. Help menu with built-in commands:
+   ![built-in_commands](examples/built-in_commands.png)
+
+5. Language formatting and coloring:
+   ![example_python](examples/example_python.png)
+   > [Supported languages](https://pygments.org/languages/) 
+
+---
+
 ## Installation and Usage:
 The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported on Windows, the recommended use is inside WSL
 1. Clone the repository:
