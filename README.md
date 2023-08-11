@@ -34,8 +34,9 @@ The ultimate command line interface for chatting with ChatGPT! Save time and eff
 
 ## Table of Contents
 - [Features](#features)
-- [Examples and Preview](#examples-and-preview)
 - [Installation and Usage](#installation-and-usage)
+- [Examples and Preview](#examples-and-preview)
+
 
 ---
 
@@ -59,28 +60,6 @@ The intention and implementation of this code are entirely unconnected and unrel
 - **A nice team**: Actively adding features, open for ideas and fixing bugs.
 
 Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance personalization, control, and convenience.
-
----
-
-## Examples and Preview
-1. Upon execution of the script, you'll be prompted to continue an old chat:
-    ![start_chat](examples/start_chat.png)
-   > Use arrow keys or keyboard to navigate.
-   >The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
-
-2. Select how the AI should behave:
-   ![roles](examples/roles.png)
-   > These roles are set inside your `config.toml`. You can add/remove or adjust them.
-
-3. Prompt for temperature (randomness):
-   ![temperature](examples/temperature.png)
-
-4. Help menu with built-in commands:
-   ![built-in_commands](examples/built-in_commands.png)
-
-5. Language formatting and coloring:
-   ![example_python](examples/example_python.png)
-   > [Supported languages](https://pygments.org/languages/) 
 
 ---
 
@@ -117,3 +96,27 @@ The script should work fine in Linux and macOS terminals. There might be some li
 7. Use the `help` command within the chat to check the available options.
 
 8. Enjoy
+
+---
+
+## Examples and Preview
+1. Upon execution of the script, you'll be prompted to continue an old chat:
+    ![start_chat](examples/start_chat.png)
+   > Use arrow keys or keyboard to navigate.
+   >The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
+
+2. Select how the AI should behave:
+   ![roles](examples/roles.png)
+   > These roles are set inside your `config.toml`. You can add/remove or adjust them.
+
+3. Prompt for temperature (randomness):
+   ![temperature](examples/temperature.png)
+
+4. Help menu with built-in commands:
+   ![built-in_commands](examples/built-in_commands.png)
+
+5. Language formatting and coloring:
+   ![example_python](examples/example_python.png)
+   > [Supported languages](https://pygments.org/languages/) 
+
+---
