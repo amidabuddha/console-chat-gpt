@@ -49,11 +49,8 @@ def handle_code_v2(text: str, code_color: str) -> str:
     catch_code_regex = r'```.*?```'
     clear_code_regex = r'```(.*)?'
     try:
-        language = re.search(clear_code_regex, text).groups()[0]
+        language = [x for x in re.search(clear_code_regex, text).groups() if x and x != "plaintext"][0]
     except (IndexError, AttributeError):
-        language = "python"
-
-    if not language:
         language = "python"
 
     formatter = TerminalFormatter()
