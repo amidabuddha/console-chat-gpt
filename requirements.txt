@@ -4,3 +4,4 @@ toml~=0.10.2
 prompt-toolkit~=3.0.39
 simple_term_menu~=1.6.1
 Pygments~=2.15.1
+tiktoken~=0.4.0

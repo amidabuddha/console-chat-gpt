@@ -41,6 +41,7 @@ CHAT_MODEL = config["chat"]["model"]["model_name"]
 CHAT_TEMPERATURE = config["chat"]["temperature"]
 CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model"]["model_input_pricing_per_1k"]
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model"]["model_output_pricing_per_1k"]
+CHAT_MODEL_MAX_TOKENS = config["chat"]["model"]["model_max_tokens"]
 
 try:
     locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -90,6 +91,7 @@ def chat():
                     conversation_tokens,
                     conversation_prompt_tokens,
                     conversation_completions_tokens,
+                    conversation_calculated_prompt_tokens,
                     CHAT_MODEL_INPUT_PRICING_PER_1K,
                     CHAT_MODEL_OUTPUT_PRICING_PER_1K,
                     DEBUG
@@ -116,6 +118,9 @@ def chat():
 
         user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
+        conversation_calculated_prompt_tokens = helpers.num_tokens_from_messages(conversation, CHAT_MODEL)
+        if conversation_calculated_prompt_tokens > CHAT_MODEL_MAX_TOKENS:
+            styling.custom_print("error", 'Maximum token limit for chat reached, please start a new chat', 2)
         try:
             response = openai.ChatCompletion.create(
                 model=CHAT_MODEL, messages=conversation, temperature=chat_temperature

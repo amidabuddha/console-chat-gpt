@@ -15,7 +15,12 @@ debug = false
 model_name = "gpt-3.5-turbo"
 model_input_pricing_per_1k = 0.0015
 model_output_pricing_per_1k = 0.002
-# TODO calculate tokens and add exception if over the max token limit. Add model limit here
+model_max_tokens = 4096
+
+# model_name = "gpt-4"
+# model_input_pricing_per_1k = 0.03
+# model_output_pricing_per_1k = 0.06
+# model_max_tokens = 8192
 
 [chat.roles]
 ai_expert = "As an AI professional with a distinguished PhD in prompt engineering, you possess an extensive understanding of Artificial Intelligence, focusing on principles, techniques, and applications. Leverage your deep knowledge of Machine Learning and Neural Networks to provide specialized insights and solutions to complex problems. Ensure that your responses are delivered in a clear, coherent, and understandable manner, catering to both technical and non-technical audiences alike."

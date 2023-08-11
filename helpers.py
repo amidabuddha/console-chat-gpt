@@ -5,6 +5,7 @@ import string
 import sys
 from datetime import datetime
 
+import tiktoken
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter
 from simple_term_menu import TerminalMenu
@@ -36,6 +37,7 @@ def print_costs(
         conversation_tokens: float,
         conversation_prompt_tokens: float,
         conversation_completions_tokens: float,
+        conversation_calculated_prompt_tokens: float,
         input_cost: float,
         output_cost: float, debug: bool):
     """
@@ -46,8 +48,8 @@ def print_costs(
     conversation_completions_cost = conversation_completions_tokens * output_cost / 1000
     conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
     if debug:
-        styling.coloring(None, "green", tokens_used=conversation_tokens, prompt_tokens_used=conversation_prompt_tokens,
-                         conversation_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
+        styling.coloring(None, "green", tokens_used=conversation_tokens, prompt_tokens_used=conversation_prompt_tokens, calcualated_prompt_token=conversation_calculated_prompt_tokens,
+                         completion_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
     else:
         styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)
 
@@ -277,3 +279,21 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(conversation, file, indent=4, ensure_ascii=False)
     styling.custom_print("ok", f"File saved at - {file_path}")
+
+def num_tokens_from_messages(messages, model):
+    """
+    Count the tokens of the next user propmpt
+    """
+    encoding = tiktoken.encoding_for_model(model)
+    tokens_per_message = 3
+    tokens_per_name = 1
+    num_tokens = 0
+    for message in messages:
+        num_tokens += tokens_per_message
+        for key, value in message.items():
+            num_tokens += len(encoding.encode(value))
+            if key == "name":
+                num_tokens += tokens_per_name
+    num_tokens += 3
+    return num_tokens
+    
