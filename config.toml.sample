@@ -4,12 +4,18 @@
 
 [chat]
 api_token = "YOUR_OPENAI_API_KEY"
-model = "gpt-3.5-turbo"
 temperature = 1
+adjust_temperature = true
+default_system_role = "dev"
+role_selector = true
+save_chat_on_exit = true
+debug = false
+
+[chat.model]
+model_name = "gpt-3.5-turbo"
 model_input_pricing_per_1k = 0.0015
 model_output_pricing_per_1k = 0.002
-default_system_role = "dev"
-debug = false
+# TODO calculate tokens and add exception if over the max token limit. Add model limit here
 
 [chat.roles]
 ai_expert = "As an AI professional with a distinguished PhD in prompt engineering, you possess an extensive understanding of Artificial Intelligence, focusing on principles, techniques, and applications. Leverage your deep knowledge of Machine Learning and Neural Networks to provide specialized insights and solutions to complex problems. Ensure that your responses are delivered in a clear, coherent, and understandable manner, catering to both technical and non-technical audiences alike."

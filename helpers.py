@@ -37,7 +37,7 @@ def print_costs(
         conversation_prompt_tokens: float,
         conversation_completions_tokens: float,
         input_cost: float,
-        output_cost: float, ):
+        output_cost: float, debug: bool):
     """
     Calculates the price for the given conversation.
     Prints the total used tokens and price.
@@ -45,7 +45,12 @@ def print_costs(
     conversation_prompt_cost = conversation_prompt_tokens * input_cost / 1000
     conversation_completions_cost = conversation_completions_tokens * output_cost / 1000
     conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
-    styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)
+    if debug:
+        styling.coloring(None, "green", tokens_used=conversation_tokens, prompt_tokens_used=conversation_prompt_tokens,conversation_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
+    else:
+        styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)
+
+
 
 
 def help_info():
@@ -55,7 +60,7 @@ def help_info():
     commands = [
         "cost - Display conversation costs.",
         "file - Submit long text from a file to the chat.",
-        "format - Format multiline pasted text to a single line before sending to the chat.",
+        "format - Format multiline pasted text before sending to the chat.",
         "save - Save the current conversation to a file.",
         "exit - Exit the program.",
         "",
