@@ -127,7 +127,7 @@ def custom_print(ptype: str, text: str, exit_code: int = -1, print_now: bool = T
                 return formatted_text
             print(formatted_text)
         case "error":
-            formatted_text = colored("[ERROR] ", "red") + text
+            formatted_text = colored("\n[ERROR] ", "red") + text
             if not print_now:
                 return formatted_text
             print(formatted_text)

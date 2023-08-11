@@ -154,5 +154,5 @@ def chat():
 if __name__ == "__main__":
     try:
         chat()
-    except KeyboardInterrupt:
-        styling.custom_print("error", "Caught interrupt!", 130)
+    except (KeyboardInterrupt, EOFError) as e:
+        styling.custom_print("error", f"Caught interrupt!", 130)
