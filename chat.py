@@ -73,6 +73,7 @@ def chat():
     conversation_tokens = 0
     conversation_prompt_tokens = 0
     conversation_completions_tokens = 0
+    conversation_calculated_prompt_tokens = 0
 
     while True:
         try:
@@ -145,9 +146,9 @@ def chat():
             )
         )
 
-        conversation_tokens += response.usage.total_tokens
-        conversation_prompt_tokens += response.usage.prompt_tokens
-        conversation_completions_tokens += response.usage.completion_tokens
+        conversation_tokens = response.usage.total_tokens
+        conversation_prompt_tokens = response.usage.prompt_tokens
+        conversation_completions_tokens = response.usage.completion_tokens
 
 
 if __name__ == "__main__":
