@@ -46,11 +46,10 @@ def print_costs(
     conversation_completions_cost = conversation_completions_tokens * output_cost / 1000
     conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
     if debug:
-        styling.coloring(None, "green", tokens_used=conversation_tokens, prompt_tokens_used=conversation_prompt_tokens,conversation_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
+        styling.coloring(None, "green", tokens_used=conversation_tokens, prompt_tokens_used=conversation_prompt_tokens,
+                         conversation_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
     else:
         styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)
-
-
 
 
 def help_info():
