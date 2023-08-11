@@ -60,7 +60,7 @@ def chat():
 
     while True:
         try:
-            user_input = input(colored("User: ", USER_PROMPT_COLOR))
+            user_input = input(styling.coloring(USER_PROMPT_COLOR, None, user="", kattrs=["bold", "underline"]))
         except KeyboardInterrupt:
             print()
             helpers.save_chat(CHATS_PATH, conversation, ask=True)
@@ -113,7 +113,8 @@ def chat():
             styling.coloring(
                 ASSISTANT_PROMPT_COLOR,
                 ASSISTANT_RESPONSE_COLOR,
-                assistant=styling.handle_code(assistant_message["content"], CODE_COLOR),
+                assistant=styling.handle_code_v2(assistant_message["content"], CODE_COLOR),
+                kattrs=["bold", "underline"],
             )
         )
 

@@ -1,6 +1,9 @@
 import sys
 from termcolor import colored
 import re
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import TerminalFormatter
 
 
 def coloring(*colors, **data) -> (str, None):
@@ -33,6 +36,51 @@ def code_coloring(text: str, color: str, on_color: bool = False, skip: bool = Fa
         return ""
     from chat import ASSISTANT_RESPONSE_COLOR
     return colored(text, ASSISTANT_RESPONSE_COLOR)
+
+
+def handle_code_v2(text: str, code_color: str) -> str:
+    """
+    Handles code inside the Assistance response by matching the
+    standard Markdown syntax for code block no matter space (\s) or tab(\\t)
+    at the beginning
+    """
+    result = []
+    code_regex = re.compile("^(`{3}|(\t|\s)+`{3})")
+    catch_code_regex = r'```.*?```'
+    clear_code_regex = r'```(.*)?'
+    try:
+        language = re.search(clear_code_regex, text).groups()[0]
+    except (IndexError, AttributeError):
+        language = "python"
+
+    formatter = TerminalFormatter()
+    catch_code = re.findall(catch_code_regex, text, re.DOTALL)
+    clear_code = [re.sub(clear_code_regex, '', x) for x in catch_code]
+    highlighted_code = [highlight(x, get_lexer_by_name(language), formatter) for x in clear_code]
+    total_code = len(highlighted_code)
+    counter = 0
+    words = text.split("\n")
+    skip_add = False
+    is_code = False
+    for word in words:
+        if code_regex.search(word):
+            skip_add = True if not skip_add else False
+            is_code = True
+            continue
+        if skip_add:
+            continue
+        if not skip_add and is_code:
+
+            if counter <= total_code:
+                result.append(highlighted_code[counter])
+            is_code = False
+            counter += 1
+            continue
+
+        if not skip_add and not is_code:
+            from chat import ASSISTANT_RESPONSE_COLOR
+            result.append(colored(word, ASSISTANT_RESPONSE_COLOR))
+    return "\n".join([x for x in result if x])
 
 
 def handle_code(text: str, code_color: str) -> str:
