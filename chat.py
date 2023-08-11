@@ -26,6 +26,9 @@ config = toml.load(helpers.check_exist(CONFIG_PATH))
 ALL_ROLES: dict = config["chat"]["roles"]
 DEFAULT_ROLE = config["chat"]["default_system_role"]
 DEBUG = config["chat"]["debug"]
+SHOW_ROLE_SELECTION = config["chat"]["role_selector"]
+SHOW_TEMPERATURE_PICKER = config["chat"]["adjust_temperature"]
+SAVE_CHAT_ON_EXIT = config["chat"]["save_chat_on_exit"]
 
 # Color settings
 USER_PROMPT_COLOR = config["colors"]["user_prompt"]
@@ -33,14 +36,20 @@ ASSISTANT_PROMPT_COLOR = config["colors"]["assistant_prompt"]
 ASSISTANT_RESPONSE_COLOR = config["colors"]["assistant_response"]
 CODE_COLOR = config["colors"]["code"]
 
-# Model settings
+# API settings
 API_TOKEN = helpers.fetch_api_token(config["chat"]["api_token"], CONFIG_PATH)
-CHAT_MODEL = config["chat"]["model"]
+CHAT_MODEL = config["chat"]["model"]["model_name"]
 CHAT_TEMPERATURE = config["chat"]["temperature"]
-CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model_input_pricing_per_1k"]
-CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model_output_pricing_per_1k"]
+CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model"]["model_input_pricing_per_1k"]
+CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model"]["model_output_pricing_per_1k"]
 
-locale.setlocale(locale.LC_ALL, "en_US")
+try:
+    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")   
+except locale.Error:
+    try:
+        locale.setlocale(locale.LC_ALL, "en_US.utf8")
+    except locale.Error:
+        styling.custom_print("error", 'Failed to set locale. Please add either en_US.UTF-8 or en_US.utf8 to your system.', 2)
 
 
 def chat():
@@ -50,9 +59,16 @@ def chat():
     if continue_chat:
         conversation = continue_chat
     else:
-        role = helpers.roles_chat_menu(ALL_ROLES, DEFAULT_ROLE)
+        if SHOW_ROLE_SELECTION:
+            role = helpers.roles_chat_menu(ALL_ROLES, DEFAULT_ROLE)
+        else:
+            role = ALL_ROLES[DEFAULT_ROLE]
         conversation = [{"role": "system", "content": role}]
-        chat_temperature = helpers.handle_temperature(CHAT_TEMPERATURE)
+        if SHOW_TEMPERATURE_PICKER:
+            chat_temperature = helpers.handle_temperature(CHAT_TEMPERATURE)
+        else:
+            chat_temperature = CHAT_TEMPERATURE
+        
 
     conversation_tokens = 0
     conversation_prompt_tokens = 0
@@ -63,7 +79,8 @@ def chat():
             user_input = input(styling.coloring(USER_PROMPT_COLOR, None, user="", kattrs=["bold", "underline"]))
         except KeyboardInterrupt:
             print()
-            helpers.save_chat(CHATS_PATH, conversation, ask=True)
+            if SAVE_CHAT_ON_EXIT:
+                helpers.save_chat(CHATS_PATH, conversation, ask=True)
             sys.exit(130)
         match user_input.lower():
             case "help" | "commands":
@@ -76,6 +93,7 @@ def chat():
                     conversation_completions_tokens,
                     CHAT_MODEL_INPUT_PRICING_PER_1K,
                     CHAT_MODEL_OUTPUT_PRICING_PER_1K,
+                    DEBUG
                 )
                 continue
             case "file":
@@ -90,7 +108,8 @@ def chat():
                 helpers.save_chat(CHATS_PATH, conversation)
                 continue
             case "exit" | "quit" | "bye":
-                helpers.save_chat(CHATS_PATH, conversation, ask=True)
+                if SAVE_CHAT_ON_EXIT:
+                    helpers.save_chat(CHATS_PATH, conversation, ask=True)
                 sys.exit(0)
             case "":
                 styling.custom_print("warn", "Don't leave it empty, please :)")
