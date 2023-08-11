@@ -62,13 +62,12 @@ or relationship with OpenAI in any form.
 ## Examples and preview
 1. Upon executing the script, the first thing you'll be prompted is to continue an old chat:
     <img src="examples/start_chat.png" alt="init" width=auto height=130 />
-    > You can use the arrow keys to navigate or you can use your keyboard. The signs/numbers inside the "[]" (e.g. [+]) are the actual keybinds to access the displayed function
+    > You can use the arrow keys to navigate, or you can use your keyboard. The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function
 2. Afterward, you will have the ability to select how the AI should behave:
     <img src="examples/roles.png" alt="add" width=auto height=200 />
     > Those are roles set inside your config.toml. You can also add/remove or adjust.
 3. The last prompt you'll see is regarding the so-called temperature (randomness):
     <img src="examples/temperature.png" alt="key" width=auto height=auto />
-    > If you skip adding a key and password, you will be simply prompted with a password when attempting to log in over SSH (password auth SSH connection).
 4. The script also contains a help menu with built-in commands which you might find helpful:
     <img src="examples/built-in_commands.png" alt="preview" width=auto height=180 />
 5. The script also supports language formatting and coloring:</br>
