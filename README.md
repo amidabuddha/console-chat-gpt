@@ -31,9 +31,9 @@ tool.
 
 ---
 ### Table of content
+- [Examples and preview](#examples-and-preview)
+- [Features](#features)
 - [Installation and Usage](#installation-and-usage)
-- [How to submit long text with line breaks](#how-to-submit-long-text-with-line-breaks)
-
 ---
 
 <font color="pink">**DISCLAIMER:**</font>
@@ -42,9 +42,42 @@ The intention and implementation of this code are entirely unconnected and unrel
 or relationship with OpenAI in any form.
 
 ---
-## Installation and Usage:
-The script should work fine in Linux and macOS terminals. There might be some libraries that are currenlty not supported on Windows, the recommneded use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
 
+# Features:
+
+- Chat saving
+  - Upon accidentally hitting ctrl+c (SIGINT).
+  - Upon accidentally hitting ctrl+d (EOF).
+  - Upon request via the `Save` command.
+  - Custom naming of chats.
+- Reading a prompt or content from a file via the `file` command.
+- Pasting a multiline content inside the chat via the `format` command.
+- Code formatting and coloring. 
+- Adjustable colors.
+- Costs calculator via the `cost` command.
+- **A nice team that is active in adding features and fixing bugs.**
+
+---
+
+## Examples and preview
+1. Upon executing the script, the first thing you'll be prompted is to continue an old chat:
+    <img src="examples/start_chat.png" alt="init" width=auto height=130 />
+    > You can use the arrow keys to navigate or you can use your keyboard. The signs/numbers inside the "[]" (e.g. [+]) are the actual keybinds to access the displayed function
+2. Afterward, you will have the ability to select how the AI should behave:
+    <img src="examples/roles.png" alt="add" width=auto height=200 />
+    > Those are roles set inside your config.toml. You can also add/remove or adjust.
+3. The last prompt you'll see is regarding the so-called temperature (randomness):
+    <img src="examples/temperature.png" alt="key" width=auto height=auto />
+    > If you skip adding a key and password, you will be simply prompted with a password when attempting to log in over SSH (password auth SSH connection).
+4. The script also contains a help menu with built-in commands which you might find helpful:
+    <img src="examples/built-in_commands.png" alt="preview" width=auto height=180 />
+5. The script also supports language formatting and coloring:</br>
+    <img src="examples/example_python.png" alt="Removal" width=auto height=auto />
+
+
+---
+## Installation and Usage:
+The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported on Windows, the recommended use is inside WSL
 1. Clone the repository:
 
    ```shell
@@ -76,11 +109,3 @@ The script should work fine in Linux and macOS terminals. There might be some li
 7. Use the `help` command within the chat to check the available options.
 
 8. Enjoy
-
-## How to submit long text with line breaks
-
-With source code or any other text with multiline content as input there are the following helper commands available to submit it:
-
-`format` - this command will provide prompt to paste the content into the terminal
-
-`file` - this command may be used if the desired content is too long to be submitted via paste
