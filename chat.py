@@ -5,7 +5,6 @@ import sys
 
 import openai
 import toml
-from termcolor import colored
 
 import helpers
 import styling
@@ -117,9 +116,13 @@ def chat():
 
         user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
-        response = openai.ChatCompletion.create(
-            model=CHAT_MODEL, messages=conversation, temperature=chat_temperature
-        )
+        try:
+            response = openai.ChatCompletion.create(
+                model=CHAT_MODEL, messages=conversation, temperature=chat_temperature
+            )
+        except openai.error.InvalidRequestError as e:
+            styling.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
+            sys.exit(1)
         assistant_message = response.choices[0].message
         assistant_response = dict(
             role="assistant", content=assistant_message["content"]
