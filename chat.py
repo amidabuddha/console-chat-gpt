@@ -44,9 +44,12 @@ CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model"]["model_input_pricing_p
 CHAT_MODEL_OUTPUT_PRICING_PER_1K = config["chat"]["model"]["model_output_pricing_per_1k"]
 
 try:
-    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")   
 except locale.Error:
-    locale.setlocale(locale.LC_ALL, "en_US.utf8")
+    try:
+        locale.setlocale(locale.LC_ALL, "en_US.utf8")
+    except locale.Error:
+        styling.custom_print("error", 'Failed to set locale. Please add either en_US.UTF-8 or en_US.utf8 to your system.', 2)
 
 
 def chat():
