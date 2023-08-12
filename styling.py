@@ -1,10 +1,9 @@
 import re
 import sys
 
+from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import get_lexer_by_name
-from pygments import highlight
-
 from termcolor import colored
 
 
@@ -24,7 +23,8 @@ def coloring(*colors, **data) -> (str, None):
         if len(data.keys()) == 1:
             return f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}"
         print(
-            f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}")
+            f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}"
+        )
 
 
 def code_coloring(text: str, color: str, on_color: bool = False, skip: bool = False) -> str:
@@ -38,6 +38,7 @@ def code_coloring(text: str, color: str, on_color: bool = False, skip: bool = Fa
     if skip:
         return ""
     from chat import ASSISTANT_RESPONSE_COLOR
+
     return colored(text, ASSISTANT_RESPONSE_COLOR)
 
 
@@ -49,8 +50,8 @@ def handle_code_v2(text: str, code_color: str) -> str:
     """
     result = []
     code_regex = re.compile("^(`{3}|(\t|\s)+`{3})")
-    catch_code_regex = r'```.*?```'
-    clear_code_regex = r'```(.*)?'
+    catch_code_regex = r"```.*?```"
+    clear_code_regex = r"```(.*)?"
     try:
         language = [x for x in re.search(
             clear_code_regex, text).groups() if x and x != "plaintext"][0]
@@ -59,9 +60,10 @@ def handle_code_v2(text: str, code_color: str) -> str:
 
     formatter = TerminalFormatter()
     catch_code = re.findall(catch_code_regex, text, re.DOTALL)
-    clear_code = [re.sub(clear_code_regex, '', x) for x in catch_code]
-    highlighted_code = [highlight(x, get_lexer_by_name(
-        language), formatter) for x in clear_code]
+    clear_code = [re.sub(clear_code_regex, "", x) for x in catch_code]
+    highlighted_code = [
+        highlight(x, get_lexer_by_name(language), formatter) for x in clear_code
+    ]
     total_code = len(highlighted_code)
     counter = 0
     words = text.split("\n")
@@ -75,7 +77,6 @@ def handle_code_v2(text: str, code_color: str) -> str:
         if skip_add:
             continue
         if not skip_add and is_code:
-
             if counter <= total_code:
                 result.append(highlighted_code[counter])
             is_code = False
@@ -84,6 +85,7 @@ def handle_code_v2(text: str, code_color: str) -> str:
 
         if not skip_add and not is_code:
             from chat import ASSISTANT_RESPONSE_COLOR
+
             result.append(colored(word, ASSISTANT_RESPONSE_COLOR))
     return "\n".join([x for x in result if x])
 

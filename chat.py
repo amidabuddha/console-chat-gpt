@@ -16,7 +16,8 @@ CHATS_PATH = os.path.join(BASE_PATH, "chats")
 
 if not os.path.exists(CONFIG_PATH):
     styling.custom_print(
-        "error", 'Please use the "config.toml.sample" to create your configuration.', 2)
+        "error", 'Please use the "config.toml.sample" to create your configuration.', 2
+    )
 
 if not os.path.exists(CHATS_PATH):
     os.mkdir(CHATS_PATH)
@@ -51,8 +52,11 @@ except locale.Error:
     try:
         locale.setlocale(locale.LC_ALL, "en_US.utf8")
     except locale.Error:
-        styling.custom_print("error",
-                             'Failed to set locale. Please add either en_US.UTF-8 or en_US.utf8 to your system.', 2)
+        styling.custom_print(
+            "error",
+            "Failed to set locale. Please add either en_US.UTF-8 or en_US.utf8 to your system.",
+            2,
+        )
 
 
 def chat():
@@ -80,12 +84,15 @@ def chat():
     api_usage_cost = 0
 
     while True:
-        if os.path.exists(os.path.join(BASE_PATH, 'api_usage.txt')):
-            with open(os.path.join(BASE_PATH, 'api_usage.txt'), 'r') as file:
+        if os.path.exists(os.path.join(BASE_PATH, "api_usage.txt")):
+            with open(os.path.join(BASE_PATH, "api_usage.txt"), "r") as file:
                 api_usage_cost = float(file.read())
         try:
-            user_input = input(styling.coloring(
-                USER_PROMPT_COLOR, None, user="", kattrs=["bold", "underline"]))
+            user_input = input(
+                styling.coloring(
+                    USER_PROMPT_COLOR, None, user="", kattrs=["bold", "underline"]
+                )
+            )
         except KeyboardInterrupt:
             if SAVE_CHAT_ON_EXIT:
                 helpers.save_chat(CHATS_PATH, conversation, ask=True)
@@ -105,7 +112,7 @@ def chat():
                     CHAT_MODEL_INPUT_PRICING_PER_1K,
                     CHAT_MODEL_OUTPUT_PRICING_PER_1K,
                     api_usage_cost,
-                    DEBUG
+                    DEBUG,
                 )
                 continue
             case "file":
@@ -130,16 +137,28 @@ def chat():
         user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
         calculated_prompt_tokens = helpers.num_tokens_from_messages(
-            conversation, CHAT_MODEL)
-        calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
-        if calculated_prompt_tokens > CHAT_MODEL_MAX_TOKENS or calculated_completion_max_tokens < LAST_COMPLETION_MAX_TOKENS:
+            conversation, CHAT_MODEL
+        )
+        calculated_completion_max_tokens = (
+            CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
+        )
+        if (
+            calculated_prompt_tokens > CHAT_MODEL_MAX_TOKENS
+            or calculated_completion_max_tokens < LAST_COMPLETION_MAX_TOKENS
+        ):
             styling.custom_print(
-                "error", 'Maximum token limit for chat reached, please start a new chat', -1)
+                "error",
+                "Maximum token limit for chat reached, please start a new chat",
+                -1,
+            )
             helpers.save_chat(CHATS_PATH, conversation, ask=True)
             sys.exit(2)
         try:
             response = openai.ChatCompletion.create(
-                model=CHAT_MODEL, messages=conversation, temperature=chat_temperature, max_tokens=calculated_completion_max_tokens
+                model=CHAT_MODEL,
+                messages=conversation,
+                temperature=chat_temperature,
+                max_tokens=calculated_completion_max_tokens,
             )
         except openai.error.OpenAIError as e:
             styling.custom_print(
@@ -152,14 +171,17 @@ def chat():
         )
         conversation.append(assistant_response)
         if DEBUG:
-            with open(os.path.join(BASE_PATH, "messages.json"), "w", encoding="utf-8") as log_file:
+            with open(
+                os.path.join(BASE_PATH, "messages.json"), "w", encoding="utf-8"
+            ) as log_file:
                 json.dump(conversation, log_file, indent=4, ensure_ascii=False)
         print(
             styling.coloring(
                 ASSISTANT_PROMPT_COLOR,
                 ASSISTANT_RESPONSE_COLOR,
                 assistant=styling.handle_code_v2(
-                    assistant_message["content"], CODE_COLOR),
+                    assistant_message["content"], CODE_COLOR
+                ),
                 kattrs=["bold", "underline"],
             )
         )
@@ -167,8 +189,14 @@ def chat():
         conversation_tokens = response.usage.total_tokens
         conversation_prompt_tokens = response.usage.prompt_tokens
         conversation_completions_tokens = response.usage.completion_tokens
-        helpers.update_api_usage(BASE_PATH, conversation_prompt_tokens, conversation_completions_tokens,
-                                 CHAT_MODEL_INPUT_PRICING_PER_1K, CHAT_MODEL_OUTPUT_PRICING_PER_1K, api_usage_cost)
+        helpers.update_api_usage(
+            BASE_PATH,
+            conversation_prompt_tokens,
+            conversation_completions_tokens,
+            CHAT_MODEL_INPUT_PRICING_PER_1K,
+            CHAT_MODEL_OUTPUT_PRICING_PER_1K,
+            api_usage_cost,
+        )
 
 
 if __name__ == "__main__":
