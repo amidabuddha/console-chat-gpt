@@ -10,7 +10,7 @@ default_system_role = "dev"
 role_selector = true
 save_chat_on_exit = true
 debug = false
-last_completion_max_tokens = 256
+last_completion_max_tokens = 400
 
 [chat.model]
 model_name = "gpt-3.5-turbo"
