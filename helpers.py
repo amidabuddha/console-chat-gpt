@@ -32,6 +32,14 @@ def check_exist(path: str) -> str:
         styling.custom_print("error", f"No such file as - {path}", 1)
     return path
 
+def calculate_costs(prompt, completion, in_cost, out_cost):
+    """
+    Calculates the price for the given conversation.
+    """
+    prompt_cost = prompt * in_cost / 1000
+    completions_cost = completion * out_cost / 1000
+    total_cost = prompt_cost + completions_cost
+    return prompt_cost, completions_cost, total_cost
 
 def print_costs(
         conversation_tokens: float,
@@ -40,20 +48,26 @@ def print_costs(
         calculated_prompt_tokens: float,
         calculated_completion_max_tokens:float,
         input_cost: float,
-        output_cost: float, debug: bool):
+        output_cost: float, 
+        api_cost: float, debug: bool):
     """
-    Calculates the price for the given conversation.
     Prints the total used tokens and price.
     """
-    conversation_prompt_cost = conversation_prompt_tokens * input_cost / 1000
-    conversation_completions_cost = conversation_completions_tokens * output_cost / 1000
-    conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
+    conversation_prompt_cost, conversation_completions_cost, conversation_cost = calculate_costs(conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost)
     if debug:
         styling.coloring(None, "green", tokens_used=conversation_tokens, calculated_prompt_tokens=calculated_prompt_tokens, prompt_tokens_used=conversation_prompt_tokens, calculated_completion_max_tokens=calculated_completion_max_tokens,
-                         completion_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
+                         completion_tokens_used=conversation_completions_tokens, chat_cost=locale.currency(conversation_cost, grouping=True), api_key_usage_cost=locale.currency(api_cost, grouping=True))
     else:
-        styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)
+        styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=locale.currency(conversation_cost, grouping=True), api_usage_cost=locale.currency(api_cost, grouping=True))
 
+def update_api_usage(path, conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost, usage):
+    """
+    Calculates the total conversation expences made in the current environment.
+    """
+    _, _, api_usage_cost = calculate_costs(conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost)
+    api_usage_cost += usage
+    with open(os.path.join(path, 'api_usage.txt'), 'w') as file:
+        file.write(str(api_usage_cost))
 
 def help_info():
     """

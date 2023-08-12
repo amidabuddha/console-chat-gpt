@@ -78,6 +78,11 @@ def chat():
     calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS
 
     while True:
+        if not os.path.exists(os.path.join(BASE_PATH, 'api_usage.txt')):
+            api_usage_cost = 0
+        else:
+            with open(os.path.join(BASE_PATH, 'api_usage.txt'), 'r') as file:
+                api_usage_cost = float(file.read())
         try:
             user_input = input(styling.coloring(USER_PROMPT_COLOR, None, user="", kattrs=["bold", "underline"]))
         except KeyboardInterrupt:
@@ -98,6 +103,7 @@ def chat():
                     calculated_completion_max_tokens,
                     CHAT_MODEL_INPUT_PRICING_PER_1K,
                     CHAT_MODEL_OUTPUT_PRICING_PER_1K,
+                    api_usage_cost,
                     DEBUG
                 )
                 continue
@@ -156,8 +162,8 @@ def chat():
         conversation_tokens = response.usage.total_tokens
         conversation_prompt_tokens = response.usage.prompt_tokens
         conversation_completions_tokens = response.usage.completion_tokens
-
-
+        helpers.update_api_usage(BASE_PATH, conversation_prompt_tokens, conversation_completions_tokens, CHAT_MODEL_INPUT_PRICING_PER_1K, CHAT_MODEL_OUTPUT_PRICING_PER_1K, api_usage_cost)
+        
 if __name__ == "__main__":
     try:
         chat()
