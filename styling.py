@@ -1,9 +1,11 @@
-import sys
-from termcolor import colored
 import re
-from pygments import highlight
-from pygments.lexers import get_lexer_by_name
+import sys
+
 from pygments.formatters import TerminalFormatter
+from pygments.lexers import get_lexer_by_name
+from pygments import highlight
+
+from termcolor import colored
 
 
 def coloring(*colors, **data) -> (str, None):
@@ -21,7 +23,8 @@ def coloring(*colors, **data) -> (str, None):
         key = " ".join(key.split("_")) if key.count("_") else key
         if len(data.keys()) == 1:
             return f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}"
-        print(f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}")
+        print(
+            f"{colored(key.capitalize(), colors[0], attrs=kattrs)}: {colored(value, colors[1], attrs=vattrs)}")
 
 
 def code_coloring(text: str, color: str, on_color: bool = False, skip: bool = False) -> str:
@@ -49,14 +52,16 @@ def handle_code_v2(text: str, code_color: str) -> str:
     catch_code_regex = r'```.*?```'
     clear_code_regex = r'```(.*)?'
     try:
-        language = [x for x in re.search(clear_code_regex, text).groups() if x and x != "plaintext"][0]
+        language = [x for x in re.search(
+            clear_code_regex, text).groups() if x and x != "plaintext"][0]
     except (IndexError, AttributeError):
         language = "python"
 
     formatter = TerminalFormatter()
     catch_code = re.findall(catch_code_regex, text, re.DOTALL)
     clear_code = [re.sub(clear_code_regex, '', x) for x in catch_code]
-    highlighted_code = [highlight(x, get_lexer_by_name(language), formatter) for x in clear_code]
+    highlighted_code = [highlight(x, get_lexer_by_name(
+        language), formatter) for x in clear_code]
     total_code = len(highlighted_code)
     counter = 0
     words = text.split("\n")

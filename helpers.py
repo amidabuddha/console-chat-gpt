@@ -5,11 +5,11 @@ import string
 import sys
 from datetime import datetime
 
+from termcolor import colored
 import tiktoken
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter
 from simple_term_menu import TerminalMenu
-from termcolor import colored
 
 import styling
 
@@ -20,7 +20,8 @@ def fetch_api_token(token: str, path: str) -> str:
     config.toml
     """
     if not token:
-        styling.custom_print("error", f"Please make sure that the API token is inside {path}", 1)
+        styling.custom_print(
+            "error", f"Please make sure that the API token is inside {path}", 1)
     return token
 
 
@@ -32,6 +33,7 @@ def check_exist(path: str) -> str:
         styling.custom_print("error", f"No such file as - {path}", 1)
     return path
 
+
 def calculate_costs(prompt, completion, in_cost, out_cost):
     """
     Calculates the price for the given conversation.
@@ -41,33 +43,39 @@ def calculate_costs(prompt, completion, in_cost, out_cost):
     total_cost = prompt_cost + completions_cost
     return prompt_cost, completions_cost, total_cost
 
+
 def print_costs(
         conversation_tokens: float,
         conversation_prompt_tokens: float,
         conversation_completions_tokens: float,
         calculated_prompt_tokens: float,
-        calculated_completion_max_tokens:float,
+        calculated_completion_max_tokens: float,
         input_cost: float,
-        output_cost: float, 
+        output_cost: float,
         api_cost: float, debug: bool):
     """
     Prints the total used tokens and price.
     """
-    conversation_prompt_cost, conversation_completions_cost, conversation_cost = calculate_costs(conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost)
+    conversation_prompt_cost, conversation_completions_cost, conversation_cost = calculate_costs(
+        conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost)
     if debug:
         styling.coloring(None, "green", tokens_used=conversation_tokens, calculated_prompt_tokens=calculated_prompt_tokens, prompt_tokens_used=conversation_prompt_tokens, calculated_completion_max_tokens=calculated_completion_max_tokens,
                          completion_tokens_used=conversation_completions_tokens, chat_cost=locale.currency(conversation_cost, grouping=True), api_key_usage_cost=locale.currency(api_cost, grouping=True))
     else:
-        styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=locale.currency(conversation_cost, grouping=True), api_usage_cost=locale.currency(api_cost, grouping=True))
+        styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=locale.currency(
+            conversation_cost, grouping=True), api_usage_cost=locale.currency(api_cost, grouping=True))
+
 
 def update_api_usage(path, conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost, usage):
     """
     Calculates the total conversation expences made in the current environment.
     """
-    _, _, api_usage_cost = calculate_costs(conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost)
+    _, _, api_usage_cost = calculate_costs(
+        conversation_prompt_tokens, conversation_completions_tokens, input_cost, output_cost)
     api_usage_cost += usage
     with open(os.path.join(path, 'api_usage.txt'), 'w') as file:
         file.write(str(api_usage_cost))
+
 
 def help_info():
     """
@@ -127,13 +135,16 @@ def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str
                     enum_options.append("[{}] {}".format(counter, opt))
                     counter += 1
                 else:
-                    letters = [x for x in list(string.ascii_lowercase) if x not in ["s", "x"]]
-                    enum_options.append("[{}]{}".format(letters[letters_counter], opt))
+                    letters = [x for x in list(
+                        string.ascii_lowercase) if x not in ["s", "x"]]
+                    enum_options.append("[{}]{}".format(
+                        letters[letters_counter], opt))
                     letters_counter += 1
     terminal_menu = TerminalMenu(enum_options, title=title)
     menu_entry_index = terminal_menu.show()
     if menu_entry_index is None:
-        styling.custom_print("error", "Keyboard interrupt or 'hack' detected", 130)
+        styling.custom_print(
+            "error", "Keyboard interrupt or 'hack' detected", 130)
     return handle_base_menu(options[menu_entry_index])
 
 
@@ -191,7 +202,8 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
         try:
             return input(colored("Enter a detailed description of your custom role: ", "blue"))
         except KeyboardInterrupt:
-            styling.custom_print("info", "Cancelled the custom role creation, continuing with the chat.")
+            styling.custom_print(
+                "info", "Cancelled the custom role creation, continuing with the chat.")
     role = roles.get(selected_role)
     if not role:
         return roles.get(default_role)
@@ -204,10 +216,12 @@ def handle_temperature(default_temperature: float) -> float:
     """
     temp = ""
     lines = 1
-    styling.custom_print("info", "Enter a value between 0 and 2 to define chat output randomness")
+    styling.custom_print(
+        "info", "Enter a value between 0 and 2 to define chat output randomness")
     while True:
         try:
-            temp = input(colored(f"Press 'ENTER' for the default setting ({default_temperature}): ", "blue", ))
+            temp = input(colored(
+                f"Press 'ENTER' for the default setting ({default_temperature}): ", "blue", ))
             float_temp = float(temp)
             if 2 >= float_temp >= 0:
                 lines += 1
@@ -246,7 +260,8 @@ def file_prompt():
                     user_prompt = context + ":\n" + user_prompt
             return user_prompt
     except KeyboardInterrupt:
-        styling.custom_print("info", "Cancelled the file selection, continuing with the chat.")
+        styling.custom_print(
+            "info", "Cancelled the file selection, continuing with the chat.")
         return False
 
 
@@ -255,7 +270,8 @@ def format_multiline():
     Formats a multiline chat input.
     """
     try:
-        styling.custom_print("info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
+        styling.custom_print(
+            "info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
         content = sys.stdin.read()
         if content:
             content.replace('\n', '\\n').replace('\"', '\\\"')
@@ -266,7 +282,8 @@ def format_multiline():
                 content = context + ":\n" + content
         return content
     except KeyboardInterrupt:
-        styling.custom_print("info", "Cancelled the multiline text, continuing with the chat.")
+        styling.custom_print(
+            "info", "Cancelled the multiline text, continuing with the chat.")
 
 
 def save_chat(chat_folder: str, conversation: list, ask: bool = False):
@@ -275,12 +292,14 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     """
     if ask:
         while True:
-            agreement = input(colored("Would you like to save the chat before you go? y/n: ", "yellow")).lower()
+            agreement = input(colored(
+                "Would you like to save the chat before you go? y/n: ", "yellow")).lower()
             if agreement == "n" or not agreement:
                 styling.custom_print("info", "Goodbye! :)", 0)
             elif agreement == "y":
                 break
-    chat_name = input(colored("Name the file to save the chat or hit 'Enter' for default name: ", "yellow"))
+    chat_name = input(colored(
+        "Name the file to save the chat or hit 'Enter' for default name: ", "yellow"))
     if not chat_name:
         base_name = "messages"
         timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
@@ -294,6 +313,7 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(conversation, file, indent=4, ensure_ascii=False)
     styling.custom_print("ok", f"File saved at - {file_path}")
+
 
 def num_tokens_from_messages(messages, model):
     """
@@ -311,4 +331,3 @@ def num_tokens_from_messages(messages, model):
                 num_tokens += tokens_per_name
     num_tokens += 3
     return num_tokens
-    

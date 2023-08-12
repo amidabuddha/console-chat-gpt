@@ -32,11 +32,11 @@ The ultimate command line interface for chatting with ChatGPT! Save time and eff
 
 ---
 
-## Table of Contents
+# Table of Contents
+
 - [Features](#features)
 - [Installation and Usage](#installation-and-usage)
 - [Examples and Preview](#examples-and-preview)
-
 
 ---
 
@@ -45,7 +45,7 @@ The intention and implementation of this code are entirely unconnected and unrel
 
 ---
 
-# Features
+## Features
 
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over how the app works.
 - **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and interactive experience.
@@ -63,8 +63,10 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 
 ---
 
-## Installation and Usage:
+## Installation and Usage
+
 The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+
 1. Clone the repository:
 
    ```shell
@@ -92,8 +94,9 @@ The script should work fine in Linux and macOS terminals. There might be some li
    ```shell
    python3 chat.py
    ```
-   > Pro tip:<br>
-   > Create an alias for the executable to run from anywhere 
+
+   > Pro-tip:
+   > Create an alias for the executable to run from anywhere
 
 7. Use the `help` command within the chat to check the available options.
 
@@ -102,9 +105,10 @@ The script should work fine in Linux and macOS terminals. There might be some li
 ---
 
 ## Examples and Preview
+
 1. Upon execution of the script, you'll be prompted to continue an old chat:
     ![start_chat](examples/start_chat.png)
-   > Use arrow keys or keyboard to navigate.<br>
+   > Use arrow keys or keyboard to navigate.
    > The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
 
 2. Select how the AI should behave:
@@ -119,6 +123,6 @@ The script should work fine in Linux and macOS terminals. There might be some li
 
 5. Language formatting and coloring:
    ![example_python](examples/example_python.png)
-   > [Supported languages](https://pygments.org/languages/) 
+   > [Supported languages](https://pygments.org/languages/)
 
 ---
