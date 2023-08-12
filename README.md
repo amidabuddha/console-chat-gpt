@@ -92,6 +92,8 @@ The script should work fine in Linux and macOS terminals. There might be some li
    ```shell
    python3 chat.py
    ```
+   > Pro tip:
+   > Create an alias for the executable to run from anywhere 
 
 7. Use the `help` command within the chat to check the available options.
 
@@ -103,7 +105,7 @@ The script should work fine in Linux and macOS terminals. There might be some li
 1. Upon execution of the script, you'll be prompted to continue an old chat:
     ![start_chat](examples/start_chat.png)
    > Use arrow keys or keyboard to navigate.
-   >The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
+   > The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
 
 2. Select how the AI should behave:
    ![roles](examples/roles.png)

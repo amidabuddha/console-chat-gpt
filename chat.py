@@ -141,7 +141,7 @@ def chat():
         )
         conversation.append(assistant_response)
         if DEBUG:
-            with open("messages.json", "w", encoding="utf-8") as log_file:
+            with open(os.path.join(BASE_PATH, "messages.json"), "w", encoding="utf-8") as log_file:
                 json.dump(conversation, log_file, indent=4, ensure_ascii=False)
         print(
             styling.coloring(
