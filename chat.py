@@ -132,8 +132,9 @@ def chat():
             response = openai.ChatCompletion.create(
                 model=CHAT_MODEL, messages=conversation, temperature=chat_temperature, max_tokens=calculated_completion_max_tokens
             )
-        except openai.error.InvalidRequestError as e:
+        except openai.error.OpenAIError as e:
             styling.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
+            helpers.save_chat(CHATS_PATH, conversation, ask=True)
             sys.exit(1)
         assistant_message = response.choices[0].message
         assistant_response = dict(
