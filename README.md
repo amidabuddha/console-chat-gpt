@@ -64,7 +64,7 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 ---
 
 ## Installation and Usage:
-The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported on Windows, the recommended use is inside WSL
+The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
 1. Clone the repository:
 
    ```shell
@@ -92,7 +92,7 @@ The script should work fine in Linux and macOS terminals. There might be some li
    ```shell
    python3 chat.py
    ```
-   > Pro tip:
+   > Pro tip:<br>
    > Create an alias for the executable to run from anywhere 
 
 7. Use the `help` command within the chat to check the available options.
@@ -104,7 +104,7 @@ The script should work fine in Linux and macOS terminals. There might be some li
 ## Examples and Preview
 1. Upon execution of the script, you'll be prompted to continue an old chat:
     ![start_chat](examples/start_chat.png)
-   > Use arrow keys or keyboard to navigate.
+   > Use arrow keys or keyboard to navigate.<br>
    > The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
 
 2. Select how the AI should behave:
