@@ -125,7 +125,9 @@ def chat():
         calculated_prompt_tokens = helpers.num_tokens_from_messages(conversation, CHAT_MODEL)
         calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
         if calculated_prompt_tokens > CHAT_MODEL_MAX_TOKENS or calculated_completion_max_tokens < LAST_COMPLETION_MAX_TOKENS:
-            styling.custom_print("error", 'Maximum token limit for chat reached, please start a new chat', 2)
+            styling.custom_print("error", 'Maximum token limit for chat reached, please start a new chat', -1)
+            helpers.save_chat(CHATS_PATH, conversation, ask=True)
+            sys.exit(2)
         try:
             response = openai.ChatCompletion.create(
                 model=CHAT_MODEL, messages=conversation, temperature=chat_temperature, max_tokens=calculated_completion_max_tokens

@@ -266,7 +266,7 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
                 styling.custom_print("info", "Goodbye! :)", 0)
             elif agreement == "y":
                 break
-    chat_name = input(colored("Give a name to the chat or hit 'Enter' for default name: ", "yellow"))
+    chat_name = input(colored("Name the file to save the chat or hit 'Enter' for default name: ", "yellow"))
     if not chat_name:
         base_name = "messages"
         timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
