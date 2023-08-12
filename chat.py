@@ -76,11 +76,10 @@ def chat():
     conversation_completions_tokens = 0
     calculated_prompt_tokens = 0
     calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS
+    api_usage_cost = 0
 
     while True:
-        if not os.path.exists(os.path.join(BASE_PATH, 'api_usage.txt')):
-            api_usage_cost = 0
-        else:
+        if os.path.exists(os.path.join(BASE_PATH, 'api_usage.txt')):
             with open(os.path.join(BASE_PATH, 'api_usage.txt'), 'r') as file:
                 api_usage_cost = float(file.read())
         try:
