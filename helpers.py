@@ -37,7 +37,8 @@ def print_costs(
         conversation_tokens: float,
         conversation_prompt_tokens: float,
         conversation_completions_tokens: float,
-        conversation_calculated_prompt_tokens: float,
+        calculated_prompt_tokens: float,
+        calculated_completion_max_tokens:float,
         input_cost: float,
         output_cost: float, debug: bool):
     """
@@ -48,7 +49,7 @@ def print_costs(
     conversation_completions_cost = conversation_completions_tokens * output_cost / 1000
     conversation_cost = locale.currency((conversation_prompt_cost + conversation_completions_cost), grouping=True)
     if debug:
-        styling.coloring(None, "green", tokens_used=conversation_tokens, prompt_tokens_used=conversation_prompt_tokens, calculated_prompt_tokens=conversation_calculated_prompt_tokens,
+        styling.coloring(None, "green", tokens_used=conversation_tokens, calculated_prompt_tokens=calculated_prompt_tokens, prompt_tokens_used=conversation_prompt_tokens, calculated_completion_max_tokens=calculated_completion_max_tokens,
                          completion_tokens_used=conversation_completions_tokens, chat_cost=conversation_cost)
     else:
         styling.coloring(None, "green", tokens_used=conversation_tokens, chat_cost=conversation_cost)

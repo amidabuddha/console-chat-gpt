@@ -28,6 +28,7 @@ DEBUG = config["chat"]["debug"]
 SHOW_ROLE_SELECTION = config["chat"]["role_selector"]
 SHOW_TEMPERATURE_PICKER = config["chat"]["adjust_temperature"]
 SAVE_CHAT_ON_EXIT = config["chat"]["save_chat_on_exit"]
+LAST_COMPLETION_MAX_TOKENS = config["chat"]["last_completion_max_tokens"]
 
 # Color settings
 USER_PROMPT_COLOR = config["colors"]["user_prompt"]
@@ -73,7 +74,8 @@ def chat():
     conversation_tokens = 0
     conversation_prompt_tokens = 0
     conversation_completions_tokens = 0
-    conversation_calculated_prompt_tokens = 0
+    calculated_prompt_tokens = 0
+    calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS
 
     while True:
         try:
@@ -92,7 +94,8 @@ def chat():
                     conversation_tokens,
                     conversation_prompt_tokens,
                     conversation_completions_tokens,
-                    conversation_calculated_prompt_tokens,
+                    calculated_prompt_tokens,
+                    calculated_completion_max_tokens,
                     CHAT_MODEL_INPUT_PRICING_PER_1K,
                     CHAT_MODEL_OUTPUT_PRICING_PER_1K,
                     DEBUG
@@ -119,12 +122,13 @@ def chat():
 
         user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
-        conversation_calculated_prompt_tokens = helpers.num_tokens_from_messages(conversation, CHAT_MODEL)
-        if conversation_calculated_prompt_tokens > CHAT_MODEL_MAX_TOKENS:
+        calculated_prompt_tokens = helpers.num_tokens_from_messages(conversation, CHAT_MODEL)
+        calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
+        if calculated_prompt_tokens > CHAT_MODEL_MAX_TOKENS or calculated_completion_max_tokens < LAST_COMPLETION_MAX_TOKENS:
             styling.custom_print("error", 'Maximum token limit for chat reached, please start a new chat', 2)
         try:
             response = openai.ChatCompletion.create(
-                model=CHAT_MODEL, messages=conversation, temperature=chat_temperature
+                model=CHAT_MODEL, messages=conversation, temperature=chat_temperature, max_tokens=calculated_completion_max_tokens
             )
         except openai.error.InvalidRequestError as e:
             styling.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
