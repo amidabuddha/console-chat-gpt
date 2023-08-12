@@ -81,10 +81,10 @@ def chat():
         try:
             user_input = input(styling.coloring(USER_PROMPT_COLOR, None, user="", kattrs=["bold", "underline"]))
         except KeyboardInterrupt:
-            print()
             if SAVE_CHAT_ON_EXIT:
                 helpers.save_chat(CHATS_PATH, conversation, ask=True)
-            sys.exit(130)
+                sys.exit(130)
+            styling.custom_print("error", f"Caught interrupt!", 130)
         match user_input.lower():
             case "help" | "commands":
                 helpers.help_info()
