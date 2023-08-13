@@ -45,11 +45,11 @@ def code_coloring(text: str, color: str, on_color: bool = False, skip: bool = Fa
 def handle_code_v2(text: str, code_color: str) -> str:
     """
     Handles code inside the Assistance response by matching the
-    standard Markdown syntax for code block no matter space (\s) or tab(\\t)
+    standard Markdown syntax for code block no matter space (\\s) or tab(\\t)
     at the beginning
     """
     result = []
-    code_regex = re.compile("^(`{3}|(\t|\s)+`{3})")
+    code_regex = re.compile(r"^(`{3}|(\t|\s)+`{3})")
     catch_code_regex = r"```.*?```"
     clear_code_regex = r"```(.*)?"
     try:
@@ -93,10 +93,10 @@ def handle_code_v2(text: str, code_color: str) -> str:
 def handle_code(text: str, code_color: str) -> str:
     """
     Handles code inside the Assistance response by matching the
-    standard Markdown syntax for code block no matter space (\s) or tab(\\t)
+    standard Markdown syntax for code block no matter space (\\s) or tab(\\t)
     at the beginning
     """
-    code_regex = re.compile("^(`{3}|(\t|\s)+`{3})")
+    code_regex = re.compile(r"^(`{3}|(\t|\s)+`{3})")
     result = []
     words = text.split("\n")
     enable_color = False
