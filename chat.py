@@ -78,7 +78,9 @@ def chat():
 
     conversation_tokens = 0
     conversation_prompt_tokens = 0
-    conversation_completions_tokens = 0
+    conversation_total_prompts_tokens = 0
+    conversation_completion_tokens = 0
+    conversation_total_completions_tokens = 0
     calculated_prompt_tokens = 0
     calculated_completion_max_tokens = CHAT_MODEL_MAX_TOKENS
     api_usage_cost = 0
@@ -106,7 +108,9 @@ def chat():
                 helpers.print_costs(
                     conversation_tokens,
                     conversation_prompt_tokens,
-                    conversation_completions_tokens,
+                    conversation_total_prompts_tokens,
+                    conversation_completion_tokens,
+                    conversation_total_completions_tokens,
                     calculated_prompt_tokens,
                     calculated_completion_max_tokens,
                     CHAT_MODEL_INPUT_PRICING_PER_1K,
@@ -186,13 +190,15 @@ def chat():
             )
         )
 
-        conversation_tokens = response.usage.total_tokens
+        conversation_tokens += response.usage.total_tokens
         conversation_prompt_tokens = response.usage.prompt_tokens
-        conversation_completions_tokens = response.usage.completion_tokens
+        conversation_total_prompts_tokens += response.usage.prompt_tokens
+        conversation_completion_tokens = response.usage.completion_tokens
+        conversation_total_completions_tokens += response.usage.completion_tokens
         helpers.update_api_usage(
             BASE_PATH,
             conversation_prompt_tokens,
-            conversation_completions_tokens,
+            conversation_completion_tokens,
             CHAT_MODEL_INPUT_PRICING_PER_1K,
             CHAT_MODEL_OUTPUT_PRICING_PER_1K,
             api_usage_cost,

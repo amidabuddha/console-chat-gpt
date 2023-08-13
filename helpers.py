@@ -41,14 +41,16 @@ def calculate_costs(prompt, completion, in_cost, out_cost):
     """
     prompt_cost = prompt * in_cost / 1000
     completions_cost = completion * out_cost / 1000
-    total_cost = prompt_cost + completions_cost
-    return prompt_cost, completions_cost, total_cost
+    chat_cost = prompt_cost + completions_cost
+    return prompt_cost, completions_cost, chat_cost
 
 
 def print_costs(
     conversation_tokens: float,
     conversation_prompt_tokens: float,
-    conversation_completions_tokens: float,
+    conversation_total_prompts_tokens: float,
+    conversation_completion_tokens: float,
+    conversation_total_completions_tokens: float,
     calculated_prompt_tokens: float,
     calculated_completion_max_tokens: float,
     input_cost: float,
@@ -60,12 +62,12 @@ def print_costs(
     Prints the total used tokens and price.
     """
     (
-        conversation_prompt_cost,
-        conversation_completions_cost,
+        _,
+        _,
         conversation_cost,
     ) = calculate_costs(
-        conversation_prompt_tokens,
-        conversation_completions_tokens,
+        conversation_total_prompts_tokens,
+        conversation_total_completions_tokens,
         input_cost,
         output_cost,
     )
@@ -76,8 +78,10 @@ def print_costs(
             tokens_used=conversation_tokens,
             calculated_prompt_tokens=calculated_prompt_tokens,
             prompt_tokens_used=conversation_prompt_tokens,
+            total_prompt_tokens_used=conversation_total_prompts_tokens,
             calculated_completion_max_tokens=calculated_completion_max_tokens,
-            completion_tokens_used=conversation_completions_tokens,
+            completion_tokens_used=conversation_completion_tokens,
+            total_completion_tokens_used=conversation_total_completions_tokens,
             chat_cost=locale.currency(conversation_cost, grouping=True),
             api_key_usage_cost=locale.currency(api_cost, grouping=True),
         )
@@ -94,7 +98,7 @@ def print_costs(
 def update_api_usage(
     path,
     conversation_prompt_tokens,
-    conversation_completions_tokens,
+    conversation_completion_tokens,
     input_cost,
     output_cost,
     usage,
@@ -104,7 +108,7 @@ def update_api_usage(
     """
     _, _, api_usage_cost = calculate_costs(
         conversation_prompt_tokens,
-        conversation_completions_tokens,
+        conversation_completion_tokens,
         input_cost,
         output_cost,
     )
