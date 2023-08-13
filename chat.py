@@ -59,6 +59,22 @@ except locale.Error:
         )
 
 
+def select_role():
+    return helpers.roles_chat_menu(ALL_ROLES, DEFAULT_ROLE) if SHOW_ROLE_SELECTION else ALL_ROLES[DEFAULT_ROLE]
+
+
+def select_temperature():
+    return helpers.handle_temperature(CHAT_TEMPERATURE) if SHOW_TEMPERATURE_PICKER else CHAT_TEMPERATURE
+
+
+def flush_chat(current_coversation: list):
+    helpers.save_chat(CHATS_PATH, current_coversation,
+                      ask=True, skip_exit=True)
+    helpers.base_chat_menu(
+        "Would you like to start a new chat?:", "Continue", [])
+    return [{"role": "system", "content":  select_role()}], select_temperature()
+
+
 def chat():
     chat_temperature = CHAT_TEMPERATURE
     openai.api_key = API_TOKEN
@@ -66,15 +82,9 @@ def chat():
     if continue_chat:
         conversation = continue_chat
     else:
-        if SHOW_ROLE_SELECTION:
-            role = helpers.roles_chat_menu(ALL_ROLES, DEFAULT_ROLE)
-        else:
-            role = ALL_ROLES[DEFAULT_ROLE]
+        role = select_role()
         conversation = [{"role": "system", "content": role}]
-        if SHOW_TEMPERATURE_PICKER:
-            chat_temperature = helpers.handle_temperature(CHAT_TEMPERATURE)
-        else:
-            chat_temperature = CHAT_TEMPERATURE
+        chat_temperature = select_temperature()
 
     conversation_tokens = 0
     conversation_prompt_tokens = 0
@@ -123,6 +133,9 @@ def chat():
                 user_input = helpers.file_prompt()
                 if not user_input:
                     continue
+            case "flush":
+                conversation, chat_temperature = flush_chat(conversation)
+                continue
             case "format":
                 user_input = helpers.format_multiline()
                 if not user_input:
@@ -152,11 +165,10 @@ def chat():
         ):
             styling.custom_print(
                 "error",
-                "Maximum token limit for chat reached, please start a new chat",
-                -1,
+                "Maximum token limit for chat reached"
             )
-            helpers.save_chat(CHATS_PATH, conversation, ask=True)
-            sys.exit(2)
+            conversation, chat_temperature = flush_chat(conversation)
+            continue
         try:
             response = openai.ChatCompletion.create(
                 model=CHAT_MODEL,

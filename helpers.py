@@ -124,7 +124,8 @@ def help_info():
     commands = [
         "cost - Display conversation costs.",
         "file - Submit long text from a file to the chat.",
-        "format - Format multiline pasted text before sending to the chat.",
+        "flush - Start a new conversation.",
+        "format - Format multiline pasted text before sending to the chat."
         "save - Save the current conversation to a file.",
         "exit - Exit the program.",
         "",
@@ -150,7 +151,7 @@ def handle_base_menu(opt: str):
             return opt
 
 
-def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str:
+def base_chat_menu(title: str, default_option: str, base_options: list, add_nums: bool = True) -> str:
     """
     Base terminal menu
     :param title: Title of the terminal menu
@@ -159,11 +160,10 @@ def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str
     If set to False, they will have alphabetic ordering.
     :return: The selected string from the menu.
     """
-    default_options = ["Skip", "Exit"]
     enum_options = []
     counter = 1
     letters_counter = 0
-    options = ["Skip"] + base_options + ["Exit"]
+    options = [default_option] + base_options + ["Exit"]
     for opt in options:
         match opt:
             case "Skip":
@@ -171,7 +171,7 @@ def base_chat_menu(title: str, base_options: list, add_nums: bool = True) -> str
             case "Exit":
                 enum_options.append("[x] Exit")
             case _:
-                if add_nums and len(default_options) < 10:
+                if add_nums and len(options) < 10:
                     enum_options.append("[{}] {}".format(counter, opt))
                     counter += 1
                 else:
@@ -228,7 +228,7 @@ def continue_chat_menu(chat_path: str):
         return continue_chat("Skip", chat_path)
     return continue_chat(
         base_chat_menu(
-            "Would you like to continue a previous chat?:", all_chats),
+            "Would you like to continue a previous chat?:", "Skip", all_chats),
         chat_path,
     )
 
@@ -243,6 +243,7 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
     roles_names.append("Add New system behavior")
     selected_role = base_chat_menu(
         f'Select a role or skip to use the default one "{default_role}":',
+        "Default",
         roles_names,
         add_nums=False,
     )
@@ -352,7 +353,7 @@ def format_multiline():
         )
 
 
-def save_chat(chat_folder: str, conversation: list, ask: bool = False):
+def save_chat(chat_folder: str, conversation: list, ask: bool = False, skip_exit: bool = False):
     """
     Save the current chat to a folder.
     """
@@ -364,7 +365,9 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False):
                 )
             ).lower()
             if agreement == "n" or not agreement:
-                styling.custom_print("info", "Goodbye! :)", 0)
+                if not skip_exit:
+                    styling.custom_print("info", "Goodbye! :)", 0)
+                return
             elif agreement == "y":
                 break
     chat_name = input(
