@@ -14,6 +14,7 @@ BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(BASE_PATH, "config.toml")
 CHATS_PATH = os.path.join(BASE_PATH, "chats")
 
+# TODO Clean-up: dublicated with helpers.check_exist
 if not os.path.exists(CONFIG_PATH):
     styling.custom_print(
         "error", 'Please use the "config.toml.sample" to create your configuration.', 2
@@ -23,7 +24,9 @@ if not os.path.exists(CHATS_PATH):
     os.mkdir(CHATS_PATH)
 
 # Conversation settings
-config = toml.load(helpers.check_exist(CONFIG_PATH))
+config = toml.load(CONFIG_PATH)
+# TODO Clean-up: already checked at row 17
+# config = toml.load(helpers.check_exist(CONFIG_PATH))
 ALL_ROLES: dict = config["chat"]["roles"]
 DEFAULT_ROLE = config["chat"]["default_system_role"]
 DEBUG = config["chat"]["debug"]
@@ -33,10 +36,10 @@ SAVE_CHAT_ON_EXIT = config["chat"]["save_chat_on_exit"]
 LAST_COMPLETION_MAX_TOKENS = config["chat"]["last_completion_max_tokens"]
 
 # Color settings
-USER_PROMPT_COLOR = config["colors"]["user_prompt"]
-ASSISTANT_PROMPT_COLOR = config["colors"]["assistant_prompt"]
-ASSISTANT_RESPONSE_COLOR = config["colors"]["assistant_response"]
-CODE_COLOR = config["colors"]["code"]
+USER_PROMPT_COLOR = config["chat"]["colors"]["user_prompt"]
+ASSISTANT_PROMPT_COLOR = config["chat"]["colors"]["assistant_prompt"]
+ASSISTANT_RESPONSE_COLOR = config["chat"]["colors"]["assistant_response"]
+CODE_COLOR = config["chat"]["colors"]["code"]
 
 # API settings
 API_TOKEN = helpers.fetch_api_token(config["chat"]["api_token"], CONFIG_PATH)
@@ -96,9 +99,8 @@ def chat():
     api_usage_cost = 0
 
     while True:
-        if os.path.exists(os.path.join(BASE_PATH, "api_usage.txt")):
-            with open(os.path.join(BASE_PATH, "api_usage.txt"), "r") as file:
-                api_usage_cost = float(file.read())
+        api_usage_cost = toml.load(os.path.join(BASE_PATH, "config.toml"))[
+            "chat"]["api_usage"]
         try:
             user_input = input(
                 styling.coloring(

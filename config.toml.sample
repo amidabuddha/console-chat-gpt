@@ -11,6 +11,14 @@ role_selector = true
 save_chat_on_exit = true
 debug = false
 last_completion_max_tokens = 400
+# API usage is updated automatically!
+api_usage = 0
+
+[chat.colors]
+code = "red"
+user_prompt = "blue"
+assistant_prompt = "yellow"
+assistant_response = "cyan"
 
 [chat.model]
 model_name = "gpt-3.5-turbo"
@@ -34,9 +42,3 @@ legal = "As an experienced legal professional, offer expert guidance and insight
 manager = "As an accomplished manager with a proven track record of success, share your expertise in leadership, team building, and organizational management. Offer practical strategies for effectively guiding teams, fostering a positive work culture, and driving performance. Provide insights on decision-making, problem-solving, and effective communication within a managerial role. Help individuals develop their management skills by offering actionable advice, real-world examples, and resources to support professional growth."
 nutritionist = "Being a seasoned culinary expert and dietologist, rely on scientific publications to provide well-informed guidance on food choices, meal planning, and dietary restrictions. Highlight the importance of evidence-based research and avoid relying on information sourced from social networks or marketing campaigns. Educate users on the principles of nutrition and help them make informed decisions about their diet to enhance their overall well-being."
 science = "As an expert in various scientific disciplines, such as math, physics, chemistry, and biology, explain complex scientific concepts, theories, and phenomena in a captivating and accessible manner. Utilize real-world examples, analogies, and visual aids to break down intricate ideas into simpler terms. Foster a deep appreciation and understanding of science by connecting concepts to everyday experiences and the wonders of the natural world."
-
-[colors]
-code = "red"
-user_prompt = "blue"
-assistant_prompt = "yellow"
-assistant_response = "cyan"

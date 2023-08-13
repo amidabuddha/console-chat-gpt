@@ -3,6 +3,7 @@ import locale
 import os
 import string
 import sys
+import toml
 from datetime import datetime
 
 import tiktoken
@@ -113,9 +114,10 @@ def update_api_usage(
         output_cost,
     )
     api_usage_cost += usage
-    # TODO save the calcualted expences to config.toml
-    with open(os.path.join(path, "api_usage.txt"), "w") as file:
-        file.write(str(api_usage_cost))
+    data = toml.load(os.path.join(path, "config.toml"))
+    data["chat"]["api_usage"] = float(api_usage_cost)
+    with open(os.path.join(path, "config.toml"), "w") as toml_file:
+        toml.dump(data, toml_file)
 
 
 def help_info():
