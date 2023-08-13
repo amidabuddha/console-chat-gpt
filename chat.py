@@ -27,7 +27,9 @@ if not os.path.exists(CHATS_PATH):
 config = toml.load(CONFIG_PATH)
 # TODO Clean-up: already checked at row 17
 # config = toml.load(helpers.check_exist(CONFIG_PATH))
-ALL_ROLES: dict = config["chat"]["roles"]
+
+# Moved to the select_role fulction to always offer up-to date list
+# ALL_ROLES: dict = config["chat"]["roles"]
 DEFAULT_ROLE = config["chat"]["default_system_role"]
 DEBUG = config["chat"]["debug"]
 SHOW_ROLE_SELECTION = config["chat"]["role_selector"]
@@ -63,7 +65,8 @@ except locale.Error:
 
 
 def select_role():
-    return helpers.roles_chat_menu(ALL_ROLES, DEFAULT_ROLE) if SHOW_ROLE_SELECTION else ALL_ROLES[DEFAULT_ROLE]
+    roles: dict = toml.load(CONFIG_PATH)["chat"]["roles"]
+    return helpers.roles_chat_menu(CONFIG_PATH, roles, DEFAULT_ROLE) if SHOW_ROLE_SELECTION else roles[DEFAULT_ROLE]
 
 
 def select_temperature():
@@ -99,8 +102,7 @@ def chat():
     api_usage_cost = 0
 
     while True:
-        api_usage_cost = toml.load(os.path.join(BASE_PATH, "config.toml"))[
-            "chat"]["api_usage"]
+        api_usage_cost = toml.load(CONFIG_PATH)["chat"]["api_usage"]
         try:
             user_input = input(
                 styling.coloring(
@@ -152,7 +154,6 @@ def chat():
             case "":
                 styling.custom_print("warn", "Don't leave it empty, please :)")
                 continue
-
         user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
         calculated_prompt_tokens = helpers.num_tokens_from_messages(
@@ -203,14 +204,13 @@ def chat():
                 kattrs=["bold", "underline"],
             )
         )
-
         conversation_tokens += response.usage.total_tokens
         conversation_prompt_tokens = response.usage.prompt_tokens
         conversation_total_prompts_tokens += response.usage.prompt_tokens
         conversation_completion_tokens = response.usage.completion_tokens
         conversation_total_completions_tokens += response.usage.completion_tokens
         helpers.update_api_usage(
-            BASE_PATH,
+            CONFIG_PATH,
             conversation_prompt_tokens,
             conversation_completion_tokens,
             CHAT_MODEL_INPUT_PRICING_PER_1K,

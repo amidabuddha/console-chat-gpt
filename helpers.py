@@ -114,9 +114,9 @@ def update_api_usage(
         output_cost,
     )
     api_usage_cost += usage
-    data = toml.load(os.path.join(path, "config.toml"))
+    data = toml.load(path)
     data["chat"]["api_usage"] = float(api_usage_cost)
-    with open(os.path.join(path, "config.toml"), "w") as toml_file:
+    with open(path, "w") as toml_file:
         toml.dump(data, toml_file)
 
 
@@ -236,7 +236,7 @@ def continue_chat_menu(chat_path: str):
     )
 
 
-def roles_chat_menu(roles: dict, default_role: str) -> str:
+def roles_chat_menu(path: str, roles: dict, default_role: str) -> str:
     """
     Handle the roles within the config file.
     If you don't like them, you can create your own.
@@ -251,11 +251,37 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
         add_nums=False,
     )
     if selected_role == "Add New system behavior":
-        # TODO offer to save the custom role to config.toml
         try:
-            return input(
+            custom_role = input(
                 colored("Enter a detailed description of your custom role: ", "blue")
             )
+            while True:
+                agreement = input(
+                    colored(
+                        "Would you like to save this role for future use? y/n: ", "yellow"
+                    )
+                ).lower()
+                if agreement == "n" or not agreement:
+                    break
+                elif agreement == "y":
+                    role_name = input(
+                        colored(
+                            "Name the role or hit 'Enter' for default name: ", "yellow"
+                        )
+                    )
+                    if not role_name:
+                        base_name = "my_role"
+                        timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
+                        role_name = f"{base_name}_{timestamp}"
+                    else:
+                        role_name = role_name
+                    data = toml.load(path)
+                    data["chat"]["roles"][role_name] = custom_role
+                    with open(path, "w") as toml_file:
+                        toml.dump(data, toml_file)
+                    styling.custom_print("ok", "Custom role saved!")
+                    break
+            return custom_role
         except KeyboardInterrupt:
             styling.custom_print(
                 "info", "Cancelled the custom role creation, continuing with the chat."
