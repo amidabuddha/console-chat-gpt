@@ -113,6 +113,7 @@ def update_api_usage(
         output_cost,
     )
     api_usage_cost += usage
+    # TODO save the calcualted expences to config.toml
     with open(os.path.join(path, "api_usage.txt"), "w") as file:
         file.write(str(api_usage_cost))
 
@@ -242,12 +243,13 @@ def roles_chat_menu(roles: dict, default_role: str) -> str:
     roles_names.remove(default_role)
     roles_names.append("Add New system behavior")
     selected_role = base_chat_menu(
-        f'Select a role or skip to use the default one "{default_role}":',
+        f'Select a role or use the default one "{default_role}":',
         "Default",
         roles_names,
         add_nums=False,
     )
     if selected_role == "Add New system behavior":
+        # TODO offer to save the custom role to config.toml
         try:
             return input(
                 colored("Enter a detailed description of your custom role: ", "blue")
