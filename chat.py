@@ -6,6 +6,7 @@ import sys
 import openai
 import toml
 
+import calculations
 import helpers
 import styling
 
@@ -119,7 +120,7 @@ def chat():
                 helpers.help_info()
                 continue
             case "cost":
-                helpers.print_costs(
+                calculations.print_costs(
                     conversation_tokens,
                     conversation_prompt_tokens,
                     conversation_total_prompts_tokens,
@@ -156,7 +157,7 @@ def chat():
                 continue
         user_message = {"role": "user", "content": user_input}
         conversation.append(user_message)
-        calculated_prompt_tokens = helpers.num_tokens_from_messages(
+        calculated_prompt_tokens = calculations.num_tokens_from_messages(
             conversation, CHAT_MODEL
         )
         calculated_completion_max_tokens = (
@@ -209,7 +210,7 @@ def chat():
         conversation_total_prompts_tokens += response.usage.prompt_tokens
         conversation_completion_tokens = response.usage.completion_tokens
         conversation_total_completions_tokens += response.usage.completion_tokens
-        helpers.update_api_usage(
+        calculations.update_api_usage(
             CONFIG_PATH,
             conversation_prompt_tokens,
             conversation_completion_tokens,
