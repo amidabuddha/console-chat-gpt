@@ -40,12 +40,12 @@ def help_info():
     """
     commands = [
         "cost - Display conversation costs.",
+        "edit - Edit the latest User message. Last Assistant reply will be lost.",
+        "exit - Exit the program.",
         "file - Submit long text from a file to the chat.",
         "flush - Start a new conversation.",
-        "format - Format multiline pasted text before sending to the chat."
+        "format - Format multiline pasted text before sending to the chat.",
         "save - Save the current conversation to a file.",
-        "edit - Edit the latest User message. Last Assistant reply will be lost."
-        "exit - Exit the program.",
         "",
         "help - Display this help message.",
         "commands - Display this list of commands.",
