@@ -148,6 +148,10 @@ def chat():
             case "save":
                 helpers.save_chat(CHATS_PATH, conversation)
                 continue
+            case "edit":
+                conversation = helpers.edit_latest(
+                    CHATS_PATH, conversation, USER_PROMPT_COLOR)
+                continue
             case "exit" | "quit" | "bye":
                 if SAVE_CHAT_ON_EXIT:
                     helpers.save_chat(CHATS_PATH, conversation, ask=True)

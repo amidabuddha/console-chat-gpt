@@ -44,6 +44,7 @@ def help_info():
         "flush - Start a new conversation.",
         "format - Format multiline pasted text before sending to the chat."
         "save - Save the current conversation to a file.",
+        "edit - Edit the latest User message. Last Assistant reply will be lost."
         "exit - Exit the program.",
         "",
         "help - Display this help message.",
@@ -305,7 +306,7 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False, skip_exit
         while True:
             agreement = input(
                 colored(
-                    "Would you like to save the chat before you go? y/n: ", "yellow"
+                    "Would you like to save the chat? y/n: ", "yellow"
                 )
             ).lower()
             if agreement == "n" or not agreement:
@@ -332,3 +333,19 @@ def save_chat(chat_folder: str, conversation: list, ask: bool = False, skip_exit
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(conversation, file, indent=4, ensure_ascii=False)
     styling.custom_print("ok", f"File saved at - {file_path}")
+
+
+def edit_latest(save_folder, conversation, user_color):
+    if not conversation or len(conversation) < 2:
+        styling.custom_print(
+            "warn", "Seems like your chat has not started yet...")
+        return conversation
+    else:
+        save_chat(save_folder, conversation, True, True)
+        if conversation[-1]["role"] == "assistant":
+            conversation = conversation[:-1]
+        styling.custom_print(
+            "info", 'This was the last User message in the conversation. You may rewrite it or type a new one instead:')
+        print(colored("[User]", user_color) + ": " +
+              conversation[-1]["content"] + "\n")
+        return conversation[:-1]
