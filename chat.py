@@ -2,6 +2,7 @@ import json
 import locale
 import os
 import sys
+import readline
 
 import openai
 import toml
