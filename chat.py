@@ -65,7 +65,7 @@ except locale.Error:
             2,
         )
 
-
+# TODO: change the roles structure to a list of dictionaries
 def select_role():
     roles: dict = toml.load(CONFIG_PATH)["chat"]["roles"]
     return helpers.roles_chat_menu(CONFIG_PATH, roles, DEFAULT_ROLE) if SHOW_ROLE_SELECTION else roles[DEFAULT_ROLE]
