@@ -84,7 +84,7 @@ def update_api_usage(
     )
     api_usage_cost += usage
     data = toml.load(path)
-    data["chat"]["api_usage"] = float(api_usage_cost)
+    data["chat"]["api"]["api_usage"] = float(api_usage_cost)
     with open(path, "w") as toml_file:
         toml.dump(data, toml_file)
 

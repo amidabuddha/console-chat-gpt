@@ -46,7 +46,9 @@ ASSISTANT_RESPONSE_COLOR = config["chat"]["colors"]["assistant_response"]
 CODE_COLOR = config["chat"]["colors"]["code"]
 
 # API settings
-API_TOKEN = helpers.fetch_api_token(config["chat"]["api_token"], CONFIG_PATH)
+API_TOKEN = helpers.fetch_api_token(config["chat"]["api"]["api_key"], CONFIG_PATH)
+
+# Model settings
 CHAT_MODEL = config["chat"]["model"]["model_name"]
 CHAT_TEMPERATURE = config["chat"]["temperature"]
 CHAT_MODEL_INPUT_PRICING_PER_1K = config["chat"]["model"]["model_input_pricing_per_1k"]
@@ -104,7 +106,7 @@ def chat():
     api_usage_cost = 0
 
     while True:
-        api_usage_cost = toml.load(CONFIG_PATH)["chat"]["api_usage"]
+        api_usage_cost = toml.load(CONFIG_PATH)["chat"]["api"]["api_usage"]
         try:
             user_input = input(
                 styling.coloring(
