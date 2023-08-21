@@ -46,7 +46,8 @@ ASSISTANT_RESPONSE_COLOR = config["chat"]["colors"]["assistant_response"]
 CODE_COLOR = config["chat"]["colors"]["code"]
 
 # API settings
-API_TOKEN = helpers.fetch_api_token(config["chat"]["api"]["api_key"], CONFIG_PATH)
+API_TOKEN = helpers.fetch_api_token(
+    config["chat"]["api"]["api_key"], CONFIG_PATH)
 
 # Model settings
 CHAT_MODEL = config["chat"]["model"]["model_name"]
@@ -67,7 +68,7 @@ except locale.Error:
             2,
         )
 
-# TODO: change the roles structure to a list of dictionaries
+
 def select_role():
     roles: dict = toml.load(CONFIG_PATH)["chat"]["roles"]
     return helpers.roles_chat_menu(CONFIG_PATH, roles, DEFAULT_ROLE) if SHOW_ROLE_SELECTION else roles[DEFAULT_ROLE]

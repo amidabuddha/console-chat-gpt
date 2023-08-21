@@ -150,7 +150,7 @@ def continue_chat_menu(chat_path: str):
         chat_path,
     )
 
-# TODO: change the roles structure to a list of dictionaries
+
 def roles_chat_menu(path: str, roles: dict, default_role: str) -> str:
     """
     Handle the roles within the config file.
