@@ -32,6 +32,18 @@ class FetchConfig(Prettify):
         self.CHAT_MODEL_OUTPUT_PRICING_PER_1K: float = self.config["chat"]["model"]["model_output_pricing_per_1k"]
         self.CHAT_MODEL_MAX_TOKENS: int = self.config["chat"]["model"]["model_max_tokens"]
 
+        # Chat-related variables
+        self.user_input: str = ""
+        self.conversation: list[dict[str, str]] = []
+        self.chat_temperature: float = self.CHAT_TEMPERATURE
+        self.conversation_tokens: int = 0
+        self.conversation_prompt_tokens: int = 0
+        self.conversation_total_prompts_tokens: int = 0
+        self.conversation_completion_tokens: int = 0
+        self.conversation_total_completions_tokens: int = 0
+        self.calculated_prompt_tokens: int = 0
+        self.calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS
+
     def __path_exist(self, dest_path: str, error_message: str = "", create: bool = False) -> str:
         """
         Checks if a particular path (file; folder) exists

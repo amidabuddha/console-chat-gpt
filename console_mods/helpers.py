@@ -1,12 +1,10 @@
 import tiktoken
-
 from console_mods.config_attrs import FetchConfig
-
 import json
 import locale
 import os
 import toml
-from typing import Any, AnyStr
+from typing import Any
 from termcolor import colored
 import platform
 from simple_term_menu import TerminalMenu
@@ -15,11 +13,67 @@ import textwrap
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import PathCompleter
 import sys
-
+from datetime import datetime
 import readline  # Necessary for input()
 
 
 class Helper(FetchConfig):
+
+    @staticmethod
+    def __flush_lines(lines: int) -> None:
+        """
+        Flushes the given number of lines on the console
+        :param lines: The number of lines to flush.
+        """
+        for line in range(lines):
+            print("\033[F\033[K", end="")
+
+    def __role_preview(self, item: str) -> str:
+        """
+        Returns a preview of the selected role inside the menu
+        :param item: The role name.
+        :return: The preview of the role.
+        """
+        rows, columns = os.popen('stty size', 'r').read().split()
+        line_length: int = int(columns) // 2
+        match item:
+            case "Add New system behavior":
+                return "Write down how you would like the AI to act like."
+            case "Exit":
+                return "Terminate the application."
+            case "Default":
+                return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(self.DEFAULT_ROLE, "Unknown"), width=line_length))
+            case _:
+                return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(item, "Unknown Option"), width=line_length))
+
+    def __add_custom_role(self) -> str | None:
+        """
+        Adds a custom role and its description to the config file.
+        :return: The description of the custom role.
+        """
+        try:
+            while True:
+                role_title: str = self.custom_input("Enter a title for the new role: ")
+                if not role_title:
+                    self.custom_print("warn", "Please fill the title!")
+                    continue
+                if role_title not in self.ALL_ROLES.keys():
+                    break
+                self.custom_print("warn", "Such role name already exists!")
+                continue
+
+            while True:
+                role_desc: str = self.custom_input("Enter a detailed description of your custom role: ")
+                if role_desc:
+                    break
+                self.custom_print("warn", "Please fill the description!")
+                continue
+
+            self.write_to_config("chat", "roles", role_title, new_value=role_desc)
+            return role_desc
+        except KeyboardInterrupt:
+            return self.ALL_ROLES.get(self.DEFAULT_ROLE)
+
     @staticmethod
     def help_info() -> None:
         """
@@ -27,11 +81,12 @@ class Helper(FetchConfig):
         """
         commands: list[str] = [
             "cost - Display conversation costs.",
+            "edit - Edit the latest User message. Last Assistant reply will be lost.",
+            "exit - Exit the program.",
             "file - Submit long text from a file to the chat.",
             "flush - Start a new conversation.",
-            "format - Format multiline pasted text before sending to the chat."
+            "format - Format multiline pasted text before sending to the chat.",
             "save - Save the current conversation to a file.",
-            "exit - Exit the program.",
             "",
             "help - Display this help message.",
             "commands - Display this list of commands.",
@@ -52,15 +107,6 @@ class Helper(FetchConfig):
                 self.custom_print("warn", f"Unable to detect OS. Setting a default locale.")
                 locale.setlocale(locale.LC_ALL, '')
 
-    @staticmethod
-    def __flush_lines(lines: int) -> None:
-        """
-        Flushes the given number of lines on the console
-        :param lines: The number of lines to flush.
-        """
-        for line in range(lines):
-            print("\033[F\033[K", end="")
-
     def write_to_config(self, *args, new_value: Any) -> None:
         """
         Writes a new value to the config file
@@ -80,24 +126,6 @@ class Helper(FetchConfig):
 
         with open('config.toml', 'w') as file:
             toml.dump(config_data, file)
-
-    def __role_preview(self, item: str) -> str:
-        """
-        Returns a preview of the selected role inside the menu
-        :param item: The role name.
-        :return: The preview of the role.
-        """
-        rows, columns = os.popen('stty size', 'r').read().split()
-        line_length: int = int(columns) // 2
-        match item:
-            case "Add New system behavior":
-                return "Write down how you would like the AI to act like."
-            case "Exit":
-                return "Terminate the application."
-            case "Default":
-                return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(self.DEFAULT_ROLE, "Unknown"), width=line_length))
-            case _:
-                return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(item, "Unknown Option"), width=line_length))
 
     def base_chat_menu(self, title: str, default_option: str | list[str], base_options: list,
                        add_nums: bool = True, preview_func: Any = None) -> str:
@@ -162,34 +190,6 @@ class Helper(FetchConfig):
                         self.__flush_lines(lines)
                         break
                 lines += 1
-
-    def __add_custom_role(self) -> str | None:
-        """
-        Adds a custom role and its description to the config file.
-        :return: The description of the custom role.
-        """
-        try:
-            while True:
-                role_title: str = self.custom_input("Enter a title for the new role: ")
-                if not role_title:
-                    self.custom_print("warn", "Please fill the title!")
-                    continue
-                if role_title not in self.ALL_ROLES.keys():
-                    break
-                self.custom_print("warn", "Such role name already exists!")
-                continue
-
-            while True:
-                role_desc: str = self.custom_input("Enter a detailed description of your custom role: ")
-                if role_desc:
-                    break
-                self.custom_print("warn", "Please fill the description!")
-                continue
-
-            self.write_to_config("chat", "roles", role_title, new_value=role_desc)
-            return role_desc
-        except KeyboardInterrupt:
-            return self.ALL_ROLES.get(self.DEFAULT_ROLE)
 
     def roles_chat_menu(self) -> str:
         """
@@ -302,3 +302,101 @@ class Helper(FetchConfig):
                     num_tokens += tokens_per_name
         num_tokens += 3
         return num_tokens
+
+    def __calculate_costs(self) -> float:
+        """
+        Calculate the cost of the conversation based on the total prompt tokens and completion tokens.
+        :return: total cost of the conversation (float)
+        """
+        prompt_cost: float = self.conversation_total_prompts_tokens * self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
+        comp_cost: float = self.conversation_total_completions_tokens * self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
+        return prompt_cost + comp_cost
+
+    def print_costs(self, api_cost: float) -> None:
+        """
+        Print the cost of the conversation and API usage
+        :param api_cost: cost of API usage (float)
+        """
+        conversation_cost: float = self.__calculate_costs()
+        if self.DEBUG:
+            self.coloring(
+                None,
+                "green",
+                tokens_used=self.conversation_tokens,
+                calculated_prompt_tokens=self.calculated_prompt_tokens,
+                prompt_tokens_used=self.conversation_prompt_tokens,
+                total_prompt_tokens_used=self.conversation_total_prompts_tokens,
+                calculated_completion_max_tokens=self.calculated_completion_max_tokens,
+                completion_tokens_used=self.conversation_completion_tokens,
+                total_completion_tokens_used=self.conversation_total_completions_tokens,
+                chat_cost=locale.currency(conversation_cost, grouping=True),
+                api_key_usage_cost=locale.currency(api_cost, grouping=True),
+            )
+        else:
+            self.coloring(
+                None,
+                "green",
+                tokens_used=self.conversation_tokens,
+                chat_cost=locale.currency(conversation_cost, grouping=True),
+                api_usage_cost=locale.currency(api_cost, grouping=True),
+            )
+
+    def update_api_usage(self, usage: float) -> None:
+        """
+        Update the API usage cost by adding the current conversation cost and a given usage value
+        :param usage: additional API usage cost (float)
+        """
+        api_usage_cost: float = self.__calculate_costs() + usage
+        self.write_to_config("chat", "api", "api_usage", new_value=api_usage_cost)
+
+    def flush_chat(self) -> None:
+        """
+        Reset the conversation and start a new chat.
+        """
+        self.save_chat(ask=True, skip_exit=True)
+        self.base_chat_menu("Would you like to start a new chat?:", "Continue", [])
+        self.conversation = [{"role": "system", "content": self.roles_chat_menu()}]
+        self.select_temperature()
+
+    def save_chat(self, ask: bool = False, skip_exit: bool = False) -> None:
+        """
+        Save the current chat to a folder
+        :param ask: flag to ask user for confirmation (bool)
+        :param skip_exit: flag to skip exit confirmation (bool)
+        """
+        if ask:
+            while True:
+                agreement: str = self.custom_input("Would you like to save the chat before you go? y/n: ").lower()
+                if agreement == "n" or not agreement:
+                    if not skip_exit:
+                        self.custom_print("info", "Goodbye! :)", 0)
+                    return None
+                elif agreement == "y":
+                    break
+        chat_name: str = self.custom_input("Name the file to save the chat or hit 'Enter' for default name: ")
+        if not chat_name:
+            base_name: str = "messages"
+            timestamp: str = datetime.now().strftime("%Y_%m_%d_%H%M%S")
+            file_name: str = f"{base_name}_{timestamp}.json"
+        else:
+            if not chat_name.endswith(".json"):
+                file_name: str = chat_name + ".json"
+            else:
+                file_name: str = chat_name
+        file_path: str = os.path.join(self.CHATS_PATH, file_name)
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(self.conversation, file, indent=4, ensure_ascii=False)
+        self.custom_print("ok", f"File saved at - {file_path}")
+
+    def edit_latest(self):
+        if not self.conversation or len(self.conversation) < 2:
+            self.custom_print("warn", "Seems like your chat has not started yet...")
+        else:
+            self.save_chat(True, True)
+            if self.conversation[-1]["role"] == "assistant":
+                self.conversation = self.conversation[:-1]
+            self.custom_print(
+                "info",
+                'This was the last User message in the conversation. You may rewrite it or type a new one instead:')
+            print(colored("[User]", self.USER_PROMPT_COLOR) + f" {self.conversation[-1]['content']}")
+            self.conversation = self.conversation[:-1]
