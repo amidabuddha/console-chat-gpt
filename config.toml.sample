@@ -3,7 +3,6 @@
 # Also, don't forget to place your API Token
 
 [chat]
-api_token = "YOUR_OPENAI_API_KEY"
 temperature = 1
 adjust_temperature = true
 default_system_role = "dev"
@@ -11,6 +10,11 @@ role_selector = true
 save_chat_on_exit = true
 debug = false
 last_completion_max_tokens = 400
+
+[chat.api]
+api_key= "YOUR_OPENAI_API_KEY"
+base_url = "https://api.openai.com"
+endpoint = "/v1/chat/completions"
 # API usage is updated automatically!
 api_usage = 0
 
