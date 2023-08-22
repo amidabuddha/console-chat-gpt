@@ -12,14 +12,13 @@ debug = false
 last_completion_max_tokens = 400
 
 [chat.api]
-api_key= "YOUR_OPENAI_API_KEY"
+api_key = "YOUR_OPENAI_API_KEY"
 base_url = "https://api.openai.com"
 endpoint = "/v1/chat/completions"
 # API usage is updated automatically!
 api_usage = 0
 
 [chat.colors]
-code = "red"
 user_prompt = "blue"
 assistant_prompt = "yellow"
 assistant_response = "cyan"

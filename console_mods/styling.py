@@ -3,6 +3,7 @@ from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import get_lexer_by_name
 import re
+from typing import AnyStr
 from sys import exit
 
 
@@ -37,7 +38,7 @@ class Prettify:
         return input(self.custom_print("info", colored(prompt_text, "yellow"), print_now=False))
 
     @staticmethod
-    def coloring(*color, **data) -> (str, None):
+    def coloring(*color, **data) -> str | None:
         """
         Accept colors as *args (*colors) - max 2
         Accepts str as **kwargs (**data)
@@ -45,10 +46,10 @@ class Prettify:
         0 -> Key
         1 -> Value
         """
-        kattrs = data.pop("kattrs", None)  # Key attributes
-        vattrs = data.pop("vattrs", None)  # Value attributes
+        kattrs: list[str] | None = data.pop("kattrs", None)  # Key attributes
+        vattrs: list[str] | None = data.pop("vattrs", None)  # Value attributes
         for key, value in data.items():
-            key = " ".join(key.split("_")) if key.count("_") else key
+            key: str = " ".join(key.split("_")) if key.count("_") else key
             if len(data.keys()) == 1:
                 return f"{colored(key.capitalize(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}"
             print(f"{colored(key.capitalize(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}")
@@ -60,27 +61,27 @@ class Prettify:
         standard Markdown syntax for code block no matter space (\\s) or tab(\\t)
         at the beginning
         """
-        result = []
-        code_regex = re.compile(r"^(`{3}|(\t|\s)+`{3})")
-        catch_code_regex = r"```.*?```"
-        clear_code_regex = r"```(.*)?"
-        try:
-            language = [x for x in re.search(
-                clear_code_regex, text).groups() if x and x != "plaintext"][0]
-        except (IndexError, AttributeError):
-            language = "python"
+        result: list = []
+        code_regex: re.Pattern[str] = re.compile(r"^(`{3}|(\t|\s)+`{3})")
+        catch_code_regex: str = r"```.*?```"
+        clear_code_regex: str = r"```(.*)?"
+        matches = re.search(clear_code_regex, text)
+        language: str = "python"
+        if matches:
+            try:
+                language = [x for x in matches.groups() if x and x != "plaintext"][0]
+            except (IndexError, AttributeError):
+                language = "python"
 
         formatter = TerminalFormatter()
-        catch_code = re.findall(catch_code_regex, text, re.DOTALL)
-        clear_code = [re.sub(clear_code_regex, "", x) for x in catch_code]
-        highlighted_code = [
-            highlight(x, get_lexer_by_name(language), formatter) for x in clear_code
-        ]
-        total_code = len(highlighted_code)
-        counter = 0
-        words = text.split("\n")
-        skip_add = False
-        is_code = False
+        catch_code: list[str] = re.findall(catch_code_regex, text, re.DOTALL)
+        clear_code: list[str] = [re.sub(clear_code_regex, "", x) for x in catch_code]
+        highlighted_code: list = [highlight(x, get_lexer_by_name(language), formatter) for x in clear_code]
+        total_code: int = len(highlighted_code)
+        counter: int = 0
+        words: list[str] = text.split("\n")
+        skip_add: bool = False
+        is_code: bool = False
         for word in words:
             if code_regex.search(word):
                 skip_add = True if not skip_add else False

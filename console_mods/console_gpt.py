@@ -8,7 +8,6 @@ from console_mods.helpers import Helper
 import openai
 from typing import Any
 import readline  # Necessary for input()
-readline.parse_and_bind("tab: complete")
 
 
 class ConsoleGPT(Helper):
@@ -27,11 +26,19 @@ class ConsoleGPT(Helper):
         self.calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS
 
     def __calculate_costs(self) -> float:
+        """
+        Calculate the cost of the conversation based on the total prompt tokens and completion tokens.
+        :return: total cost of the conversation (float)
+        """
         prompt_cost: float = self.conversation_total_prompts_tokens * self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
         comp_cost: float = self.conversation_total_completions_tokens * self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
         return prompt_cost + comp_cost
 
     def print_costs(self, api_cost: float) -> None:
+        """
+        Print the cost of the conversation and API usage
+        :param api_cost: cost of API usage (float)
+        """
         conversation_cost: float = self.__calculate_costs()
         if self.DEBUG:
             self.coloring(
@@ -57,10 +64,17 @@ class ConsoleGPT(Helper):
             )
 
     def update_api_usage(self, usage: float) -> None:
+        """
+        Update the API usage cost by adding the current conversation cost and a given usage value
+        :param usage: additional API usage cost (float)
+        """
         api_usage_cost: float = self.__calculate_costs() + usage
         self.write_to_config("chat", "api", "api_usage", new_value=api_usage_cost)
 
     def flush_chat(self) -> None:
+        """
+        Reset the conversation and start a new chat.
+        """
         self.save_chat(ask=True, skip_exit=True)
         self.base_chat_menu("Would you like to start a new chat?:", "Continue", [])
         self.conversation = [{"role": "system", "content": self.roles_chat_menu()}]
@@ -68,7 +82,9 @@ class ConsoleGPT(Helper):
 
     def save_chat(self, ask: bool = False, skip_exit: bool = False) -> None:
         """
-        Save the current chat to a folder.
+        Save the current chat to a folder
+        :param ask: flag to ask user for confirmation (bool)
+        :param skip_exit: flag to skip exit confirmation (bool)
         """
         if ask:
             while True:
@@ -95,6 +111,9 @@ class ConsoleGPT(Helper):
         self.custom_print("ok", f"File saved at - {file_path}")
 
     def main(self) -> None:
+        """
+        The main function that handles user input, generates AI responses, and manages the conversation flow.
+        """
         openai.api_key = self.API_TOKEN
         continue_chat = self.continue_chat_menu()
         if continue_chat:
@@ -122,7 +141,7 @@ class ConsoleGPT(Helper):
                     self.print_costs(api_usage_cost)
                     continue
                 case "file":
-                    file_content: str = self.file_prompt()
+                    file_content: str | None = self.file_prompt()
                     if not file_content:
                         continue
                     self.user_input = file_content
@@ -130,7 +149,7 @@ class ConsoleGPT(Helper):
                     self.flush_chat()
                     continue
                 case "format":
-                    formatted_input: str = self.format_multiline()
+                    formatted_input: str | None = self.format_multiline()
                     if not formatted_input:
                         continue
                     self.user_input = formatted_input
@@ -161,11 +180,11 @@ class ConsoleGPT(Helper):
                     temperature=self.chat_temperature,
                     max_tokens=calculated_completion_max_tokens,
                 )
-            except openai.error.OpenAIError as e:
+            except openai.error.OpenAIError as e:  # type: ignore
                 self.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
                 self.save_chat(ask=True)
                 sys.exit(1)  # adding to avoid warning for response var
-            assistant_message: Any = response.choices[0].message
+            assistant_message: Any = response.choices[0].message  # type: ignore
             assistant_response: dict[str, str] = dict(role="assistant", content=assistant_message["content"])
             self.conversation.append(assistant_response)
             if self.DEBUG:
@@ -180,9 +199,9 @@ class ConsoleGPT(Helper):
                 )
             )
 
-            self.conversation_tokens += response.usage.total_tokens
-            self.conversation_prompt_tokens = response.usage.prompt_tokens
-            self.conversation_total_prompts_tokens += response.usage.prompt_tokens
-            self.conversation_completion_tokens = response.usage.completion_tokens
-            self.conversation_total_completions_tokens += response.usage.completion_tokens
+            self.conversation_tokens += response.usage.total_tokens  # type: ignore
+            self.conversation_prompt_tokens = response.usage.prompt_tokens  # type: ignore
+            self.conversation_total_prompts_tokens += response.usage.prompt_tokens  # type: ignore
+            self.conversation_completion_tokens = response.usage.completion_tokens  # type: ignore
+            self.conversation_total_completions_tokens += response.usage.completion_tokens  # type: ignore
             self.update_api_usage(api_usage_cost)

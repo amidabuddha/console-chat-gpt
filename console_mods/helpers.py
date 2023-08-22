@@ -40,6 +40,9 @@ class Helper(FetchConfig):
         print("\n".join(f"\t{command}" for command in commands))
 
     def set_locale(self) -> None:
+        """
+        Sets the locale based on the operating system.
+        """
         match platform.system():
             case "Darwin":
                 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
@@ -51,10 +54,19 @@ class Helper(FetchConfig):
 
     @staticmethod
     def __flush_lines(lines: int) -> None:
+        """
+        Flushes the given number of lines on the console
+        :param lines: The number of lines to flush.
+        """
         for line in range(lines):
             print("\033[F\033[K", end="")
 
     def write_to_config(self, *args, new_value: Any) -> None:
+        """
+        Writes a new value to the config file
+        :param args: The keys to access the value in the config file
+        :param new_value: The new value to be written
+        """
         with open(self.CONFIG_PATH, 'r') as file:
             config_data: dict[str, Any] = toml.load(file)
 
@@ -70,6 +82,11 @@ class Helper(FetchConfig):
             toml.dump(config_data, file)
 
     def __role_preview(self, item: str) -> str:
+        """
+        Returns a preview of the selected role inside the menu
+        :param item: The role name.
+        :return: The preview of the role.
+        """
         rows, columns = os.popen('stty size', 'r').read().split()
         line_length: int = int(columns) // 2
         match item:
@@ -78,26 +95,26 @@ class Helper(FetchConfig):
             case "Exit":
                 return "Terminate the application."
             case "Default":
-                return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(self.DEFAULT_ROLE), width=line_length))
+                return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(self.DEFAULT_ROLE, "Unknown"), width=line_length))
             case _:
                 return '\n'.join(textwrap.wrap(self.ALL_ROLES.get(item, "Unknown Option"), width=line_length))
 
-    def base_chat_menu(self, title: str, default_option: str | list, base_options: list,
+    def base_chat_menu(self, title: str, default_option: str | list[str], base_options: list,
                        add_nums: bool = True, preview_func: Any = None) -> str:
         """
         Base terminal menu
         :param title: Title of the terminal menu
-        :param default_option: Place the items which you would like to appear first here
-        :param base_options: The available "clickable" options
+        :param default_option: The first items that will appear in the menu
+        :param base_options: The rest of the options
         :param add_nums: By default if the options are < 10 they will be numerated
-        :param preview_func: asd
-        If set to False, they will have alphabetic ordering.
+        :param preview_func: Accepts a function that should accept and return string which is
+        used within the preview box in the menu
         :return: The selected string from the menu.
         """
         enum_options: list[str] = []
         counter: int = 1
         letters_counter: int = 0
-        default_option: str | list = [default_option] if isinstance(default_option, str) else default_option
+        default_option = [default_option] if isinstance(default_option, str) else default_option
         options: list[str] = default_option + base_options + ["Exit"]
         for opt in options:
             match opt:
@@ -147,6 +164,10 @@ class Helper(FetchConfig):
                 lines += 1
 
     def __add_custom_role(self) -> str | None:
+        """
+        Adds a custom role and its description to the config file.
+        :return: The description of the custom role.
+        """
         try:
             while True:
                 role_title: str = self.custom_input("Enter a title for the new role: ")
@@ -187,13 +208,13 @@ class Helper(FetchConfig):
                 preview_func=self.__role_preview
             )
             if selected_role == "Add New system behavior":
-                role: str = self.__add_custom_role()
+                role: str | None = self.__add_custom_role()
             else:
-                role: str = self.ALL_ROLES.get(selected_role)
+                role: str | None = self.ALL_ROLES.get(selected_role)
             if not role:
-                return self.ALL_ROLES.get(self.DEFAULT_ROLE)
+                return self.ALL_ROLES.get(self.DEFAULT_ROLE, "")
             return role
-        return self.ALL_ROLES.get(self.DEFAULT_ROLE)
+        return self.ALL_ROLES.get(self.DEFAULT_ROLE, "")
 
     def continue_chat_menu(self) -> list[dict[str, str]] | None:
         """
@@ -230,7 +251,7 @@ class Helper(FetchConfig):
                     self.custom_print("warn", f"No such file at - {user_input}")
                     continue
                 with open(user_input, "r") as file:
-                    user_prompt: AnyStr = file.read()
+                    user_prompt: str = file.read()
                     user_prompt.replace("\n", "\\n").replace('"', '\\"')
                     context: str = input(
                         colored(
