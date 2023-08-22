@@ -38,7 +38,7 @@ class Helper(FetchConfig):
         line_length: int = int(columns) // 2
         match item:
             case "Add New system behavior":
-                return "Write down how you would like the AI to act like."
+                return "Provide detailed instructions of the desired LLM functioning."
             case "Exit":
                 return "Terminate the application."
             case "Default":
@@ -53,7 +53,8 @@ class Helper(FetchConfig):
         """
         try:
             while True:
-                role_title: str = self.custom_input("Enter a title for the new role: ")
+                role_title: str = self.custom_input(
+                    "Enter a title for the new role: ")
                 if not role_title:
                     self.custom_print("warn", "Please fill the title!")
                     continue
@@ -63,13 +64,15 @@ class Helper(FetchConfig):
                 continue
 
             while True:
-                role_desc: str = self.custom_input("Enter a detailed description of your custom role: ")
+                role_desc: str = self.custom_input(
+                    "Enter a detailed description of your custom role: ")
                 if role_desc:
                     break
                 self.custom_print("warn", "Please fill the description!")
                 continue
 
-            self.write_to_config("chat", "roles", role_title, new_value=role_desc)
+            self.write_to_config(
+                "chat", "roles", role_title, new_value=role_desc)
             return role_desc
         except KeyboardInterrupt:
             return self.ALL_ROLES.get(self.DEFAULT_ROLE)
@@ -104,7 +107,8 @@ class Helper(FetchConfig):
             case "Linux":
                 locale.setlocale(locale.LC_ALL, "en_US.utf8")
             case _:
-                self.custom_print("warn", f"Unable to detect OS. Setting a default locale.")
+                self.custom_print(
+                    "warn", f"Unable to detect OS. Setting a default locale.")
                 locale.setlocale(locale.LC_ALL, '')
 
     def write_to_config(self, *args, new_value: Any) -> None:
@@ -142,7 +146,8 @@ class Helper(FetchConfig):
         enum_options: list[str] = []
         counter: int = 1
         letters_counter: int = 0
-        default_option = [default_option] if isinstance(default_option, str) else default_option
+        default_option = [default_option] if isinstance(
+            default_option, str) else default_option
         options: list[str] = default_option + base_options + ["Exit"]
         for opt in options:
             match opt:
@@ -155,16 +160,20 @@ class Helper(FetchConfig):
                         enum_options.append("[{}] {}".format(counter, opt))
                         counter += 1
                     else:
-                        letters: list[str] = [x for x in list(ascii_lowercase) if x not in ["s", "x"]]
-                        enum_options.append("[{}]{}".format(letters[letters_counter], opt))
+                        letters: list[str] = [x for x in list(
+                            ascii_lowercase) if x not in ["s", "x"]]
+                        enum_options.append("[{}]{}".format(
+                            letters[letters_counter], opt))
                         letters_counter += 1
         if preview_func:
-            terminal_menu: Any = TerminalMenu(enum_options, title=title, preview_command=preview_func)
+            terminal_menu: Any = TerminalMenu(
+                enum_options, title=title, preview_command=preview_func)
         else:
             terminal_menu: Any = TerminalMenu(enum_options, title=title)
         menu_entry_index: Any = terminal_menu.show()
         if menu_entry_index is None:
-            self.custom_print("error", "Keyboard interrupt or attempt to break stuff ;(", 130)
+            self.custom_print(
+                "error", "Keyboard interrupt or attempt to break stuff ;(", 130)
         selected_item: str = options[menu_entry_index]
         if selected_item == "Exit":
             self.custom_print("info", "Goodbye :)", 0, True)
@@ -179,7 +188,8 @@ class Helper(FetchConfig):
             lines: int = 1
             while True:
                 try:
-                    user_input = self.custom_input(f"Press 'ENTER' for the default setting ({self.CHAT_TEMPERATURE}): ")
+                    user_input = self.custom_input(
+                        f"Press 'ENTER' for the default setting ({self.CHAT_TEMPERATURE}): ")
                     float_temp: float = float(user_input)
                     if 2 >= float_temp >= 0:
                         self.__flush_lines(lines)
@@ -226,14 +236,16 @@ class Helper(FetchConfig):
         all_chats: list[str] = os.listdir(self.CHATS_PATH)
         if not len(all_chats):
             return None
-        selection: str = self.base_chat_menu("Would you like to continue a previous chat?:", "Skip", all_chats)
+        selection: str = self.base_chat_menu(
+            "Would you like to continue a previous chat?:", "Skip", all_chats)
         if selection == "Skip":
             return None
         try:
             full_path: str = os.path.join(self.CHATS_PATH, selection)
             with open(full_path, "r") as file:
                 data: Any = json.load(file)
-                self.custom_print("ok", f"Successfully loaded previous chat - {selection}")
+                self.custom_print(
+                    "ok", f"Successfully loaded previous chat - {selection}")
             return data
         except json.JSONDecodeError as e:
             self.custom_print("error", f"Error decoding JSON: {e}", 1)
@@ -246,9 +258,11 @@ class Helper(FetchConfig):
         """
         try:
             while True:
-                user_input = prompt("Enter a path: ", completer=PathCompleter())
+                user_input = prompt(
+                    "Enter a path: ", completer=PathCompleter())
                 if not os.path.isfile(user_input):
-                    self.custom_print("warn", f"No such file at - {user_input}")
+                    self.custom_print(
+                        "warn", f"No such file at - {user_input}")
                     continue
                 with open(user_input, "r") as file:
                     user_prompt: str = file.read()
@@ -263,7 +277,8 @@ class Helper(FetchConfig):
                         user_prompt = context + ":\n" + user_prompt
                 return user_prompt
         except KeyboardInterrupt:
-            self.custom_print("info", "Cancelled the file selection, continuing with the chat.")
+            self.custom_print(
+                "info", "Cancelled the file selection, continuing with the chat.")
             return None
 
     def format_multiline(self):
@@ -271,7 +286,8 @@ class Helper(FetchConfig):
         Formats a multiline chat input.
         """
         try:
-            self.custom_print("info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
+            self.custom_print(
+                "info", "Paste the multiline text and press 'Ctrl+D' on an new empty line to continue: ")
             content = sys.stdin.read()
             if content:
                 content.replace("\n", "\\n").replace('"', '\\"')
@@ -284,7 +300,8 @@ class Helper(FetchConfig):
             return content
         except KeyboardInterrupt:
             print("\b\b", end="")
-            self.custom_print("info", "Cancelled the multiline text, continuing with the chat.")
+            self.custom_print(
+                "info", "Cancelled the multiline text, continuing with the chat.")
 
     def num_tokens_from_messages(self, messages: list[dict]) -> int:
         """
@@ -308,8 +325,10 @@ class Helper(FetchConfig):
         Calculate the cost of the conversation based on the total prompt tokens and completion tokens.
         :return: total cost of the conversation (float)
         """
-        prompt_cost: float = self.conversation_total_prompts_tokens * self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
-        comp_cost: float = self.conversation_total_completions_tokens * self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
+        prompt_cost: float = self.conversation_total_prompts_tokens * \
+            self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
+        comp_cost: float = self.conversation_total_completions_tokens * \
+            self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
         return prompt_cost + comp_cost
 
     def print_costs(self, api_cost: float) -> None:
@@ -347,15 +366,18 @@ class Helper(FetchConfig):
         :param usage: additional API usage cost (float)
         """
         api_usage_cost: float = self.__calculate_costs() + usage
-        self.write_to_config("chat", "api", "api_usage", new_value=api_usage_cost)
+        self.write_to_config("chat", "api", "api_usage",
+                             new_value=api_usage_cost)
 
     def flush_chat(self) -> None:
         """
         Reset the conversation and start a new chat.
         """
         self.save_chat(ask=True, skip_exit=True)
-        self.base_chat_menu("Would you like to start a new chat?:", "Continue", [])
-        self.conversation = [{"role": "system", "content": self.roles_chat_menu()}]
+        self.base_chat_menu(
+            "Would you like to start a new chat?:", "Continue", [])
+        self.conversation = [
+            {"role": "system", "content": self.roles_chat_menu()}]
         self.select_temperature()
 
     def save_chat(self, ask: bool = False, skip_exit: bool = False) -> None:
@@ -366,14 +388,16 @@ class Helper(FetchConfig):
         """
         if ask:
             while True:
-                agreement: str = self.custom_input("Would you like to save the chat before you go? y/n: ").lower()
+                agreement: str = self.custom_input(
+                    "Would you like to save the chat before you go? y/n: ").lower()
                 if agreement == "n" or not agreement:
                     if not skip_exit:
                         self.custom_print("info", "Goodbye! :)", 0)
                     return None
                 elif agreement == "y":
                     break
-        chat_name: str = self.custom_input("Name the file to save the chat or hit 'Enter' for default name: ")
+        chat_name: str = self.custom_input(
+            "Name the file to save the chat or hit 'Enter' for default name: ")
         if not chat_name:
             base_name: str = "messages"
             timestamp: str = datetime.now().strftime("%Y_%m_%d_%H%M%S")
@@ -390,7 +414,8 @@ class Helper(FetchConfig):
 
     def edit_latest(self):
         if not self.conversation or len(self.conversation) < 2:
-            self.custom_print("warn", "Seems like your chat has not started yet...")
+            self.custom_print(
+                "warn", "Seems like your chat has not started yet...")
         else:
             self.save_chat(True, True)
             if self.conversation[-1]["role"] == "assistant":
@@ -398,5 +423,6 @@ class Helper(FetchConfig):
             self.custom_print(
                 "info",
                 'This was the last User message in the conversation. You may rewrite it or type a new one instead:')
-            print(colored("[User]", self.USER_PROMPT_COLOR) + f" {self.conversation[-1]['content']}")
+            print(colored("[User]", self.USER_PROMPT_COLOR) +
+                  f" {self.conversation[-1]['content']}")
             self.conversation = self.conversation[:-1]
