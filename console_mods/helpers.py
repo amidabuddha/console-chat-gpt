@@ -128,7 +128,7 @@ class Helper(FetchConfig):
             case _:
                 self.custom_print("error", "Wrong usage of write_to_config", 1)
 
-        with open('config.toml', 'w') as file:
+        with open(self.CONFIG_PATH, 'w') as file:
             toml.dump(config_data, file)
 
     def base_chat_menu(self, title: str, default_option: str | list[str], base_options: list,
@@ -373,6 +373,7 @@ class Helper(FetchConfig):
         """
         Reset the conversation and start a new chat.
         """
+        self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"] # RELOAD ROLES
         self.save_chat(ask=True, skip_exit=True)
         self.base_chat_menu(
             "Would you like to start a new chat?:", "Continue", [])
