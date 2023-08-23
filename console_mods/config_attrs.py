@@ -1,4 +1,4 @@
-from console_mods.styling import Prettify
+from console_mods.styling import Prettify, colored
 import os
 import toml
 from typing import Any
@@ -10,7 +10,12 @@ class FetchConfig(Prettify):
         self.CONFIG_PATH: str = self.__path_exist(os.path.join(self.BASE_PATH, "config.toml"),
                                                   'Please use the "config.toml.sample" to create your configuration.')
         self.CHATS_PATH: str = self.__path_exist(os.path.join(self.BASE_PATH, "chats"), create=True)
-        self.config: dict[str, Any] = toml.load(self.CONFIG_PATH)
+        try:
+            self.config: dict[str, Any] = toml.load(self.CONFIG_PATH)
+        except toml.decoder.TomlDecodeError as e:
+            error: str = colored(str(e).split("(")[1].replace(")", ''), "red", attrs=['bold', 'underline'])
+            self.custom_print("error", f"Empty values are NOT allowed in the config file!: {error}", 1)
+        self.verify_config()
         self.ALL_ROLES: dict[str, str] = self.config["chat"]["roles"]
         self.DEFAULT_ROLE: str = self.config["chat"]["default_system_role"]
         self.DEBUG: bool = self.config["chat"]["debug"]
@@ -68,3 +73,52 @@ class FetchConfig(Prettify):
         if not token:
             self.custom_print("error", f"Please make sure that the API token is inside {self.CONFIG_PATH}", 1)
         return token
+
+    def verify_config(self):
+        match self.config:
+            case {
+                "chat": {
+                    "temperature": int(),
+                    "adjust_temperature": bool(),
+                    "default_system_role": str(),
+                    "role_selector": bool(),
+                    "save_chat_on_exit": bool(),
+                    "debug": bool(),
+                    "last_completion_max_tokens": int(),
+                    "api": {
+                        "api_key": str(),
+                        "base_url": str(),
+                        "endpoint": str(),
+                        "api_usage": int()
+                    },
+                    "colors": {
+                        "user_prompt": str(),
+                        "assistant_prompt": str(),
+                        "assistant_response": str()
+                    },
+                    "model": {
+                        "model_name": str(),
+                        "model_input_pricing_per_1k": float(),
+                        "model_output_pricing_per_1k": float(),
+                        "model_max_tokens": int()
+                    },
+                    "roles": {
+                        "ai_expert": str(),
+                        "business": str(),
+                        "dev": str(),
+                        "education": str(),
+                        "fitness": str(),
+                        "health": str(),
+                        "legal": str(),
+                        "manager": str(),
+                        "nutritionist": str(),
+                        "science": str()
+                    }
+                }
+            }:
+                # Configuration is valid
+                pass
+            case _:
+                self.custom_print("error",
+                                  "Your configuration is incorrect. Either entry is missing or incorrect type is used. "
+                                  "Please pull from latest!", 1)
