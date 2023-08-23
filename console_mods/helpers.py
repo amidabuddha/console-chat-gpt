@@ -269,7 +269,7 @@ class Helper(FetchConfig):
                     user_prompt.replace("\n", "\\n").replace('"', '\\"')
                     context: str = input(
                         colored(
-                            "Add any additional clarification before the submitted text or press 'ENTER' to continue: ",
+                            "Add any additional clarification before the submitted text or press 'ENTER' to continue: \n",
                             "blue",
                         )
                     )
@@ -293,7 +293,7 @@ class Helper(FetchConfig):
                 content.replace("\n", "\\n").replace('"', '\\"')
                 context = input(
                     colored(
-                        "Add additional clarification before the formatted text or press 'ENTER' to continue: ",
+                        "Add additional clarification before the formatted text or press 'ENTER' to continue: \n",
                         "blue"))
                 if context:
                     content = context + ":\n" + content
