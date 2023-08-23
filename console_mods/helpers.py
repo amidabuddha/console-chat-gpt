@@ -54,7 +54,7 @@ class Helper(FetchConfig):
         try:
             while True:
                 role_title: str = self.custom_input(
-                    "Enter a title for the new role: ")
+                    "Enter a title for the new role: ").replace(" ", "_")
                 if not role_title:
                     self.custom_print("warn", "Please fill the title!")
                     continue
@@ -206,9 +206,18 @@ class Helper(FetchConfig):
         Handle the roles within the config file.
         If you don't like them, you can create your own.
         """
-        if self.SHOW_ROLE_SELECTION:
-            roles_names: list[str] = list(self.ALL_ROLES.keys())
-            roles_names.remove(self.DEFAULT_ROLE)
+        if not self.ALL_ROLES:
+            self.custom_print(
+                "error", "Please add some roles to config.toml", 1)
+        elif self.DEFAULT_ROLE not in self.ALL_ROLES:
+            self.custom_print(
+                "error", "The default role in config.toml is undefined", 1)
+        elif self.SHOW_ROLE_SELECTION:
+            roles_names: list[str] = list(
+                self.fetch_variable("chat", "roles").keys())
+            # print(roles_names == self.DEFAULT_ROLE)
+            # sys.exit(1)
+            # roles_names.remove(self.DEFAULT_ROLE)
             roles_names.append("Add New system behavior")
             selected_role = self.base_chat_menu(
                 f'Select a role or use the default one "{self.DEFAULT_ROLE}":',
@@ -325,8 +334,10 @@ class Helper(FetchConfig):
         Calculate the cost of the conversation based on the total prompt tokens and completion tokens.
         :return: total cost of the conversation (float)
         """
-        prompt_cost: float = self.conversation_total_prompts_tokens * self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
-        comp_cost: float = self.conversation_total_completions_tokens * self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
+        prompt_cost: float = self.conversation_total_prompts_tokens * \
+            self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
+        comp_cost: float = self.conversation_total_completions_tokens * \
+            self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
         return prompt_cost + comp_cost
 
     def print_costs(self, api_cost: float) -> None:
@@ -371,7 +382,8 @@ class Helper(FetchConfig):
         """
         Reset the conversation and start a new chat.
         """
-        self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"]  # RELOAD ROLES
+        self.ALL_ROLES = toml.load(self.CONFIG_PATH)[
+            "chat"]["roles"]  # RELOAD ROLES
         self.save_chat(ask=True, skip_exit=True)
         self.base_chat_menu(
             "Would you like to start a new chat?:", "Continue", [])
