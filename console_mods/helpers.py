@@ -325,10 +325,8 @@ class Helper(FetchConfig):
         Calculate the cost of the conversation based on the total prompt tokens and completion tokens.
         :return: total cost of the conversation (float)
         """
-        prompt_cost: float = self.conversation_total_prompts_tokens * \
-            self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
-        comp_cost: float = self.conversation_total_completions_tokens * \
-            self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
+        prompt_cost: float = self.conversation_total_prompts_tokens * self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
+        comp_cost: float = self.conversation_total_completions_tokens * self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
         return prompt_cost + comp_cost
 
     def print_costs(self, api_cost: float) -> None:
@@ -373,7 +371,7 @@ class Helper(FetchConfig):
         """
         Reset the conversation and start a new chat.
         """
-        self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"] # RELOAD ROLES
+        self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"]  # RELOAD ROLES
         self.save_chat(ask=True, skip_exit=True)
         self.base_chat_menu(
             "Would you like to start a new chat?:", "Continue", [])
