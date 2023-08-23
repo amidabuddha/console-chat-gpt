@@ -208,16 +208,13 @@ class Helper(FetchConfig):
         """
         if not self.ALL_ROLES:
             self.custom_print(
-                "error", "Please add some roles to config.toml", 1)
+                "error", "Please add some roles to config.toml.", 1)
         elif self.DEFAULT_ROLE not in self.ALL_ROLES:
             self.custom_print(
-                "error", "The default role in config.toml is undefined", 1)
+                "error", "The default system role in config.toml is undefined.", 1)
         elif self.SHOW_ROLE_SELECTION:
             roles_names: list[str] = list(
                 self.fetch_variable("chat", "roles").keys())
-            # print(roles_names == self.DEFAULT_ROLE)
-            # sys.exit(1)
-            # roles_names.remove(self.DEFAULT_ROLE)
             roles_names.append("Add New system behavior")
             selected_role = self.base_chat_menu(
                 f'Select a role or use the default one "{self.DEFAULT_ROLE}":',
