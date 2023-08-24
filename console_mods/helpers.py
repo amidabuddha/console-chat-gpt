@@ -1,3 +1,5 @@
+import re
+
 import tiktoken
 from console_mods.config_attrs import FetchConfig
 import json
@@ -53,8 +55,7 @@ class Helper(FetchConfig):
         """
         try:
             while True:
-                role_title: str = self.custom_input(
-                    "Enter a title for the new role: ").replace(" ", "_")
+                role_title: str = re.sub(r"(\t|\s|\n)+", "_", self.custom_input("Enter a title for the new role: "))
                 if not role_title:
                     self.custom_print("warn", "Please fill the title!")
                     continue
@@ -62,11 +63,8 @@ class Helper(FetchConfig):
                     break
                 self.custom_print("warn", "Such role name already exists!")
                 continue
-
-            role_desc = self.__add_role_description
-
-            self.write_to_config(
-                "chat", "roles", role_title, new_value=role_desc)
+            role_desc = self.__add_role_description()
+            self.write_to_config("chat", "roles", role_title, new_value=role_desc)
             return role_desc
         except KeyboardInterrupt:
             return self.ALL_ROLES.get(self.DEFAULT_ROLE)
@@ -78,8 +76,7 @@ class Helper(FetchConfig):
         """
         try:
             while True:
-                role_desc: str = self.custom_input(
-                    "Enter a detailed description of your assistant role: ")
+                role_desc: str = self.custom_input("Enter a detailed description of your assistant role: ")
                 if role_desc:
                     return role_desc
                 self.custom_print("warn", "Please fill the description!")
@@ -342,9 +339,9 @@ class Helper(FetchConfig):
         :return: total cost of the conversation (float)
         """
         prompt_cost: float = self.conversation_total_prompts_tokens * \
-            self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
+                             self.CHAT_MODEL_INPUT_PRICING_PER_1K / 1000
         comp_cost: float = self.conversation_total_completions_tokens * \
-            self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
+                           self.CHAT_MODEL_OUTPUT_PRICING_PER_1K / 1000
         return prompt_cost + comp_cost
 
     def print_costs(self, api_cost: float) -> None:
