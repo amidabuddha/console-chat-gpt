@@ -63,19 +63,29 @@ class Helper(FetchConfig):
                 self.custom_print("warn", "Such role name already exists!")
                 continue
 
-            while True:
-                role_desc: str = self.custom_input(
-                    "Enter a detailed description of your custom role: ")
-                if role_desc:
-                    break
-                self.custom_print("warn", "Please fill the description!")
-                continue
+            role_desc = self.__add_role_description
 
             self.write_to_config(
                 "chat", "roles", role_title, new_value=role_desc)
             return role_desc
         except KeyboardInterrupt:
             return self.ALL_ROLES.get(self.DEFAULT_ROLE)
+
+    def __add_role_description(self) -> str | None:
+        """
+        Adds a role description.
+        :return: The description of the custom role.
+        """
+        try:
+            while True:
+                role_desc: str = self.custom_input(
+                    "Enter a detailed description of your assistant role: ")
+                if role_desc:
+                    return role_desc
+                self.custom_print("warn", "Please fill the description!")
+                continue
+        except KeyboardInterrupt:
+            return "You are a helpful assistant."
 
     @staticmethod
     def help_info() -> None:
