@@ -1,13 +1,14 @@
 import json
 import os
-import sys
-
-import toml
-from console_mods.helpers import Helper
-import openai
-from typing import Any
-from halo import Halo
 import readline  # Necessary for input()
+import sys
+from typing import Any
+
+import openai
+import toml
+from halo import Halo
+
+from console_mods.helpers import Helper
 
 
 class ConsoleGPT(Helper):

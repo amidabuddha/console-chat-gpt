@@ -1,7 +1,9 @@
-from console_mods.styling import Prettify, colored
 import os
-import toml
 from typing import Any
+
+import toml
+
+from console_mods.styling import Prettify, colored
 
 
 class FetchConfig(Prettify):

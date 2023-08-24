@@ -1,10 +1,11 @@
-from termcolor import colored
+import re
+from sys import exit
+from typing import AnyStr
+
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import get_lexer_by_name
-import re
-from typing import AnyStr
-from sys import exit
+from termcolor import colored
 
 
 class Prettify:

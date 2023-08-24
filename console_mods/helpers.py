@@ -222,11 +222,8 @@ class Helper(FetchConfig):
         Handle the roles within the config file.
         If you don't like them, you can create your own.
         """
-        if not self.ALL_ROLES:
-            role: str | None = self.__add_custom_role()
-            self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"]  # RELOAD ROLES
-        if self.DEFAULT_ROLE not in self.ALL_ROLES:
-            self.custom_print("warn", f'The default role "{self.DEFAULT_ROLE}"" is not defined.')
+        if not self.ALL_ROLES or self.DEFAULT_ROLE not in self.ALL_ROLES:
+            self.custom_print("warn", f'The default role "{self.DEFAULT_ROLE}" is not defined.')
             role_desc: str | None = self.__add_role_description()
             self.write_to_config("chat", "roles", self.DEFAULT_ROLE, new_value=role_desc)
             self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"]  # RELOAD ROLES
