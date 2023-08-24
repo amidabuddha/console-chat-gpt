@@ -9,7 +9,12 @@ from sys import exit
 
 class Prettify:
     @staticmethod
-    def custom_print(ptype: str, text: str, exit_code: int = -1, print_now: bool = True, ) -> None | str:
+    def custom_print(
+        ptype: str,
+        text: str,
+        exit_code: int = -1,
+        print_now: bool = True,
+    ) -> None | str:
         """
         Based on the ptype (Print Type) it will print messages in different color.
         If print_now is set to False it will return the colored string.
@@ -98,5 +103,6 @@ class Prettify:
 
             if not skip_add and not is_code:
                 from console_mods.config_attrs import FetchConfig
+
                 result.append(colored(word, FetchConfig().ASSISTANT_RESPONSE_COLOR))
         return "\n".join([x for x in result if x])

@@ -1,6 +1,6 @@
 from console_mods.console_gpt import ConsoleGPT
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         ConsoleGPT().main()
     except (KeyboardInterrupt, EOFError) as e:

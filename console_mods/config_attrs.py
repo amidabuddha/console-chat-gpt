@@ -7,14 +7,16 @@ from typing import Any
 class FetchConfig(Prettify):
     def __init__(self):
         self.BASE_PATH: str = os.path.dirname(os.path.realpath(f"{__file__}/.."))
-        self.CONFIG_PATH: str = self.__path_exist(os.path.join(self.BASE_PATH, "config.toml"),
-                                                  'Please use the "config.toml.sample" to create your configuration.')
+        self.CONFIG_PATH: str = self.__path_exist(
+            os.path.join(self.BASE_PATH, "config.toml"),
+            'Please use the "config.toml.sample" to create your configuration.',
+        )
         self.CHATS_PATH: str = self.__path_exist(os.path.join(self.BASE_PATH, "chats"), create=True)
 
         try:
             self.config: dict[str, Any] = toml.load(self.CONFIG_PATH)
         except toml.decoder.TomlDecodeError as e:
-            error: str = colored(str(e).split("(")[1].replace(")", ''), "red", attrs=['bold', 'underline'])
+            error: str = colored(str(e).split("(")[1].replace(")", ""), "red", attrs=["bold", "underline"])
             self.custom_print("error", f"Empty values are NOT allowed in the config file!: {error}", 1)
 
         self.ALL_ROLES: dict[str, str] = self.fetch_variable("chat", "roles")
@@ -35,8 +37,9 @@ class FetchConfig(Prettify):
         self.CHAT_MODEL: str = self.fetch_variable("chat", "model", "model_name")
         self.CHAT_TEMPERATURE: float = float(self.fetch_variable("chat", "temperature"))
         self.CHAT_MODEL_INPUT_PRICING_PER_1K: float = self.fetch_variable("chat", "model", "model_input_pricing_per_1k")
-        self.CHAT_MODEL_OUTPUT_PRICING_PER_1K: float = self.fetch_variable("chat", "model",
-                                                                           "model_output_pricing_per_1k")
+        self.CHAT_MODEL_OUTPUT_PRICING_PER_1K: float = self.fetch_variable(
+            "chat", "model", "model_output_pricing_per_1k"
+        )
         self.CHAT_MODEL_MAX_TOKENS: int = self.fetch_variable("chat", "model", "model_max_tokens")
 
         # Chat-related variables
@@ -80,8 +83,12 @@ class FetchConfig(Prettify):
         data = list(data)
         variable_name = data[-1]
         data.remove(variable_name)
-        self.custom_print("error", f"Variable {colored(variable_name, 'red')} is missing under"
-                                   f" {colored('.'.join(data), 'yellow')} in the config.toml!", 1)
+        self.custom_print(
+            "error",
+            f"Variable {colored(variable_name, 'red')} is missing under"
+            f" {colored('.'.join(data), 'yellow')} in the config.toml!",
+            1,
+        )
 
     def fetch_variable(self, *args) -> Any | None:
         match len(args):
