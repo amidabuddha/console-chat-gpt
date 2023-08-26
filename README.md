@@ -92,7 +92,7 @@ The script should work fine in Linux and macOS terminals. There might be some li
 6. Run the executable:
 
    ```shell
-   python3 chat.py
+   python3 main.py
    ```
 
    > Pro-tip:
