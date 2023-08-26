@@ -106,16 +106,16 @@ The script should work fine in Linux and macOS terminals. There might be some li
 
 ## Examples and Preview
 
-1. Upon execution of the script, you'll be prompted to continue an old chat:
+1. Upon execution of the script, you'll be prompted to continue a previous chat:
     ![start_chat](examples/start_chat.png)
    > Use arrow keys or keyboard to navigate.
    > The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
 
-2. Select how the AI should behave:
+2. Select how the GPT should behave:
    ![roles](examples/roles.png)
    > These roles are set inside your `config.toml`. You can add/remove or adjust them.
 
-3. Prompt for temperature (randomness):
+3. Prompt for temperature (GPT randomness):
    ![temperature](examples/temperature.png)
 
 4. Help menu with built-in commands:

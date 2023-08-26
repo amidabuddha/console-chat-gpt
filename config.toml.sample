@@ -19,6 +19,9 @@ endpoint = "/v1/chat/completions"
 api_usage = 0
 
 [chat.colors]
+# Available colors:
+#         black, red, green, yellow, blue, magenta, cyan, white,
+#         light_grey, dark_grey, light_red, light_green, light_yellow, light_blue, light_magenta, light_cyan.
 user_prompt = "blue"
 assistant_prompt = "yellow"
 assistant_response = "cyan"
