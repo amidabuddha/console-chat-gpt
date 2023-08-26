@@ -40,7 +40,7 @@ class Helper(FetchConfig):
         line_length: int = int(columns) // 2
         match item:
             case "Add New system behavior":
-                return "Provide detailed instructions of the desired LLM functioning."
+                return "Provide detailed instructions of the desired GPT behavior."
             case "Exit":
                 return "Terminate the application."
             case "Default":
@@ -202,7 +202,8 @@ class Helper(FetchConfig):
         """
         if self.SHOW_TEMPERATURE_PICKER:
             user_input: str = ""
-            lines: int = 1
+            lines: int = 2
+            self.custom_print("warn", "Enter a value between 0.0 and 2.0 to define GPT randomness")
             while True:
                 try:
                     user_input = self.custom_input(f"Press 'ENTER' for the default setting ({self.CHAT_TEMPERATURE}): ")
@@ -410,7 +411,9 @@ class Helper(FetchConfig):
                     return None
                 elif agreement == "y":
                     break
-        chat_name: str = self.custom_input("Name the file to save the chat or hit 'Enter' for default name: ")
+        chat_name: str = re.sub(
+                    r"(\t|\s|\n)+",
+                    "_", self.custom_input("Name the file to save the chat or hit 'Enter' for default name: "))
         if not chat_name:
             base_name: str = "messages"
             timestamp: str = datetime.now().strftime("%Y_%m_%d_%H%M%S")
