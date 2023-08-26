@@ -412,8 +412,8 @@ class Helper(FetchConfig):
                 elif agreement == "y":
                     break
         chat_name: str = re.sub(
-                    r"(\t|\s|\n)+",
-                    "_", self.custom_input("Name the file to save the chat or hit 'Enter' for default name: "))
+            r"(\t|\s|\n)+", "_", self.custom_input("Name the file to save the chat or hit 'Enter' for default name: ")
+        )
         if not chat_name:
             base_name: str = "messages"
             timestamp: str = datetime.now().strftime("%Y_%m_%d_%H%M%S")
