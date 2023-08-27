@@ -95,6 +95,7 @@ class ConsoleGPT(Helper):
                 )
             except openai.error.OpenAIError as e:  # type: ignore
                 self.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
+                self.spinner.stop()
                 self.save_chat(ask=True)
                 sys.exit(1)  # adding to avoid warning for response var
             assistant_message: Any = response.choices[0].message  # type: ignore
