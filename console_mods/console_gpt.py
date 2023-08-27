@@ -83,6 +83,7 @@ class ConsoleGPT(Helper):
                 calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
             ):
                 self.custom_print("error", "Maximum token limit for chat reached")
+                self.spinner.stop()
                 self.flush_chat()
                 continue
             try:
