@@ -2,14 +2,13 @@ import json
 import os
 import readline  # Necessary for input()
 import sys
-from typing import Any
+from typing import Any, List
 
 import openai
 import toml
 from halo import Halo
 
 from console_mods.helpers import Helper
-from typing import List
 
 
 class ConsoleGPT(Helper):

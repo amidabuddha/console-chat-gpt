@@ -27,7 +27,7 @@ class Helper(FetchConfig):
         Flushes the given number of lines on the console
         :param lines: The number of lines to flush.
         """
-        print("\033[F\033[K" * lines, end="") 
+        print("\033[F\033[K" * lines, end="")
 
     def __role_preview(self, item: str) -> str:
         """
