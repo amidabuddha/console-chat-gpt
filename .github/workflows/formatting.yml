@@ -19,13 +19,14 @@ jobs:
           python-version: 3.11
 
       - name: Install dependencies
-        run: pip install black isort
+        run: pip install black isort pipreqs
 
-      - name: Apply Black formatting
-        run: black --line-length 120 .
-
-      - name: Apply isort import formatting
-        run: isort .
+      - name: Formatting
+        run: |
+          black --line-length 120 .
+          isort .
+          pipreqs --force --clean requirements.txt 2>/dev/null
+          pipreqs --force . 2>/dev/null
 
       - name: Commit changes
         run: |
