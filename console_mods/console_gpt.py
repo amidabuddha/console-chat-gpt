@@ -9,6 +9,7 @@ import toml
 from halo import Halo
 
 from console_mods.helpers import Helper
+from typing import List
 
 
 class ConsoleGPT(Helper):
@@ -22,7 +23,7 @@ class ConsoleGPT(Helper):
         The main function that handles user input, generates AI responses, and manages the conversation flow.
         """
         openai.api_key = self.API_TOKEN
-        continue_chat = self.continue_chat_menu()
+        continue_chat: List[dict[str, str]] | None = self.continue_chat_menu()
         if continue_chat:
             self.conversation = continue_chat
         else:

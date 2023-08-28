@@ -8,7 +8,7 @@ import sys
 import textwrap
 from datetime import datetime
 from string import ascii_lowercase
-from typing import Any
+from typing import Any, List, Mapping
 
 import tiktoken
 import toml
@@ -27,8 +27,7 @@ class Helper(FetchConfig):
         Flushes the given number of lines on the console
         :param lines: The number of lines to flush.
         """
-        for line in range(lines):
-            print("\033[F\033[K", end="")
+        print("\033[F\033[K" * lines, end="") 
 
     def __role_preview(self, item: str) -> str:
         """
@@ -36,7 +35,7 @@ class Helper(FetchConfig):
         :param item: The role name.
         :return: The preview of the role.
         """
-        rows, columns = os.popen("stty size", "r").read().split()
+        _, columns = os.popen("stty size", "r").read().split()
         line_length: int = int(columns) // 2
         match item:
             case "Add New system behavior":
@@ -99,7 +98,7 @@ class Helper(FetchConfig):
         """
         Prints the available commands
         """
-        commands: list[str] = [
+        commands: List[str] = [
             "cost - Display conversation costs.",
             "edit - Edit the latest User message. Last Assistant reply will be lost.",
             "exit - Exit the program.",
@@ -150,8 +149,8 @@ class Helper(FetchConfig):
     def base_chat_menu(
         self,
         title: str,
-        default_option: str | list[str],
-        base_options: list,
+        default_option: str | List[str],
+        base_options: List[Any],
         add_nums: bool = True,
         preview_func: Any = None,
     ) -> str:
@@ -165,11 +164,11 @@ class Helper(FetchConfig):
         used within the preview box in the menu
         :return: The selected string from the menu.
         """
-        enum_options: list[str] = []
+        enum_options: List[str] = []
         counter: int = 1
         letters_counter: int = 0
         default_option = [default_option] if isinstance(default_option, str) else default_option
-        options: list[str] = default_option + base_options + ["Exit"]
+        options: List[str] = default_option + base_options + ["Exit"]
         for opt in options:
             match opt:
                 case "Skip":
@@ -181,7 +180,7 @@ class Helper(FetchConfig):
                         enum_options.append("[{}] {}".format(counter, opt))
                         counter += 1
                     else:
-                        letters: list[str] = [x for x in list(ascii_lowercase) if x not in ["s", "x"]]
+                        letters: List[str] = [x for x in list(ascii_lowercase) if x not in ["s", "x"]]
                         enum_options.append("[{}]{}".format(letters[letters_counter], opt))
                         letters_counter += 1
         if preview_func:
@@ -229,7 +228,7 @@ class Helper(FetchConfig):
             self.write_to_config("chat", "roles", self.DEFAULT_ROLE, new_value=role_desc)
             self.ALL_ROLES = toml.load(self.CONFIG_PATH)["chat"]["roles"]  # RELOAD ROLES
         if self.SHOW_ROLE_SELECTION:
-            roles_names: list[str] = list(self.ALL_ROLES.keys())
+            roles_names: List[str] = list(self.ALL_ROLES.keys())
             roles_names.remove(self.DEFAULT_ROLE)
             roles_names.append("Add New system behavior")
             selected_role = self.base_chat_menu(
@@ -248,14 +247,14 @@ class Helper(FetchConfig):
             return role
         return self.ALL_ROLES.get(self.DEFAULT_ROLE, "")
 
-    def continue_chat_menu(self) -> list[dict[str, str]] | None:
+    def continue_chat_menu(self) -> List[dict[str, str]] | None:
         """
         Given a Base Path craws a subdir called "chats"
         If there are no files there, it will automatically skip
         the whole function.
         :return: a string which is later handled by continue_chat()
         """
-        all_chats: list[str] = os.listdir(self.CHATS_PATH)
+        all_chats: List[str] = os.listdir(self.CHATS_PATH)
         if not len(all_chats):
             return None
         selection: str = self.base_chat_menu("Would you like to continue a previous chat?:", "Skip", all_chats)
@@ -323,7 +322,7 @@ class Helper(FetchConfig):
             print("\b\b", end="")
             self.custom_print("info", "Cancelled the multiline text, continuing with the chat.")
 
-    def num_tokens_from_messages(self, messages: list[dict]) -> int:
+    def num_tokens_from_messages(self, messages: List[dict]) -> int:
         """
         Count the tokens of the next user prompt
         """

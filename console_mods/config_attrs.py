@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, List, Iterable
 
 import toml
 
@@ -46,7 +46,7 @@ class FetchConfig(Prettify):
 
         # Chat-related variables
         self.user_input: str = ""
-        self.conversation: list[dict[str, str]] = []
+        self.conversation: List[dict[str, str]] = []
         self.chat_temperature: float = self.CHAT_TEMPERATURE
         self.conversation_tokens: int = 0
         self.conversation_prompt_tokens: int = 0
@@ -81,7 +81,7 @@ class FetchConfig(Prettify):
             self.custom_print("error", f"Please make sure that the API token is inside {self.CONFIG_PATH}", 1)
         return token
 
-    def __var_error(self, data: tuple[Any, ...]):
+    def __var_error(self, data: Iterable[Any]) -> None:
         data = list(data)
         variable_name = data[-1]
         data.remove(variable_name)
@@ -92,17 +92,14 @@ class FetchConfig(Prettify):
             1,
         )
 
-    def fetch_variable(self, *args) -> Any | None:
-        match len(args):
-            case 2:
-                try:
+    def fetch_variable(self, *args) -> Any:
+        try:
+            match len(args):
+                case 2:
                     return self.config[args[0]][args[1]]
-                except KeyError:
-                    self.__var_error(args)
-            case 3:
-                try:
+                case 3:
                     return self.config[args[0]][args[1]][args[2]]
-                except KeyError:
-                    self.__var_error(args)
-            case _:
-                print("Unknown")
+                case _:
+                    print("Should not reach this.")
+        except KeyError:
+            self.__var_error(args)

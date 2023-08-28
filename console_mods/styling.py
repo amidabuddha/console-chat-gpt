@@ -1,6 +1,6 @@
 import re
 from sys import exit
-from typing import AnyStr
+from typing import List
 
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
@@ -52,8 +52,8 @@ class Prettify:
         0 -> Key
         1 -> Value
         """
-        kattrs: list[str] | None = data.pop("kattrs", None)  # Key attributes
-        vattrs: list[str] | None = data.pop("vattrs", None)  # Value attributes
+        kattrs: List[str] | None = data.pop("kattrs", None)  # Key attributes
+        vattrs: List[str] | None = data.pop("vattrs", None)  # Value attributes
         for key, value in data.items():
             key: str = " ".join(key.split("_")) if key.count("_") else key
             if len(data.keys()) == 1:
@@ -67,7 +67,7 @@ class Prettify:
         standard Markdown syntax for code block no matter space (\\s) or tab(\\t)
         at the beginning
         """
-        result: list = []
+        result: List[str] = []
         code_regex: re.Pattern[str] = re.compile(r"^(`{3}|(\t|\s)+`{3})")
         catch_code_regex: str = r"```.*?```"
         clear_code_regex: str = r"```(.*)?"
@@ -80,12 +80,12 @@ class Prettify:
                 language = "python"
 
         formatter = TerminalFormatter()
-        catch_code: list[str] = re.findall(catch_code_regex, text, re.DOTALL)
-        clear_code: list[str] = [re.sub(clear_code_regex, "", x) for x in catch_code]
-        highlighted_code: list = [highlight(x, get_lexer_by_name(language), formatter) for x in clear_code]
+        catch_code: List[str] = re.findall(catch_code_regex, text, re.DOTALL)
+        clear_code: List[str] = [re.sub(clear_code_regex, "", x) for x in catch_code]
+        highlighted_code: List[str] = [highlight(x, get_lexer_by_name(language), formatter) for x in clear_code]
         total_code: int = len(highlighted_code)
         counter: int = 0
-        words: list[str] = text.split("\n")
+        words: List[str] = text.split("\n")
         skip_add: bool = False
         is_code: bool = False
         for word in words:
