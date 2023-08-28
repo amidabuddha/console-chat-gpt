@@ -1,5 +1,5 @@
 halo==0.0.31
-openai==0.27.8
+openai==0.27.9
 prompt_toolkit==3.0.39
 Pygments==2.16.1
 simple_term_menu==1.6.1
