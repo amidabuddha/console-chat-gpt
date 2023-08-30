@@ -1,5 +1,5 @@
 from sys import exit
-from typing import List, Any
+from typing import Any, List
 
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
@@ -10,10 +10,10 @@ from termcolor import colored
 class Prettify:
     @staticmethod
     def custom_print(
-            ptype: str,
-            text: str,
-            exit_code: int = -1,
-            print_now: bool = True,
+        ptype: str,
+        text: str,
+        exit_code: int = -1,
+        print_now: bool = True,
     ) -> None | str:
         """
         Based on the ptype (Print Type) it will print messages in different color.
