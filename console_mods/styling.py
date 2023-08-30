@@ -1,6 +1,5 @@
-import re
 from sys import exit
-from typing import List
+from typing import List, Any
 
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
@@ -11,10 +10,10 @@ from termcolor import colored
 class Prettify:
     @staticmethod
     def custom_print(
-        ptype: str,
-        text: str,
-        exit_code: int = -1,
-        print_now: bool = True,
+            ptype: str,
+            text: str,
+            exit_code: int = -1,
+            print_now: bool = True,
     ) -> None | str:
         """
         Based on the ptype (Print Type) it will print messages in different color.
@@ -61,49 +60,43 @@ class Prettify:
             print(f"{colored(key.capitalize(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}")
 
     @staticmethod
-    def handle_code_v2(text: str) -> str:
+    def code_coloring(code, lang):
+        lexer = get_lexer_by_name(lang)
+        formatter = TerminalFormatter()
+        highlighted_code = highlight(code, lexer, formatter)
+        print(highlighted_code)
+
+    def handle_code(self, text: str, content_color: str) -> None:
         """
         Handles code inside the Assistance response by matching the
         standard Markdown syntax for code block no matter space (\\s) or tab(\\t)
         at the beginning
         """
-        result: List[str] = []
-        code_regex: re.Pattern[str] = re.compile(r"^(`{3}|(\t|\s)+`{3})")
-        catch_code_regex: str = r"```.*?```"
-        clear_code_regex: str = r"```(.*)?"
-        matches = re.search(clear_code_regex, text)
-        language: str = "python"
-        if matches:
-            try:
-                language = [x for x in matches.groups() if x and x != "plaintext"][0]
-            except (IndexError, AttributeError):
-                language = "python"
+        current_lang: str = "text"
+        current_code: List[Any] = []
+        in_code_block: bool = False
 
-        formatter = TerminalFormatter()
-        catch_code: List[str] = re.findall(catch_code_regex, text, re.DOTALL)
-        clear_code: List[str] = [re.sub(clear_code_regex, "", x) for x in catch_code]
-        highlighted_code: List[str] = [highlight(x, get_lexer_by_name(language), formatter) for x in clear_code]
-        total_code: int = len(highlighted_code)
-        counter: int = 0
-        words: List[str] = text.split("\n")
-        skip_add: bool = False
-        is_code: bool = False
-        for word in words:
-            if code_regex.search(word):
-                skip_add = True if not skip_add else False
-                is_code = True
-                continue
-            if skip_add:
-                continue
-            if not skip_add and is_code:
-                if counter <= total_code:
-                    result.append(highlighted_code[counter])
-                is_code = False
-                counter += 1
-                continue
+        for line in text.splitlines():
+            if line.startswith("```"):
+                if in_code_block:
+                    code: str = "\n".join(current_code)
+                    if not current_lang:
+                        print(colored(code, color=content_color))
+                    else:
+                        self.code_coloring(code, current_lang)
+                    current_code = []
+                    in_code_block = False
+                else:
+                    current_lang = line[3:].strip() or "text"
+                    in_code_block = True
+            elif in_code_block:
+                current_code.append(line)
+            else:
+                print(colored(line, color=content_color))
 
-            if not skip_add and not is_code:
-                from console_mods.config_attrs import FetchConfig
-
-                result.append(colored(word, FetchConfig().ASSISTANT_RESPONSE_COLOR))
-        return "\n".join([x for x in result if x])
+        if in_code_block:
+            code = "\n".join(current_code)
+            if not current_lang:
+                print(colored(code, color=content_color))
+            else:
+                self.code_coloring(code, current_lang)
