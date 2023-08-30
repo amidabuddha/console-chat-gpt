@@ -36,7 +36,7 @@ class Helper(FetchConfig):
         :return: The preview of the role.
         """
         _, columns = os.popen("stty size", "r").read().split()
-        line_length: int = int(columns) // 2
+        line_length: int = int(columns)
         match item:
             case "Add New system behavior":
                 return "Provide detailed instructions of the desired GPT behavior."
@@ -184,7 +184,7 @@ class Helper(FetchConfig):
                         enum_options.append("[{}]{}".format(letters[letters_counter], opt))
                         letters_counter += 1
         if preview_func:
-            terminal_menu: Any = TerminalMenu(enum_options, title=title, preview_command=preview_func)
+            terminal_menu: Any = TerminalMenu(enum_options, title=title, preview_command=preview_func, preview_size=0.5)
         else:
             terminal_menu: Any = TerminalMenu(enum_options, title=title)
         menu_entry_index: Any = terminal_menu.show()
