@@ -80,7 +80,7 @@ class ConsoleGPT(Helper):
             calculated_prompt_tokens: int = self.num_tokens_from_messages(self.conversation)
             calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
             if (calculated_prompt_tokens > self.CHAT_MODEL_MAX_TOKENS) or (
-                    calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
+                calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
             ):
                 self.custom_print("error", "Maximum token limit for chat reached")
                 self.spinner.stop()
