@@ -77,7 +77,7 @@ class Prettify:
         in_code_block: bool = False
 
         for line in text.splitlines():
-            if line.startswith("```"):
+            if line.lstrip().startswith("```"):
                 if in_code_block:
                     code: str = "\n".join(current_code)
                     if not current_lang:
@@ -87,7 +87,7 @@ class Prettify:
                     current_code = []
                     in_code_block = False
                 else:
-                    current_lang = line[3:].strip() or "text"
+                    current_lang = line.lstrip()[3:].strip() or "text"
                     in_code_block = True
             elif in_code_block:
                 current_code.append(line)
