@@ -1,3 +1,4 @@
+colorama==0.4.6
 halo==0.0.31
 openai==0.28.0
 prompt_toolkit==3.0.39

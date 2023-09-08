@@ -2,11 +2,11 @@ import json
 import os
 import readline  # Necessary for input()
 import sys
-from colorama import Style
 from typing import Any, List
 
 import openai
 import toml
+from colorama import Style
 from halo import Halo
 from termcolor import colored, cprint
 
