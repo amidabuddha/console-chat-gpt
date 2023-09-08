@@ -2,6 +2,7 @@ import json
 import os
 import readline  # Necessary for input()
 import sys
+from colorama import Style
 from typing import Any, List
 
 import openai
@@ -34,8 +35,8 @@ class ConsoleGPT(Helper):
         while True:
             api_usage_cost: float = toml.load(os.path.join(self.BASE_PATH, "config.toml"))["chat"]["api"]["api_usage"]
             try:
-                cprint("User:", self.USER_PROMPT_COLOR, end=" ", attrs=["bold", "underline"])
-                self.user_input = input()
+                cprint("User: ", self.USER_PROMPT_COLOR, end="", attrs=["bold", "underline"])
+                self.user_input = input(f"\b {Style.RESET_ALL}")
             except KeyboardInterrupt:
                 if self.SAVE_CHAT_ON_EXIT:
                     print()  # since input() does not leave new line on SIGINT
