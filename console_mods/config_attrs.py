@@ -43,8 +43,9 @@ class FetchConfig(Prettify):
         self.SELECTED_MODEL: str = self.DEFAULT_MODEL
         self.CHAT_MODEL: str = self.fetch_variable("chat", "models", self.DEFAULT_MODEL, "model_name")
         self.API_TOKEN: str = self.fetch_variable("chat", "models", self.DEFAULT_MODEL, "api_key")
-        self.CHAT_MODEL_INPUT_PRICING_PER_1K: float = self.fetch_variable("chat", "models", self.DEFAULT_MODEL,
-                                                                          "model_input_pricing_per_1k")
+        self.CHAT_MODEL_INPUT_PRICING_PER_1K: float = self.fetch_variable(
+            "chat", "models", self.DEFAULT_MODEL, "model_input_pricing_per_1k"
+        )
         self.CHAT_MODEL_OUTPUT_PRICING_PER_1K: float = self.fetch_variable(
             "chat", "models", self.DEFAULT_MODEL, "model_output_pricing_per_1k"
         )

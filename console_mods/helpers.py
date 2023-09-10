@@ -152,12 +152,12 @@ class Helper(FetchConfig):
             toml.dump(config_data, file)
 
     def base_chat_menu(
-            self,
-            title: str,
-            default_option: str | List[str],
-            base_options: List[Any],
-            add_nums: bool = True,
-            preview_func: Any = None,
+        self,
+        title: str,
+        default_option: str | List[str],
+        base_options: List[Any],
+        add_nums: bool = True,
+        preview_func: Any = None,
     ) -> str:
         """
         Base terminal menu
@@ -453,9 +453,11 @@ class Helper(FetchConfig):
             if not selection.startswith("Default"):
                 self.CHAT_MODEL = self.fetch_variable("chat", "models", selection, "model_name")
                 self.API_TOKEN = self.fetch_variable("chat", "models", selection, "api_key")
-                self.CHAT_MODEL_INPUT_PRICING_PER_1K = self.fetch_variable("chat", "models", selection,
-                                                                           "model_input_pricing_per_1k")
-                self.CHAT_MODEL_OUTPUT_PRICING_PER_1K = self.fetch_variable("chat", "models", selection,
-                                                                            "model_output_pricing_per_1k")
+                self.CHAT_MODEL_INPUT_PRICING_PER_1K = self.fetch_variable(
+                    "chat", "models", selection, "model_input_pricing_per_1k"
+                )
+                self.CHAT_MODEL_OUTPUT_PRICING_PER_1K = self.fetch_variable(
+                    "chat", "models", selection, "model_output_pricing_per_1k"
+                )
                 self.CHAT_MODEL_MAX_TOKENS = self.fetch_variable("chat", "models", selection, "model_max_tokens")
                 self.SELECTED_MODEL = selection
