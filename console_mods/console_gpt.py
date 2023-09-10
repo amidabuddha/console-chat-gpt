@@ -23,6 +23,7 @@ class ConsoleGPT(Helper):
         """
         The main function that handles user input, generates AI responses, and manages the conversation flow.
         """
+        self.select_model_menu()
         openai.api_key = self.API_TOKEN
         continue_chat: List[dict[str, str]] | None = self.continue_chat_menu()
         if continue_chat:
@@ -33,7 +34,7 @@ class ConsoleGPT(Helper):
             self.select_temperature()
 
         while True:
-            api_usage_cost: float = toml.load(os.path.join(self.BASE_PATH, "config.toml"))["chat"]["api"]["api_usage"]
+            api_usage_cost: float = toml.load(os.path.join(self.BASE_PATH, "config.toml"))["chat"]["models"][self.SELECTED_MODEL]["api_usage"]
             try:
                 cprint("User: ", self.USER_PROMPT_COLOR, end="", attrs=["bold", "underline"])
                 self.user_input = input(f"\b {Style.RESET_ALL}")
@@ -81,7 +82,7 @@ class ConsoleGPT(Helper):
             calculated_prompt_tokens: int = self.num_tokens_from_messages(self.conversation)
             calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
             if (calculated_prompt_tokens > self.CHAT_MODEL_MAX_TOKENS) or (
-                calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
+                    calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
             ):
                 self.custom_print("error", "Maximum token limit for chat reached")
                 self.spinner.stop()

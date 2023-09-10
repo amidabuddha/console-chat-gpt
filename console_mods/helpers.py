@@ -21,6 +21,9 @@ from console_mods.config_attrs import FetchConfig
 
 
 class Helper(FetchConfig):
+    def __init__(self):
+        super().__init__()
+
     @staticmethod
     def __flush_lines(lines: int) -> None:
         """
@@ -140,6 +143,8 @@ class Helper(FetchConfig):
                 config_data[args[0]][args[1]] = new_value
             case 3:
                 config_data[args[0]][args[1]][args[2]] = new_value
+            case 4:
+                config_data[args[0]][args[1]][args[2]][args[3]] = new_value
             case _:
                 self.custom_print("error", "Wrong usage of write_to_config", 1)
 
@@ -147,12 +152,12 @@ class Helper(FetchConfig):
             toml.dump(config_data, file)
 
     def base_chat_menu(
-        self,
-        title: str,
-        default_option: str | List[str],
-        base_options: List[Any],
-        add_nums: bool = True,
-        preview_func: Any = None,
+            self,
+            title: str,
+            default_option: str | List[str],
+            base_options: List[Any],
+            add_nums: bool = True,
+            preview_func: Any = None,
     ) -> str:
         """
         Base terminal menu
@@ -254,20 +259,21 @@ class Helper(FetchConfig):
         the whole function.
         :return: a string which is later handled by continue_chat()
         """
-        all_chats: List[str] = os.listdir(self.CHATS_PATH)
-        if not len(all_chats):
-            return None
-        selection: str = self.base_chat_menu("Would you like to continue a previous chat?:", "Skip", all_chats)
-        if selection == "Skip":
-            return None
-        try:
-            full_path: str = os.path.join(self.CHATS_PATH, selection)
-            with open(full_path, "r") as file:
-                data: Any = json.load(file)
-                self.custom_print("ok", f"Successfully loaded previous chat - {selection}")
-            return data
-        except json.JSONDecodeError as e:
-            self.custom_print("error", f"Error decoding JSON: {e}", 1)
+        if self.CONTINUE_CHAT:
+            all_chats: List[str] = os.listdir(self.CHATS_PATH)
+            if not len(all_chats):
+                return None
+            selection: str = self.base_chat_menu("Would you like to continue a previous chat?:", "Skip", all_chats)
+            if selection == "Skip":
+                return None
+            try:
+                full_path: str = os.path.join(self.CHATS_PATH, selection)
+                with open(full_path, "r") as file:
+                    data: Any = json.load(file)
+                    self.custom_print("ok", f"Successfully loaded previous chat - {selection}")
+                return data
+            except json.JSONDecodeError as e:
+                self.custom_print("error", f"Error decoding JSON: {e}", 1)
 
     def file_prompt(self) -> str | None:
         """
@@ -383,7 +389,7 @@ class Helper(FetchConfig):
         :param usage: additional API usage cost (float)
         """
         api_usage_cost: float = self.__calculate_costs() + usage
-        self.write_to_config("chat", "api", "api_usage", new_value=api_usage_cost)
+        self.write_to_config("chat", "models", self.SELECTED_MODEL, "api_usage", new_value=api_usage_cost)
 
     def flush_chat(self) -> None:
         """
@@ -440,3 +446,16 @@ class Helper(FetchConfig):
             )
             print(colored("[User]", self.USER_PROMPT_COLOR) + f" {self.conversation[-1]['content']}")
             self.conversation = self.conversation[:-1]
+
+    def select_model_menu(self):
+        if self.SHOW_MODEL_SELECTION:
+            selection = self.base_chat_menu("Select a model", f"Default ({self.DEFAULT_MODEL})", self.AVAILABLE_MODELS)
+            if not selection.startswith("Default"):
+                self.CHAT_MODEL = self.fetch_variable("chat", "models", selection, "model_name")
+                self.API_TOKEN = self.fetch_variable("chat", "models", selection, "api_key")
+                self.CHAT_MODEL_INPUT_PRICING_PER_1K = self.fetch_variable("chat", "models", selection,
+                                                                           "model_input_pricing_per_1k")
+                self.CHAT_MODEL_OUTPUT_PRICING_PER_1K = self.fetch_variable("chat", "models", selection,
+                                                                            "model_output_pricing_per_1k")
+                self.CHAT_MODEL_MAX_TOKENS = self.fetch_variable("chat", "models", selection, "model_max_tokens")
+                self.SELECTED_MODEL = selection
