@@ -88,6 +88,7 @@ class Prettify:
                     in_code_block = False
                 else:
                     current_lang = line.lstrip()[3:].strip() or "text"
+                    current_lang = "text" if current_lang == "plaintext" else current_lang
                     in_code_block = True
             elif in_code_block:
                 current_code.append(line)
