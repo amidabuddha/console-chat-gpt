@@ -41,31 +41,41 @@ The ultimate command line interface for chatting with ChatGPT! Save time and eff
 ---
 
 **DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation or relationship with OpenAI in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI. There is no affiliation
+or relationship with OpenAI in any form.
 
 ---
 
 ## Features
 
-- **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over how the app works.
-- **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and interactive experience.
-- **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the conversation.
+- **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
+  how the app works.
+- **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
+  interactive experience.
+- **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
+  conversation.
 - **Color Customization**: Personalize the interface by customizing the colors used in the app.
 - **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
 - **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
-- **Conversation History**: Review previous interactions and save conversations for future reference, providing context and continuity.
-- **Token Limit Alerts**: Get alerts when approaching the maximum allowed token limit to manage conversation length effectively.
-- **Cost Estimation**: Inquire about estimated costs of the chat based on the number of tokens used for better cost management.
-- **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of progress.
+- **Conversation History**: Review previous interactions and save conversations for future reference, providing context
+  and continuity.
+- **Token Limit Alerts**: Get alerts when approaching the maximum allowed token limit to manage conversation length
+  effectively.
+- **Cost Estimation**: Inquire about estimated costs of the chat based on the number of tokens used for better cost
+  management.
+- **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of
+  progress.
 - **A nice team**: Actively adding features, open for ideas and fixing bugs.
 
-Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance personalization, control, and convenience.
+Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance
+personalization, control, and convenience.
 
 ---
 
 ## Installation and Usage
 
-The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported
+on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
 
 1. Clone the repository:
 
@@ -87,7 +97,8 @@ The script should work fine in Linux and macOS terminals. There might be some li
 
 4. Get your API key from [HERE](https://platform.openai.com/account/api-keys)
 
-5. Copy `config.toml.sample` into `config.toml`, replace the text "YOUR_OPENAI_API_KEY" with your API key and save the new config file. Feel free to change any of the other defaults as per your needs.
+5. Copy `config.toml.sample` into `config.toml`, replace the text "YOUR_OPENAI_API_KEY" with your API key and save the
+   new config file. Feel free to change any of the other defaults as per your needs.
 
 6. Run the executable:
 
@@ -106,23 +117,38 @@ The script should work fine in Linux and macOS terminals. There might be some li
 
 ## Examples and Preview
 
-1. Upon execution of the script, you'll be prompted to continue a previous chat:
-    ![start_chat](examples/start_chat.png)
+1. **Upon execution of the script, you'll be prompted to select the model you would like to use:**
+   </br>![start_chat](examples/model_select.png)
    > Use arrow keys or keyboard to navigate.
    > The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
 
-2. Select how the GPT should behave:
-   ![roles](examples/roles.png)
+
+2. **Afterwards, you'll be prompted to continue a previous chat:**
+   </br>![continue_chat](examples/continue_chat.png)
+
+
+3. Select how the GPT should behave:
+   ![roles](examples/role_select.png)
    > These roles are set inside your `config.toml`. You can add/remove or adjust them.
 
-3. Prompt for temperature (GPT randomness):
-   ![temperature](examples/temperature.png)
 
-4. Help menu with built-in commands:
-   ![built-in_commands](examples/built-in_commands.png)
+4. **Prompt for temperature (GPT randomness):**
+   </br>![temperature](examples/temperature.png)
 
-5. Language formatting and coloring:
-   ![example_python](examples/example_python.png)
+
+5. **Help menu with built-in commands:**
+   </br>![built-in_commands](examples/commands.png)
+
+
+6. **Language formatting and coloring:**
+   </br>![example_python](examples/code_highlight.png)
    > [Supported languages](https://pygments.org/languages/)
+
+
+7. Additional features:
+    1. Loading animation when waiting for response:
+       </br>![loading](examples/loading.png)
+    2. Path completion when using the `file` command:
+       </br>![path](examples/path_compl.png)
 
 ---

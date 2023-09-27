@@ -9,13 +9,14 @@ default_system_role = "dev"
 default_model = "gpt3"
 role_selector = true
 save_chat_on_exit = true
+continue_chat = true
 debug = false
 model_selector = true
 last_completion_max_tokens = 400
 
 [chat.colors]
 # Available colors:
-#         black, red, green, yellow, blue, magenta, cyan, white,
+# black, red, green, yellow, blue, magenta, cyan, white,
 user_prompt = "blue"
 assistant_prompt = "yellow"
 assistant_response = "cyan"
