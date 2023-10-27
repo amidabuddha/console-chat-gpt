@@ -56,8 +56,8 @@ class Prettify:
         for key, value in data.items():
             key: str = " ".join(key.split("_")) if key.count("_") else key
             if len(data.keys()) == 1:
-                return f"{colored(key.capitalize(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}"
-            print(f"{colored(key.capitalize(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}")
+                return f"{colored(key.title(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}"
+            print(f"{colored(key.title(), color[0], attrs=kattrs)}: {colored(value, color[1], attrs=vattrs)}")
 
     @staticmethod
     def code_coloring(code, lang):
