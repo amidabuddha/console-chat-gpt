@@ -81,7 +81,7 @@ class ConsoleGPT(Helper):
             self.spinner.start()
             user_message: dict[str, str] = {"role": "user", "content": self.user_input}
             self.conversation.append(user_message)
-            calculated_prompt_tokens: int = self.num_tokens_from_messages(self.conversation)
+            # calculated_prompt_tokens: int = self.num_tokens_from_messages(self.conversation)
             # calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
             calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS
             # if (calculated_prompt_tokens > self.CHAT_MODEL_MAX_TOKENS) or (
