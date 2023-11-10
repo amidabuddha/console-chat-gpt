@@ -83,7 +83,6 @@ class ConsoleGPT(Helper):
             self.conversation.append(user_message)
             # calculated_prompt_tokens: int = self.num_tokens_from_messages(self.conversation)
             # calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
-            calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS
             # if (calculated_prompt_tokens > self.CHAT_MODEL_MAX_TOKENS) or (
             #     calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
             # ):
@@ -96,7 +95,7 @@ class ConsoleGPT(Helper):
                     model=self.CHAT_MODEL,
                     messages=self.conversation,
                     temperature=self.chat_temperature,
-                    max_tokens=calculated_completion_max_tokens,
+                    max_tokens=self.CHAT_MODEL_MAX_TOKENS,
                 )
             except openai.error.OpenAIError as e:  # type: ignore
                 self.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
