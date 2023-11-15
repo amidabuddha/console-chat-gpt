@@ -5,6 +5,8 @@ from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import get_lexer_by_name
 from termcolor import colored
+from rich.console import Console
+from rich.markdown import Markdown
 
 
 class Prettify:
@@ -101,3 +103,9 @@ class Prettify:
                 print(colored(code, color=content_color))
             else:
                 self.code_coloring(code, current_lang)
+
+    @staticmethod
+    def handle_code_v2(text: str) -> None:
+        console = Console()
+        md = Markdown(text)
+        console.print(md)

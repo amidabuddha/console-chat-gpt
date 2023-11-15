@@ -83,6 +83,7 @@ class ConsoleGPT(Helper):
             self.conversation.append(user_message)
             # calculated_prompt_tokens: int = self.num_tokens_from_messages(self.conversation)
             # calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS - calculated_prompt_tokens
+            calculated_completion_max_tokens: int = self.CHAT_MODEL_MAX_TOKENS
             # if (calculated_prompt_tokens > self.CHAT_MODEL_MAX_TOKENS) or (
             #     calculated_completion_max_tokens < self.LAST_COMPLETION_MAX_TOKENS
             # ):
@@ -95,7 +96,7 @@ class ConsoleGPT(Helper):
                     model=self.CHAT_MODEL,
                     messages=self.conversation,
                     temperature=self.chat_temperature,
-                    max_tokens=self.CHAT_MODEL_MAX_TOKENS,
+                    max_tokens=calculated_completion_max_tokens,
                 )
             except openai.error.OpenAIError as e:  # type: ignore
                 self.custom_print("error", f"Unable to generate ChatCompletion:\n {e}")
@@ -110,7 +111,8 @@ class ConsoleGPT(Helper):
                     json.dump(self.conversation, log_file, indent=4, ensure_ascii=False)
             self.spinner.stop()
             cprint("Assistant:", self.ASSISTANT_PROMPT_COLOR, end=" ", attrs=["bold", "underline"])
-            self.handle_code(assistant_message["content"], self.ASSISTANT_RESPONSE_COLOR)
+            # self.handle_code(assistant_message["content"], self.ASSISTANT_RESPONSE_COLOR)
+            self.handle_code_v2(assistant_message["content"])
             self.conversation_tokens += response.usage.total_tokens  # type: ignore
             self.conversation_prompt_tokens = response.usage.prompt_tokens  # type: ignore
             self.conversation_total_prompts_tokens += response.usage.prompt_tokens  # type: ignore
