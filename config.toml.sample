@@ -2,17 +2,19 @@
 # Otherwise, it won't be recognised
 # Also, don't forget to place your API Token
 
-[chat]
+[chat.defaults]
 temperature = 1
+system_role = "linux"
+model = "gpt3"
+
+
+[chat.features]
+model_selector = true
 adjust_temperature = true
-default_system_role = "dev"
-default_model = "gpt3"
 role_selector = true
 save_chat_on_exit = true
 continue_chat = true
-debug = false
-model_selector = true
-last_completion_max_tokens = 400
+debug = true
 
 [chat.colors]
 # Available colors:
