@@ -1,4 +1,5 @@
 from console_gpt.custom_stdin import custom_input
+from console_gpt.custom_stdout import custom_print
 from questionary import Style
 from typing import Union
 from console_gpt.catch_errors import eof_wrapper
@@ -28,10 +29,14 @@ def multiline_prompt():
     )
     user_input = custom_input(
         is_single_line=False,
+        auto_exit=False,
         message="Multiline input",
         style=style,
         qmark="❯",
         validate=_validate_description,
         multiline=True,
     )
+    if not user_input:
+        custom_print('info', 'Cancelled. Continuing normally!')
+        return None
     return {"role": "user", "content": user_input}

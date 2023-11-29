@@ -14,13 +14,16 @@ def _calculate_num_of_lines(input_text: str) -> int:
 
 
 def custom_input(
-    is_single_line: bool = True, exit_message: str = "Goodbye! See you later!", **default_args
+        is_single_line: bool = True, auto_exit: bool = True, exit_message: str = "Goodbye! See you later!",
+        **default_args
 ):
     user_input = text(**default_args).ask()
     if user_input is None:
         to_remove = sum([_calculate_num_of_lines(x) for x in default_args["message"].split("\n")])
         flush_lines(to_remove - (1 if is_single_line else 0) + 4)
-        custom_print("exit", exit_message, 130)
+        if auto_exit:
+            custom_print("exit", exit_message, 130)
+        return None
     to_remove = sum(
         [
             _calculate_num_of_lines(x)

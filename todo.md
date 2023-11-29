@@ -5,8 +5,8 @@
   - [x] Functionality
     - [x] Basic
     - [x] Clean up
-- [ ] Allow file upload
-- [ ] Allow multiline input
+- [x] Allow file upload
+- [x] Allow multiline input
 - [ ] Single file for handling exit/info messages
 - [ ] More detailed exceptions
 - [ ] Handle:
