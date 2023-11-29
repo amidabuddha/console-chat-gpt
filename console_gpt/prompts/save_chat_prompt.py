@@ -24,7 +24,8 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     _show_menu = fetch_variable("features", "save_chat_on_exit")
     # If False the whole code will be skipped
     if not _show_menu:
-        custom_print("exit", "Goodbye, see you soon!", 130)
+        if not skip_exit:
+            custom_print("exit", "Goodbye, see you soon!", 130)
 
     style = Style(
         [
@@ -69,4 +70,5 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
             json.dump(conversation, file, indent=4, ensure_ascii=False)
         custom_print("info", f"Successfully saved to - {full_path}", (None if skip_exit else 0))
     else:
-        ... if skip_exit else custom_print("exit", "Goodbye, see you soon!", 130)
+        if not skip_exit:
+            custom_print("exit", "Goodbye, see you soon!", 130)
