@@ -4,9 +4,9 @@ from typing import Any, List
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import get_lexer_by_name
-from termcolor import colored
 from rich.console import Console
 from rich.markdown import Markdown
+from termcolor import colored
 
 
 class Prettify:
