@@ -5,7 +5,8 @@ import sys
 from typing import Optional
 
 from termcolor import colored
-
+from rich.console import Console
+from rich.table import Table
 from console_gpt.custom_stdout import custom_print
 
 
@@ -48,3 +49,27 @@ def set_locale() -> None:
         case _:
             custom_print("warn", f"Unable to detect OS. Setting a default locale.")
             locale.setlocale(locale.LC_ALL, "")
+
+
+def help_message() -> None:
+    console = Console()
+
+    table = Table(show_header=False, box=None, padding=(0, 1, 0, 0))
+    table.add_column(justify="right")
+    table.add_column(justify="left")
+
+    options = {
+        "help": "Prints all available commands.",
+        "cost": "Prints the costs of the current chat.",
+        "edit": "Prints the last prompt so you can edit it.",
+        "exit": "Exits the chat.",
+        "file": "Allows you to upload a file to the chat.",
+        "flush": "Start the chat all over again.",
+        "format": "Allows you to write multiline messages.",
+        "save": "Saves the chat to a given file.",
+    }
+
+    for option, description in options.items():
+        table.add_row(f"[bold]{option}[/bold]:", description, style="green")
+
+    console.print(table)
