@@ -17,7 +17,7 @@ def eof_wrapper(func):
             except EOFError:
                 custom_print(
                     "warn",
-                    "Caught irregular interrupt (EOF). Please stick to the menus or SIGINT! ({retries})",
+                    f"Caught irregular interrupt (EOF). Please stick to the menus or SIGINT! ({retries})",
                 )
                 retries -= 1  # Decrement the retry counter
         custom_print("error", "Maximum retries exceeded. Exiting function.", 1)

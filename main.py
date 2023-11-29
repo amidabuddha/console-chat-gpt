@@ -7,6 +7,7 @@ from console_gpt.menus.combined_menu import combined_menu
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
+from console_gpt.prompts.multiline_prompt import multiline_prompt
 
 
 def console_gpt() -> None:
@@ -50,7 +51,7 @@ def console_gpt() -> None:
                 case "file":
                     pass
                 case "format":
-                    pass
+                    user_input = multiline_prompt()
                 case "flush" | "new":
                     # simply breaks this loop (inner) which start the outer one
                     save_chat(conversation, ask=True, skip_exit=True)

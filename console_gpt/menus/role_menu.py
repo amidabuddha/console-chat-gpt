@@ -10,6 +10,7 @@ from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import use_emoji_maybe
 from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_multiselect_menu)
+from console_gpt.catch_errors import eof_wrapper
 
 
 def _role_preview(item: str) -> str:
@@ -86,6 +87,7 @@ def _remove_custom_role() -> None:
         write_to_config("roles", new_value=roles_data)
 
 
+@eof_wrapper
 def _add_custom_role() -> None:
     """
     Sub-function to role_menu() which allows adding new roles
