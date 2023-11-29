@@ -2,6 +2,10 @@
 
 <div align="center">
 
+<h1 style="color:red;">
+This BRANCH uses the Legacy API and it is no longer maintained, please use 2.0.0!
+</h1>
+
 <h1>
 
 console-chat-gpt
