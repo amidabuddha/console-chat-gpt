@@ -27,7 +27,7 @@ def multiline_prompt():
             ("answer", "fg:#69faff bold"),
         ]
     )
-    user_input = custom_input(
+    multiline_data = custom_input(
         is_single_line=False,
         auto_exit=False,
         message="Multiline input",
@@ -36,7 +36,15 @@ def multiline_prompt():
         validate=_validate_description,
         multiline=True,
     )
-    if not user_input:
+    if not multiline_data:
         custom_print('info', 'Cancelled. Continuing normally!')
         return None
+
+    additional_data = custom_input(
+        auto_exit=False,
+        message="Additional clarifications? (Please 'ENTER' to skip):",
+        style=style,
+        qmark="❯",
+    )
+    user_input = additional_data + "\n" + multiline_data
     return {"role": "user", "content": user_input}
