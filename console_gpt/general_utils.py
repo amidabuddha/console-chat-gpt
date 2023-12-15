@@ -1,16 +1,33 @@
 import locale
 import os
 import platform
-import sys
 from typing import Optional
 
 from termcolor import colored
 from rich.console import Console
 from rich.table import Table
 from console_gpt.custom_stdout import custom_print
+from console_gpt.config_manager import fetch_variable
 
 
-def use_emoji_maybe(emoji: str, fallback: str = "?") -> str:
+def use_emoji_maybe(emoji: str, fallback: Optional[str] = None) -> str:
+    """
+    Return emoji if the OS supports it and if it's enabled in the settings
+    :param emoji: Unicode for the emoji
+    :param fallback: The fallback char/word (ASCII) to be displayed if emoji is not supported
+    :return: either emoji or the fallback char/word
+    """
+    supported_colors = ["black", "white", "red", "blue", "green", "yellow", "magenta", "cyan"]
+    use_emoji = fetch_variable("customizations", "use_emoji")
+    fallback_text = fetch_variable("customizations", "fallback_text")
+    fallback_text = fallback_text if not fallback else fallback
+    fallback_text_color = fetch_variable("customizations", "fallback_text_color")
+    fallback_text_color = fallback_text_color if fallback_text_color in supported_colors else "blue"
+
+    # if emoji is disabled return a question mark (default by the library anyway)
+    if not use_emoji:
+        return colored(fallback_text, fallback_text_color)
+
     # Check the platform type
     plt = platform.system().lower()
     support = False
@@ -22,11 +39,7 @@ def use_emoji_maybe(emoji: str, fallback: str = "?") -> str:
     if term and "xterm" in term:
         support = True
 
-    # If running in Jupyter notebooks or similar environments, they typically support emojis.
-    if "ipykernel" in sys.modules or "IPython" in sys.modules:
-        support = True
-
-    return emoji if support else colored(fallback, "blue")
+    return emoji if support else colored(fallback_text, fallback_text_color)
 
 
 def flush_lines(lines: Optional[int] = 1) -> None:
@@ -52,6 +65,10 @@ def set_locale() -> None:
 
 
 def help_message() -> None:
+    """
+    Print the supported commands
+    :return: None, just prints
+    """
     console = Console()
 
     table = Table(show_header=False, box=None, padding=(0, 1, 0, 0))

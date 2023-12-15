@@ -5,6 +5,10 @@ from console_gpt.menus.role_menu import role_menu
 from console_gpt.menus.select_chat_menu import select_chat_menu
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 
+"""
+All menus at once for simplicity
+"""
+
 
 class ChatObject(NamedTuple):
     model: Dict
@@ -20,9 +24,11 @@ def combined_menu() -> ChatObject:
     """
     model = model_menu()
     continue_chat = select_chat_menu()
+
     # Ask for role only if we're not continuing any chat
     role = role_menu() if not continue_chat else None
     temperature = temperature_prompt()
+
     # Generate a base conversation if we're not continuing any chat
     conversation = continue_chat if continue_chat else [{"role": "system", "content": role}]
     return ChatObject(model=model, conversation=conversation, temperature=temperature)

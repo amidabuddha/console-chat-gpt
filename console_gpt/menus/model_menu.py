@@ -5,7 +5,7 @@ from console_gpt.general_utils import use_emoji_maybe
 from console_gpt.menus.skeleton_menus import base_multiselect_menu
 
 """
-Model Menu
+Model Selection Menu
 """
 
 
@@ -17,6 +17,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     """
     # Checks whether the menu should be shown
     _show_menu = fetch_variable("features", "model_selector")
+
     # Fetches the default model
     default_model = fetch_variable("defaults", "model")
     if not _show_menu:
