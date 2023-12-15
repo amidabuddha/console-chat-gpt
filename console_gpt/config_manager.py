@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, Optional, Union
 
 import toml
 
@@ -43,7 +43,7 @@ def _load_toml(conf_path: str) -> Optional[Dict]:
         )
 
 
-def __var_error(data: Iterable[Any]) -> None:
+def __var_error(data: Iterable[Any], auto_exit) -> Union[None, bool]:
     """
     Handled missing/invalid variables within config file
     :param data: the problematic data to handle
@@ -53,12 +53,15 @@ def __var_error(data: Iterable[Any]) -> None:
     variable_name = data[-1]
     data.remove(variable_name)
     data = ["chat"] if not len(data) else data
-    custom_print(
-        "error",
-        f"Variable {colored(variable_name, 'red')} is missing under"
-        f" {colored('.'.join(data), 'yellow')} in the config.toml!",
-        1,
-    )
+    if auto_exit:
+        custom_print(
+            "error",
+            f"Variable {colored(variable_name, 'red')} is missing under"
+            f" {colored('.'.join(data), 'yellow')} in the config.toml!",
+            1,
+        )
+    else:
+        return False
 
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
@@ -70,14 +73,28 @@ CONFIG_PATH = _join_and_check(
 CHATS_PATH = _join_and_check(BASE_PATH, "chats", create=True)
 
 
-def write_to_config(*args, new_value: Any) -> None:
+def check_valid_config() -> None:
+    """
+    Checks if the config file structure has been verified after upgrade
+    :return: Nothing
+    """
+    is_checked = fetch_variable("structure", "valid", auto_exit=False)
+    if not is_checked:
+        ver_path = f"{BASE_PATH}/verify_config.py"
+        custom_print('warn', 'It appears that your configuration is not verified.')
+        custom_print('info', f'Please run verify_config.py at: {ver_path}', 0)
+
+
+def write_to_config(*args, new_value: Any, group: bool = False) -> None:
     """
     Writes a new value to the config file
     :param args: The keys to access the value in the config file
     :param new_value: The new value to be written
+    :param group: Allow creating groups
     """
     config = _load_toml(CONFIG_PATH)
-
+    if group:
+        config["chat"][args[0]] = {args[1]: new_value}
     match len(args):
         case 1:
             config["chat"][args[0]] = new_value
@@ -94,11 +111,12 @@ def write_to_config(*args, new_value: Any) -> None:
         toml.dump(config, file)
 
 
-def fetch_variable(*args) -> Any:
+def fetch_variable(*args, auto_exit: bool = True) -> Any:
     """
     Fetch variable from the config file (config.toml)
     By default the function is already looking into the "chat" group
     :param args: variable group/name as deep as necessary
+    :param auto_exit: Automatically abort if var is missing
     :return: Content or Error (with exit)
     """
     config = _load_toml(CONFIG_PATH)
@@ -118,5 +136,6 @@ def fetch_variable(*args) -> Any:
                     f"- {colored('.'.join(args), 'red')}",
                     1,
                 )
+
     except KeyError:
-        __var_error(args)
+        return __var_error(args, auto_exit)

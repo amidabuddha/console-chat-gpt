@@ -9,12 +9,13 @@ from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
 from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.file_prompt import file_prompt
+from console_gpt.config_manager import check_valid_config
 
 
 def console_gpt() -> None:
     console = Console()  # Used for the status bar
     set_locale()
-
+    check_valid_config()
     # Outer loop
     while True:
         data = combined_menu()  # Call the main menu with all sub-menus

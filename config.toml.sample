@@ -2,11 +2,17 @@
 # Otherwise, it won't be recognised
 # Also, don't forget to place your API Token
 
+[chat.structure]
+valid = false
+
+[chat.customizations]
+use_emoji = true
+fallback_char = "?"
+
 [chat.defaults]
 temperature = 1
 system_role = "linux"
 model = "gpt3"
-
 
 [chat.features]
 model_selector = true
@@ -15,13 +21,6 @@ role_selector = true
 save_chat_on_exit = true
 continue_chat = true
 debug = true
-
-[chat.colors]
-# Available colors:
-# black, red, green, yellow, blue, magenta, cyan, white,
-user_prompt = "blue"
-assistant_prompt = "yellow"
-assistant_response = "cyan"
 
 [chat.roles]
 ai_expert = "As an AI professional with a distinguished PhD in prompt engineering, you possess an extensive understanding of Artificial Intelligence, focusing on principles, techniques, and applications. Leverage your deep knowledge of Machine Learning and Neural Networks to provide specialized insights and solutions to complex problems. Ensure that your responses are delivered in a clear, coherent, and understandable manner, catering to both technical and non-technical audiences alike."
