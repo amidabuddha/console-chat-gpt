@@ -52,8 +52,7 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     file_name = f"{base_name}_{timestamp}.json"
 
     prompt_message = (
-        f"Please provide a file name to save the chat.\n"
-        f"╰─❯ Press 'ENTER' for the default name ({file_name}):"
+        f"Please provide a file name to save the chat.\n" f"╰─❯ Press 'ENTER' for the default name ({file_name}):"
     )
     # First Question
     user_agreement = (

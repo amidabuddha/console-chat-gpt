@@ -81,8 +81,8 @@ def check_valid_config() -> None:
     is_checked = fetch_variable("structure", "valid", auto_exit=False)
     if not is_checked:
         ver_path = f"{BASE_PATH}/verify_config.py"
-        custom_print('warn', 'It appears that your configuration is not verified.')
-        custom_print('info', f'Please run verify_config.py at: {ver_path}', 0)
+        custom_print("warn", "It appears that your configuration is not verified.")
+        custom_print("info", f"Please run verify_config.py at: {ver_path}", 0)
 
 
 def write_to_config(*args, new_value: Any, group: bool = False) -> None:
@@ -132,8 +132,7 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
             case _:
                 custom_print(
                     "error",
-                    f"You're asking for variable that does NOT exist! "
-                    f"- {colored('.'.join(args), 'red')}",
+                    f"You're asking for variable that does NOT exist! " f"- {colored('.'.join(args), 'red')}",
                     1,
                 )
 

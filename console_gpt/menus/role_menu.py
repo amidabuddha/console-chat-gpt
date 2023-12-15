@@ -5,12 +5,12 @@ from typing import Optional, Union
 
 from questionary import Style
 
+from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import use_emoji_maybe
 from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_multiselect_menu)
-from console_gpt.catch_errors import eof_wrapper
 
 
 def _role_preview(item: str) -> str:
@@ -38,9 +38,7 @@ def _role_preview(item: str) -> str:
                 )
             )
         case _:
-            return "\n".join(
-                textwrap.wrap(all_roles.get(item, "Unknown Option"), width=line_length)
-            )
+            return "\n".join(textwrap.wrap(all_roles.get(item, "Unknown Option"), width=line_length))
 
 
 def _validate_title(val: str) -> Union[str, bool]:
@@ -100,9 +98,7 @@ def _add_custom_role() -> None:
             ("answer", "fg:#69faff bold"),
         ]
     )
-    title = custom_input(
-        message="Enter a title for the new role:", style=style, qmark="❯", validate=_validate_title
-    )
+    title = custom_input(message="Enter a title for the new role:", style=style, qmark="❯", validate=_validate_title)
     # Catch empty spaces, tabs or new lines. Otherwise, will break the config
     title = re.sub(r"(\t|\s|\n)+", "_", title)
     description = custom_input(
@@ -139,9 +135,7 @@ def role_menu() -> Optional[str]:
     menu_data.append("Remove System Behavior")
 
     menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD"))
-    selection = base_multiselect_menu(
-        menu_data, menu_title, default_value=default_role, preview_command=_role_preview
-    )
+    selection = base_multiselect_menu(menu_data, menu_title, default_value=default_role, preview_command=_role_preview)
     match selection:
         case "Add New System Behavior":
             _add_custom_role()

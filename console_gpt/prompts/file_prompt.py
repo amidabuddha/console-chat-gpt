@@ -1,9 +1,11 @@
-import questionary
-from typing import Union
 import os
+from typing import Union
+
+import questionary
+
 from console_gpt.catch_errors import eof_wrapper
-from console_gpt.general_utils import use_emoji_maybe, flush_lines
 from console_gpt.custom_stdout import custom_print
+from console_gpt.general_utils import flush_lines, use_emoji_maybe
 
 
 def _validate_file(val: str) -> Union[str, bool]:
@@ -26,7 +28,7 @@ def _read_file(file_path: str) -> Union[str, bool]:
     :param file_path: Path to the file
     :return: The content or None (NoneType) if empty
     """
-    with open(file_path, 'r') as to_read:
+    with open(file_path, "r") as to_read:
         data = to_read.read()
         not_empty = data.strip()
 
@@ -47,18 +49,15 @@ def file_prompt():
         ]
     )
     file_name = questionary.path(
-        message="Select a file:",
-        style=custom_style,
-        validate=_validate_file,
-        qmark=use_emoji_maybe("\U0001F4C1")
+        message="Select a file:", style=custom_style, validate=_validate_file, qmark=use_emoji_maybe("\U0001F4C1")
     ).ask()
     if not file_name:
         flush_lines(4)
-        custom_print('info', "File selection cancelled.")
+        custom_print("info", "File selection cancelled.")
         return None
 
     data = _read_file(file_name)
     if not data:
-        custom_print('info', 'The file seems to be empty. Skipping.')
+        custom_print("info", "The file seems to be empty. Skipping.")
         return None
     return {"role": "user", "content": data}

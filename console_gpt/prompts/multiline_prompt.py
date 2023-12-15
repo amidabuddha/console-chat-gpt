@@ -1,8 +1,10 @@
+from typing import Dict, Union
+
+from questionary import Style
+
+from console_gpt.catch_errors import eof_wrapper
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
-from questionary import Style
-from typing import Union, Dict
-from console_gpt.catch_errors import eof_wrapper
 
 
 def _validate_description(val: str) -> Union[str, bool]:
@@ -42,7 +44,7 @@ def multiline_prompt() -> Union[Dict, None]:
         multiline=True,
     )
     if not multiline_data:
-        custom_print('info', 'Cancelled. Continuing normally!')
+        custom_print("info", "Cancelled. Continuing normally!")
         return None
 
     additional_data = custom_input(

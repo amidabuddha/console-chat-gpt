@@ -20,8 +20,7 @@ def _calculate_num_of_lines(input_text: str) -> int:
 
 
 def custom_input(
-        is_single_line: bool = True, auto_exit: bool = True, exit_message: str = "Goodbye! See you later!",
-        **default_args
+    is_single_line: bool = True, auto_exit: bool = True, exit_message: str = "Goodbye! See you later!", **default_args
 ):
     """
     Custom function for STDIN which flushes lines to keep everything clean
@@ -38,11 +37,6 @@ def custom_input(
         if auto_exit:
             custom_print("exit", exit_message, 130)
         return None
-    to_remove = sum(
-        [
-            _calculate_num_of_lines(x)
-            for x in user_input.split("\n") + default_args["message"].split("\n")
-        ]
-    )
+    to_remove = sum([_calculate_num_of_lines(x) for x in user_input.split("\n") + default_args["message"].split("\n")])
     flush_lines(to_remove - (1 if is_single_line else 0))
     return user_input

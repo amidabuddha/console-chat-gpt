@@ -7,12 +7,12 @@ PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit"]
 
 
 def custom_print(
-        ptype: PrintType,
-        text: str,
-        exit_code: Optional[int] = None,
-        print_now: Optional[bool] = True,
-        start: Optional[str] = "",
-        end: Optional[str] = "",
+    ptype: PrintType,
+    text: str,
+    exit_code: Optional[int] = None,
+    print_now: Optional[bool] = True,
+    start: Optional[str] = "",
+    end: Optional[str] = "",
 ) -> Optional[str]:
     """
     Custom STDOUT function which works soft of like logging
