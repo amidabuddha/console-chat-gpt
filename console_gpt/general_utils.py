@@ -3,11 +3,11 @@ import os
 import platform
 from typing import Optional, TypeVar
 
-from termcolor import colored
 from rich.console import Console
 from rich.table import Table
-from console_gpt.custom_stdout import custom_print
+
 from console_gpt.config_manager import fetch_variable
+from console_gpt.custom_stdout import custom_print
 
 # Used to Hint that the expected input is a single char and not a string.
 Char = TypeVar("Char", bound=str)
@@ -20,16 +20,13 @@ def use_emoji_maybe(emoji: str, fallback: Optional[Char] = None) -> str:
     :param fallback: The fallback char/word (ASCII) to be displayed if emoji is not supported
     :return: either emoji or the fallback char/word
     """
-    supported_colors = ["black", "white", "red", "blue", "green", "yellow", "magenta", "cyan"]
     use_emoji = fetch_variable("customizations", "use_emoji")
     fallback_char = fetch_variable("customizations", "fallback_char")[0]
     fallback_char = fallback_char if not fallback else fallback[0]
-    fallback_char_color = fetch_variable("customizations", "fallback_char_color")
-    fallback_char_color = fallback_char_color if fallback_char_color in supported_colors else "blue"
 
     # if emoji is disabled return a question mark (default by the library anyway)
     if not use_emoji:
-        return colored(fallback_char, fallback_char_color)
+        return fallback_char
 
     # Check the platform type
     plt = platform.system().lower()
@@ -42,7 +39,7 @@ def use_emoji_maybe(emoji: str, fallback: Optional[Char] = None) -> str:
     if term and "xterm" in term:
         support = True
 
-    return emoji if support else colored(fallback_char, fallback_char_color)
+    return emoji if support else fallback_char
 
 
 def flush_lines(lines: Optional[int] = 1) -> None:
