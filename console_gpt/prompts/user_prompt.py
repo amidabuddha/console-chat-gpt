@@ -8,6 +8,10 @@ from console_gpt.general_utils import flush_lines, use_emoji_maybe
 
 @eof_wrapper
 def user_prompt() -> Union[Dict, None]:
+    """
+    User chat prompt during the session
+    :return: User input in expected format by the API or None if empty
+    """
     custom_style = questionary.Style(
         [
             ("question", "fg:#ffdb38 bold"),

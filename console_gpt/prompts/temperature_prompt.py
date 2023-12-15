@@ -10,9 +10,9 @@ from console_gpt.custom_stdin import custom_input
 def _validate_temp(val: str) -> Union[str, bool]:
     """
     Sub-function to temperature_prompt() to validate user input.
-    The function allows only `2 > value > 0`
-    :param val:
-    :return:
+    The function allows only `2 >= val >= 0`
+    :param val: User input
+    :return: True (bool) or an error (text)
     """
     if not val:
         return True

@@ -1,3 +1,4 @@
+- [ ] Finish the settings menu
 - [ ] Optimization and Clean up
 - [x] Handle SIGINT during "User:" phase properly
 - [x] Save chat on exit 

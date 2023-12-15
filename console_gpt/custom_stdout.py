@@ -7,19 +7,25 @@ PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit"]
 
 
 def custom_print(
-    ptype: PrintType,
-    text: str,
-    exit_code: Optional[int] = None,
-    print_now: Optional[bool] = True,
-    start: Optional[str] = "",
-    end: Optional[str] = "",
+        ptype: PrintType,
+        text: str,
+        exit_code: Optional[int] = None,
+        print_now: Optional[bool] = True,
+        start: Optional[str] = "",
+        end: Optional[str] = "",
 ) -> Optional[str]:
     """
-    Based on the ptype (Print Type) it will print messages in different color.
-    If print_now is set to False it will return the colored string.
-    If exit_code is set to a value different from -1 the function
-    will exit the whole program.
+    Custom STDOUT function which works soft of like logging
+    It uses pre-defined prefixes (E.g. `[ERROR] <your_text>`)
+    :param ptype: Print type (the mentioned prefix)
+    :param text: the text you would like to print
+    :param exit_code: custom exit status if you like to abort everything
+    :param print_now: whether to print or return the content
+    :param start: Add custom text before the prefix
+    :param end: Add custom text after the text
+    :return: The content if "print_now" is false
     """
+
     formats = {
         "ok": ("[OK] ", "green"),
         "warn": ("[WARN] ", "yellow"),

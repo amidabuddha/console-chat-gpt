@@ -7,6 +7,12 @@ from console_gpt.custom_stdout import custom_print
 
 
 def _validate_file(val: str) -> Union[str, bool]:
+    """
+    Supporting function for file_prompt() that verifies
+    that the given path leads to a file and not a dir or nothing
+    :param val: path to file
+    :return: Either True (bool) or an error message
+    """
     if os.path.isfile(val):
         return True
     if os.path.isdir(val):
@@ -15,6 +21,11 @@ def _validate_file(val: str) -> Union[str, bool]:
 
 
 def _read_file(file_path: str) -> Union[str, bool]:
+    """
+    Read the content of a file
+    :param file_path: Path to the file
+    :return: The content or None (NoneType) if empty
+    """
     with open(file_path, 'r') as to_read:
         data = to_read.read()
         not_empty = data.strip()
@@ -24,6 +35,10 @@ def _read_file(file_path: str) -> Union[str, bool]:
 
 @eof_wrapper
 def file_prompt():
+    """
+    Prompt for reading content from file.
+    :return: The content or None (NoneType)
+    """
     custom_style = questionary.Style(
         [
             ("question", "fg:#ffdb38 bold"),

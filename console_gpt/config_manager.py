@@ -95,6 +95,12 @@ def write_to_config(*args, new_value: Any) -> None:
 
 
 def fetch_variable(*args) -> Any:
+    """
+    Fetch variable from the config file (config.toml)
+    By default the function is already looking into the "chat" group
+    :param args: variable group/name as deep as necessary
+    :return: Content or Error (with exit)
+    """
     config = _load_toml(CONFIG_PATH)
     chat_var = config["chat"]
     try:
@@ -114,9 +120,3 @@ def fetch_variable(*args) -> Any:
                 )
     except KeyError:
         __var_error(args)
-
-
-# For testing just call this file and pass vars as args to the file
-# e.g. python3 config_manager.py models gpt4
-# import sys
-# print(fetch_variable(*sys.argv[1:]))

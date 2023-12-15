@@ -1,7 +1,7 @@
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from questionary import Style
-from typing import Union
+from typing import Union, Dict
 from console_gpt.catch_errors import eof_wrapper
 
 
@@ -19,7 +19,12 @@ def _validate_description(val: str) -> Union[str, bool]:
 
 
 @eof_wrapper
-def multiline_prompt():
+def multiline_prompt() -> Union[Dict, None]:
+    """
+    Multiline prompt which allows writing on multiple lines without
+    "Enter" (Return) interrupting your input.
+    :return: The content or None (If cancelled)
+    """
     style = Style(
         [
             ("qmark", "fg:#86cdfc bold"),

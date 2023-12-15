@@ -13,6 +13,12 @@ from console_gpt.custom_stdout import custom_print
 
 
 def _validate_confirmation(val: str):
+    """
+    Supporting function to save_chat()
+    Validates whether the input is correct
+    :param val: user input
+    :return: True (bool) or error (as text)
+    """
     if val.lower() not in ["y", "yes", "n", "no"]:
         return "Please enter either 'y' or 'n'!"
     return True
@@ -20,6 +26,13 @@ def _validate_confirmation(val: str):
 
 @eof_wrapper
 def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = False) -> None:
+    """
+    Save chat as a file for later use
+    :param conversation: Whole conversation so far
+    :param ask: Prompt whether you want to save the chat
+    :param skip_exit: Don't exit even if a chat is saved
+    :return:
+    """
     # Determines if the prompt should be shown
     _show_menu = fetch_variable("features", "save_chat_on_exit")
     # If False the whole code will be skipped
