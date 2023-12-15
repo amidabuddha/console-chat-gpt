@@ -15,7 +15,7 @@ from console_gpt.catch_errors import eof_wrapper
 
 def _role_preview(item: str) -> str:
     """
-    Returns a preview of the selected role inside the menu
+    Returns a preview of the hovered role inside the menu
     :param item: The role name.
     :return: The preview of the role.
     """
@@ -138,7 +138,7 @@ def role_menu() -> Optional[str]:
     # Add option to remove roles
     menu_data.append("Remove System Behavior")
 
-    menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD", ""))
+    menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD"))
     selection = base_multiselect_menu(
         menu_data, menu_title, default_value=default_role, preview_command=_role_preview
     )

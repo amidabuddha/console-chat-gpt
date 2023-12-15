@@ -31,7 +31,7 @@ def user_prompt() -> Union[Dict, None]:
     user_input = questionary.autocomplete(
         message=prompt_title,
         choices=options,
-        qmark=use_emoji_maybe("\U0001F9D1", ""),
+        qmark=use_emoji_maybe("\U0001F9D1"),
         meta_information=option_description,
         style=custom_style,
         validate=lambda x: True if x and not x.isspace() else "Empty inputs are not allowed!",

@@ -80,7 +80,7 @@ def base_settings_menu(
     label_length = max(len(k) for k, v in data.items()) + 2
     menu_data = [f"{k.replace('_', ' ').title():<{label_length}}| {v}" for k, v in data.items()]
     selections = questionary.checkbox(
-        menu_title, choices=menu_data, qmark=use_emoji_maybe("\u2699\ufe0f", "?")
+        menu_title, choices=menu_data, qmark=use_emoji_maybe("\u2699\ufe0f")
     ).ask()
     flush_lines()  # Used to flush the original output of the library
 
@@ -100,7 +100,7 @@ def base_settings_menu(
 
 def base_checkbox_menu(data: List, menu_title: str) -> List:
     selection = questionary.checkbox(
-        menu_title, choices=data, qmark=use_emoji_maybe("\u2699\ufe0f", "?")
+        menu_title, choices=data, qmark=use_emoji_maybe("\u2699\ufe0f")
     ).ask()
     if selection in [None, []]:
         flush_lines(4)
