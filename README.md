@@ -1,10 +1,8 @@
----
-
 <div align="center">
 
 <h1>
 
-console-chat-gpt
+console-chat-gpt v2
 
 </h1>
 
@@ -37,6 +35,7 @@ The ultimate command line interface for chatting with ChatGPT! Save time and eff
 - [Features](#features)
 - [Installation and Usage](#installation-and-usage)
 - [Examples and Preview](#examples-and-preview)
+- [TODOs](#todos)
 
 ---
 
@@ -127,7 +126,7 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
    </br>![continue_chat](examples/continue_chat.png)
 
 
-3. Select how the GPT should behave:
+3. **Select how the GPT should behave:**
    ![roles](examples/role_select.png)
    > These roles are set inside your `config.toml`. You can add/remove or adjust them.
 
@@ -152,3 +151,9 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
        </br>![path](examples/path_compl.png)
 
 ---
+
+## TODOs
+
+Features that are currently not available in v2 will be soon added, you can keep track of that
+at [the TODO List](todo.md)
+

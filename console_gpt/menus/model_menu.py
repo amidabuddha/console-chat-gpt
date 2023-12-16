@@ -26,5 +26,5 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     # Build the menu based on the available models (chat.models.<model>)
     menu_data = list(fetch_variable("models").keys())
     menu_title = "{} Select a model:".format(use_emoji_maybe("\U0001F916"))
-    selection = base_multiselect_menu(menu_data, menu_title, default_model)
+    selection = base_multiselect_menu("Model menu", menu_data, menu_title, default_model)
     return fetch_variable("models", selection)

@@ -18,12 +18,12 @@
 
 ### To verify
 
-- [ ] When roles are 0 if all works
-- [ ] When models are 0 if all works
+- [x] When roles are 0 if all works
+- [x] When models are 0 if all works
 
 ### Chores
 
-- [ ] Fix Readme.md
+- [x] Fix Readme.md
 
 ### Bugs
 

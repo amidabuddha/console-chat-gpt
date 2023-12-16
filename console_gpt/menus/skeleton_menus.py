@@ -8,6 +8,7 @@ from console_gpt.general_utils import flush_lines, use_emoji_maybe
 
 
 def base_multiselect_menu(
+    menu_name: str,
     data: List[str],
     menu_title: str,
     default_value: Optional[Union[int, str]] = 0,
@@ -21,6 +22,7 @@ def base_multiselect_menu(
     """
     Creates a multiselect menu
 
+    :param menu_name: The name of the menu so we can have more accurate errors
     :param data: The data you would like to be used in the menu
     :param menu_title: The title to be displayed on top of the menu
     :param default_value: Either the index or the name of the default value to be displayed first
@@ -36,13 +38,13 @@ def base_multiselect_menu(
     if isinstance(default_value, int):
         data_size = len(data) if skip_option else len(data) - 1
         if default_value > data_size:
-            custom_print("error", "Invalid default value!", exit_code=1)
+            custom_print("error", f"Invalid default value at {menu_name}!", exit_code=1)
     elif isinstance(default_value, str):
         if default_value not in data:
-            custom_print("error", "Invalid default value!", exit_code=1)
+            custom_print("error", f"Invalid default value at {menu_name}!", exit_code=1)
         default_value = data.index(default_value)
     else:
-        custom_print("error", "Invalid default value data type!", exit_code=1)
+        custom_print("error", f"Invalid default value data type at {menu_name}!", exit_code=1)
 
     if skip_option:
         data.insert(0, "Skip")
