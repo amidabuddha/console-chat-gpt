@@ -37,15 +37,15 @@ science = "As an expert in various scientific disciplines, such as math, physics
 [chat.models.gpt3]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k = 0.0015
+model_input_pricing_per_1k = 0.001
 model_max_tokens = 4096
-model_name = "gpt-3.5-turbo"
+model_name = "gpt-3.5-turbo-1106"
 model_output_pricing_per_1k = 0.002
 
 [chat.models.gpt4]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k = 0.03
-model_max_tokens = 8192
-model_name = "gpt-4"
-model_output_pricing_per_1k = 0.06
+model_input_pricing_per_1k = 0.01
+model_max_tokens = 4096
+model_name = "gpt-4-1106-preview"
+model_output_pricing_per_1k = 0.03
