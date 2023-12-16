@@ -50,7 +50,7 @@ def select_chat_menu(already_failed=False) -> Optional[List[Dict]]:
         return None
     extensionless_data = [x.removesuffix(".json") for x in menu_data]
     manu_title = "Continue an old chat?:"
-    selection = base_multiselect_menu(extensionless_data, manu_title, 0, True)
+    selection = base_multiselect_menu("Chat Select", extensionless_data, manu_title, 0, True)
     if selection == "Skip":
         return None
     return _read_old_chat(menu_data[extensionless_data.index(selection) - 1], already_failed)
