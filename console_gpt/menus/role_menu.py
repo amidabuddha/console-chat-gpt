@@ -135,8 +135,9 @@ def role_menu() -> Optional[str]:
     menu_data.append("Remove System Behavior")
 
     menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD"))
-    selection = base_multiselect_menu("Role Menu", menu_data, menu_title, default_value=default_role,
-                                      preview_command=_role_preview)
+    selection = base_multiselect_menu(
+        "Role Menu", menu_data, menu_title, default_value=default_role, preview_command=_role_preview
+    )
     match selection:
         case "Add New System Behavior":
             _add_custom_role()
