@@ -149,7 +149,10 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
        </br>![loading](examples/loading.png)
     2. Path completion when using the `file` command:
        </br>![path](examples/path_compl.png)
-
+    3. Vision by `gpt-4-vision-preview`:
+       </br>![path](examples/vision1.png)
+       </br>![path](examples/vision2.png)
+       </br>![path](examples/vision3.png)
 ---
 
 ## TODOs

@@ -49,7 +49,7 @@ def multiline_prompt() -> Union[Dict, None]:
 
     additional_data = custom_input(
         auto_exit=False,
-        message="Additional clarifications? (Please 'ENTER' to skip):",
+        message="Additional clarifications? (Press 'ENTER' to skip):",
         style=style,
         qmark="❯",
     )

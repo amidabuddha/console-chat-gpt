@@ -7,6 +7,7 @@ from console_gpt.general_utils import help_message, set_locale
 from console_gpt.menus.combined_menu import combined_menu
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.file_prompt import file_prompt
+from console_gpt.prompts.image_prompt import upload_image
 from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
@@ -62,6 +63,12 @@ def console_gpt() -> None:
                 case "save":
                     save_chat(conversation, skip_exit=True)
                     continue
+                case "image":
+                    if model_name != "gpt-4-vision-preview":
+                        custom_print('error',
+                                     f"Cannot upload images unless you're using gpt-4-vision-preview. Current model: {model_name}!")
+                        continue
+                    user_input = upload_image()
                 case "exit" | "quit" | "bye":
                     save_chat(conversation, ask=True)
 
@@ -77,7 +84,7 @@ def console_gpt() -> None:
             with console.status("[bold green]Generating a response...", spinner="aesthetic"):
                 try:
                     response = client.chat.completions.create(
-                        model=model_name, temperature=temperature, messages=conversation
+                        model=model_name, temperature=temperature, messages=conversation, max_tokens=model_max_tokens
                     )
                 except openai.APIConnectionError as e:
                     error_appeared = True
@@ -94,6 +101,7 @@ def console_gpt() -> None:
                 except KeyboardInterrupt:
                     # Notifying the user about the interrupt but continues normally.
                     custom_print("info", "Interrupted the request. Continue normally.")
+                    conversation.pop(-1)
                     continue
             if error_appeared:
                 custom_print(
