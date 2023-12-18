@@ -65,8 +65,10 @@ def console_gpt() -> None:
                     continue
                 case "image":
                     if model_name != "gpt-4-vision-preview":
-                        custom_print('error',
-                                     f"Cannot upload images unless you're using gpt-4-vision-preview. Current model: {model_name}!")
+                        custom_print(
+                            "error",
+                            f"Cannot upload images unless you're using gpt-4-vision-preview. Current model: {model_name}!",
+                        )
                         continue
                     user_input = upload_image()
                 case "exit" | "quit" | "bye":

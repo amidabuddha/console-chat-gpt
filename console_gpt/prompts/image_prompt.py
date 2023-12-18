@@ -1,5 +1,5 @@
 import base64
-from typing import Union, Dict
+from typing import Dict, Union
 
 from PIL import Image
 from questionary import Style
@@ -31,7 +31,7 @@ def _encode_image(image_path) -> str:
     :return: base64 encoded string
     """
     with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 def upload_image() -> Union[Dict, None]:
@@ -53,9 +53,7 @@ def upload_image() -> Union[Dict, None]:
     encoded_image = _encode_image(image_path)
     data = {
         "type": "image_url",
-        "image_url": {
-            "url": f"data:image/jpeg;base64,{encoded_image}"
-        },
+        "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
     }
     additional_data = custom_input(
         auto_exit=False,
