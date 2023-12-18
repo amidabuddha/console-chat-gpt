@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, Dict
 
 import questionary
 
@@ -36,10 +36,13 @@ def _read_file(file_path: str) -> Union[str, bool]:
 
 
 @eof_wrapper
-def file_prompt():
+def browser_files(input_message: str, interrupt_message: str, validate_func: object) -> Union[str, None]:
     """
-    Prompt for reading content from file.
-    :return: The content or None (NoneType)
+    A base prompt for browsing files
+    :param input_message: The prompt message that the user will see
+    :param interrupt_message: The message that the user will see upon (SIGINT)
+    :param validate_func: The function to use to validate the user input
+    :return: Either none if SIGINT or the Path
     """
     custom_style = questionary.Style(
         [
@@ -49,13 +52,25 @@ def file_prompt():
         ]
     )
     file_name = questionary.path(
-        message="Select a file:", style=custom_style, validate=_validate_file, qmark=use_emoji_maybe("\U0001F4C1")
+        message=input_message, style=custom_style, validate=validate_func, qmark=use_emoji_maybe("\U0001F4C1")
     ).ask()
     if not file_name:
         flush_lines(4)
-        custom_print("info", "File selection cancelled.")
+        custom_print("info", interrupt_message)
         return None
+    flush_lines(1)
+    return file_name
 
+
+@eof_wrapper
+def file_prompt() -> Union[Dict, None]:
+    """
+    Prompt for reading content from file.
+    :return: The content or None (NoneType)
+    """
+    file_name = browser_files("Select a file:", "File selection cancelled.", _validate_file)
+    if not file_name:
+        return None
     data = _read_file(file_name)
     if not data:
         custom_print("info", "The file seems to be empty. Skipping.")

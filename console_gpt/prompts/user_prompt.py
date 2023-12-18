@@ -20,18 +20,20 @@ def user_prompt() -> Union[Dict, None]:
         ]
     )
 
-    prompt_title = "User:"
-    options = ["help", "cost", "edit", "exit", "file", "flush", "format", "save"]
     option_description = {
         "help": "Prints all available commands.",
         "cost": "Prints the costs of the current chat.",
         "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
         "file": "Allows you to upload a file to the chat.",
+        "image": "Allows you to upload an image (Supported by gpt-4-vision-preview only).",
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
         "save": "Saves the chat to a given file.",
     }
+
+    prompt_title = "User:"
+    options = ["help", "cost", "edit", "exit", "file", "image", "flush", "format", "save"]
     user_input = questionary.autocomplete(
         message=prompt_title,
         choices=options,
