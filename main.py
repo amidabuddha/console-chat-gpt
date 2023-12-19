@@ -30,6 +30,8 @@ def console_gpt() -> None:
             model_output_pricing_per_1k,
         ) = data.model.values()
 
+        model_type = data.model_type
+
         # Initiate API
         client = openai.OpenAI(api_key=api_key)
 
@@ -64,10 +66,10 @@ def console_gpt() -> None:
                     save_chat(conversation, skip_exit=True)
                     continue
                 case "image":
-                    if model_name != "gpt-4-vision-preview":
+                    if model_type != "gpt4-vision":
                         custom_print(
                             "error",
-                            f"Cannot upload images unless you're using gpt-4-vision-preview. Current model: {model_name}!",
+                            f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
                         )
                         continue
                     user_input = upload_image()

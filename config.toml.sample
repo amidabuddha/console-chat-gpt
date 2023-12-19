@@ -11,7 +11,7 @@ fallback_char = "?"
 
 [chat.defaults]
 temperature = 1
-system_role = "linux"
+system_role = "dev"
 model = "gpt3"
 
 [chat.features]
@@ -48,4 +48,12 @@ api_usage = 0
 model_input_pricing_per_1k = 0.01
 model_max_tokens = 4096
 model_name = "gpt-4-1106-preview"
+model_output_pricing_per_1k = 0.03
+
+[chat.models.gpt4-vision]
+api_key = "YOUR_OPENAI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.01
+model_max_tokens = 4096
+model_name = "gpt-4-vision-preview"
 model_output_pricing_per_1k = 0.03
