@@ -28,9 +28,8 @@ def console_gpt() -> None:
             model_max_tokens,
             model_name,
             model_output_pricing_per_1k,
+            model_title
         ) = data.model.values()
-
-        model_type = data.model_type
 
         # Initiate API
         client = openai.OpenAI(api_key=api_key)
@@ -66,7 +65,7 @@ def console_gpt() -> None:
                     save_chat(conversation, skip_exit=True)
                     continue
                 case "image":
-                    if model_type != "gpt4-vision":
+                    if model_title != "gpt4-vision":
                         custom_print(
                             "error",
                             f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",

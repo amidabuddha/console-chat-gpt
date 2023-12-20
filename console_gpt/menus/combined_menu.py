@@ -11,7 +11,6 @@ All menus at once for simplicity
 
 
 class ChatObject(NamedTuple):
-    model_type: str
     model: Dict
     conversation: List[Dict]
     temperature: float
@@ -23,7 +22,7 @@ def combined_menu() -> ChatObject:
     his journey through the menus
     :return: Returns the object
     """
-    model_type, model = model_menu()
+    model = model_menu()
     continue_chat = select_chat_menu()
 
     # Ask for role only if we're not continuing any chat
@@ -32,4 +31,4 @@ def combined_menu() -> ChatObject:
 
     # Generate a base conversation if we're not continuing any chat
     conversation = continue_chat if continue_chat else [{"role": "system", "content": role}]
-    return ChatObject(model_type=model_type, model=model, conversation=conversation, temperature=temperature)
+    return ChatObject(model=model, conversation=conversation, temperature=temperature)
