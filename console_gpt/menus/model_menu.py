@@ -21,7 +21,7 @@ def model_menu() -> Tuple[str, Dict[str, Union[int, str, float]]]:
     # Fetches the default model
     default_model = fetch_variable("defaults", "model")
     if not _show_menu:
-        return fetch_variable("models", default_model)
+        return default_model, fetch_variable("models", default_model)
 
     # Build the menu based on the available models (chat.models.<model>)
     menu_data = list(fetch_variable("models").keys())
