@@ -28,7 +28,7 @@ def console_gpt() -> None:
             model_max_tokens,
             model_name,
             model_output_pricing_per_1k,
-            model_title
+            model_title,
         ) = data.model.values()
 
         # Initiate API
