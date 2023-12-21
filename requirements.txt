@@ -5,3 +5,4 @@ rich==13.7.0
 simple_term_menu==1.6.4
 termcolor==2.4.0
 toml==0.10.2
+mistralai==0.0.9

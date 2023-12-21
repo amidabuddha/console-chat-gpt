@@ -57,3 +57,11 @@ model_input_pricing_per_1k = 0.01
 model_max_tokens = 4096
 model_name = "gpt-4-vision-preview"
 model_output_pricing_per_1k = 0.03
+
+[chat.models.mistral]
+api_key = "YOUR_MISTRALAI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.0025
+model_max_tokens = 0
+model_name = "mistral-medium"
+model_output_pricing_per_1k = 0.0075

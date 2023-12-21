@@ -1,4 +1,6 @@
 import openai
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 from rich.console import Console
 
 from console_gpt.config_manager import check_valid_config
@@ -12,6 +14,10 @@ from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
 
+
+def mistral_messages(message_dicts):                                            
+    return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in   
+message_dicts] 
 
 def console_gpt() -> None:
     console = Console()  # Used for the status bar
@@ -32,10 +38,16 @@ def console_gpt() -> None:
         ) = data.model.values()
 
         # Initiate API
-        client = openai.OpenAI(api_key=api_key)
+        if model_title == "mistral":
+            client = MistralClient(api_key=api_key)
+        else:
+            client = openai.OpenAI(api_key=api_key)
 
         # Set defaults
-        conversation = data.conversation
+        if model_title == "mistral":
+            conversation = [message for message in data.conversation if message['role'] != 'system']
+        else:
+            conversation = data.conversation
         temperature = data.temperature
 
         # Inner Loop
@@ -86,9 +98,16 @@ def console_gpt() -> None:
             # Start the loading bar until API response is returned
             with console.status("[bold green]Generating a response...", spinner="aesthetic"):
                 try:
-                    response = client.chat.completions.create(
-                        model=model_name, temperature=temperature, messages=conversation, max_tokens=model_max_tokens
-                    )
+                    if model_title == "mistral":
+                        response = client.chat(
+                            model=model_name,
+                            temperature=temperature,
+                            messages=mistral_messages(conversation),
+                        )
+                    else:
+                        response = client.chat.completions.create(
+                            model=model_name, temperature=temperature, messages=conversation, max_tokens=model_max_tokens
+                        )
                 except openai.APIConnectionError as e:
                     error_appeared = True
                     print("The server could not be reached")

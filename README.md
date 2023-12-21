@@ -6,7 +6,7 @@ console-chat-gpt v2
 
 </h1>
 
-The ultimate command line interface for chatting with ChatGPT! Save time and effort with this simple yet effective tool.
+The ultimate command line interface for chatting with ChatGPT or MistralAI! Save time and effort with this simple yet effective tool.
 
 <h3>
 
@@ -94,10 +94,9 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
    python3 -m pip install -r requirements.txt
    ```
 
-4. Get your API key from [HERE](https://platform.openai.com/account/api-keys)
+4. Get your API key from [HERE](https://platform.openai.com/account/api-keys) or [HERE](https://console.mistral.ai/user/api-keys/) depending on your selected LLM
 
-5. Copy `config.toml.sample` into `config.toml`, replace the text "YOUR_OPENAI_API_KEY" with your API key and save the
-   new config file. Feel free to change any of the other defaults as per your needs.
+5. Copy `config.toml.sample` into `config.toml`, replace the text "YOUR_OPENAI_API_KEY" and/or "YOUR_MISTRALAI_API_KEY" with your API key/s and save the new config file. Feel free to change any of the other defaults as per your needs.
 
 6. Run the executable:
 
