@@ -15,9 +15,9 @@ from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
 
 
-def mistral_messages(message_dicts):                                            
-    return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in   
-message_dicts] 
+def mistral_messages(message_dicts):
+    return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in message_dicts]
+
 
 def console_gpt() -> None:
     console = Console()  # Used for the status bar
@@ -45,7 +45,7 @@ def console_gpt() -> None:
 
         # Set defaults
         if model_title == "mistral":
-            conversation = [message for message in data.conversation if message['role'] != 'system']
+            conversation = [message for message in data.conversation if message["role"] != "system"]
         else:
             conversation = data.conversation
         temperature = data.temperature
@@ -106,7 +106,10 @@ def console_gpt() -> None:
                         )
                     else:
                         response = client.chat.completions.create(
-                            model=model_name, temperature=temperature, messages=conversation, max_tokens=model_max_tokens
+                            model=model_name,
+                            temperature=temperature,
+                            messages=conversation,
+                            max_tokens=model_max_tokens,
                         )
                 except openai.APIConnectionError as e:
                     error_appeared = True
