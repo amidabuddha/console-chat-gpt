@@ -5,6 +5,7 @@
 
 ### Features
 
+- [ ] restore debug funtionality
 - [ ] Allow adding new models via interactive menu with `/models` endpoint
 - [ ] Finish the settings menu
 - [ ] Calculate used tokens and price
