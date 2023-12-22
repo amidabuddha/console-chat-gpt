@@ -41,7 +41,7 @@ The ultimate command line interface for chatting with ChatGPT or MistralAI! Save
 
 **DISCLAIMER:**
 The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, their subsidiaries in any form.
+or relationship with OpenAI, MistralAI, or their subsidiaries in any form.
 
 ---
 
