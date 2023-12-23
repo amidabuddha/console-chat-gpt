@@ -30,10 +30,11 @@ def user_prompt() -> Union[Dict, None]:
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
         "save": "Saves the chat to a given file.",
+        "settings": "Manage available features."
     }
 
     prompt_title = "User:"
-    options = ["help", "cost", "edit", "exit", "file", "image", "flush", "format", "save"]
+    options = ["help", "cost", "edit", "exit", "file", "image", "flush", "format", "save", "settings"]
     user_input = questionary.autocomplete(
         message=prompt_title,
         choices=options,

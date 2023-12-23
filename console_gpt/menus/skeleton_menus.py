@@ -85,7 +85,7 @@ def base_settings_menu(data: Dict[str, bool], menu_title: Optional[str] = "Setti
     if selections in [None, []]:
         # If nothing is selected or ctrl+c
         # Return the original data
-        flush_lines(3)  # Used to flush the original output of the library
+        flush_lines(3) if selections is None else flush_lines(0)
         return data
 
     for selection in selections:

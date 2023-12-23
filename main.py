@@ -13,6 +13,7 @@ from console_gpt.prompts.image_prompt import upload_image
 from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
+from console_gpt.menus.settings_menu import settings_menu
 
 
 def mistral_messages(message_dicts):
@@ -73,6 +74,9 @@ def console_gpt() -> None:
                     # simply breaks this loop (inner) which start the outer one
                     save_chat(conversation, ask=True, skip_exit=True)
                     break
+                case "settings":
+                    settings_menu()
+                    continue
                 case "save":
                     save_chat(conversation, skip_exit=True)
                     continue
