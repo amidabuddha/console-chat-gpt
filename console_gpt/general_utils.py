@@ -85,7 +85,7 @@ def help_message() -> None:
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
         "save": "Saves the chat to a given file.",
-        "settings": "Manage available features."
+        "settings": "Manage available features.",
     }
 
     for option, description in options.items():

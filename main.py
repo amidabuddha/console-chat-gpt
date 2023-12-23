@@ -7,13 +7,13 @@ from console_gpt.config_manager import check_valid_config
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import help_message, set_locale
 from console_gpt.menus.combined_menu import combined_menu
+from console_gpt.menus.settings_menu import settings_menu
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.file_prompt import file_prompt
 from console_gpt.prompts.image_prompt import upload_image
 from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import user_prompt
-from console_gpt.menus.settings_menu import settings_menu
 
 
 def mistral_messages(message_dicts):

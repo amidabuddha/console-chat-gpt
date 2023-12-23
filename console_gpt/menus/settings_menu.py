@@ -24,7 +24,7 @@ def _table_wrapper(col1, col2, col3):
     :param col3: third column
     :return: return a single table row
     """
-    return f'|{col1}|{col2}|{col3}'
+    return f"|{col1}|{col2}|{col3}"
 
 
 def _generate_markdown_reply(data: Dict) -> str:
@@ -37,7 +37,7 @@ def _generate_markdown_reply(data: Dict) -> str:
 | Entry      | New Value | Old Value|
 | :---        |    :----:   |          ---: |
 """
-    table = '\n'.join([_table_wrapper(x, y, not bool(y)) for x, y in data.items()])
+    table = "\n".join([_table_wrapper(x, y, not bool(y)) for x, y in data.items()])
     return header + table
 
 

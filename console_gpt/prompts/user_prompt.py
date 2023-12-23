@@ -30,7 +30,7 @@ def user_prompt() -> Union[Dict, None]:
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
         "save": "Saves the chat to a given file.",
-        "settings": "Manage available features."
+        "settings": "Manage available features.",
     }
 
     prompt_title = "User:"
