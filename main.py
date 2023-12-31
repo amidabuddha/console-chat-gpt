@@ -105,7 +105,7 @@ def console_gpt() -> None:
                     if model_title == "mistral":
                         response = client.chat(
                             model=model_name,
-                            temperature=temperature,
+                            temperature=float(temperature)/2,
                             messages=mistral_messages(conversation),
                         )
                     else:
@@ -115,6 +115,7 @@ def console_gpt() -> None:
                             messages=conversation,
                             max_tokens=model_max_tokens,
                         )
+                # TODO: Handle mistralai.exceptions.MistralAPIException
                 except openai.APIConnectionError as e:
                     error_appeared = True
                     print("The server could not be reached")
