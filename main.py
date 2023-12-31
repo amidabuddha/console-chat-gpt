@@ -105,7 +105,7 @@ def console_gpt() -> None:
                     if model_title == "mistral":
                         response = client.chat(
                             model=model_name,
-                            temperature=float(temperature)/2,
+                            temperature=float(temperature) / 2,
                             messages=mistral_messages(conversation),
                         )
                     else:
