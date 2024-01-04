@@ -79,7 +79,7 @@ def check_valid_config() -> None:
     :return: Nothing
     """
     is_checked = fetch_variable("structure", "valid", auto_exit=False)
-    if not is_checked:
+    if is_checked == -1:
         ver_path = f"{BASE_PATH}/verify_config.py"
         custom_print("warn", "It appears that your configuration is not verified.")
         custom_print("info", f"Please run verify_config.py at: {ver_path}", 0)

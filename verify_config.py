@@ -14,7 +14,7 @@ with open(CONFIG_PATH, "r") as config_file:
 # Define the expected structure
 structure = {
     "chat": {
-        "structure": {"valid": bool},
+        "structure": {"valid": int},
         "customizations": {
             "use_emoji": bool,
             "fallback_char": str,
@@ -64,8 +64,8 @@ def validate_structure(config, expected_structure, parent_key=""):
 status = validate_structure(parsed_config, structure)
 if status == 0:
     custom_print("ok", "Verified and looking fine! You can now proceed with the chat.")
-    write_to_config("structure", "valid", new_value=True)
+    write_to_config("structure", "valid", new_value=0)
 else:
-    write_to_config("structure", "valid", new_value=False, group=True)
+    write_to_config("structure", "valid", new_value=-1, group=True)
     # write_to_config("structure", "valid", new_value=False)
     custom_print("info", "Your config file looks wrong, please refer to config.toml.sample", 1)

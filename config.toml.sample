@@ -3,7 +3,7 @@
 # Also, don't forget to place your API Token
 
 [chat.structure]
-valid = false
+valid = -1
 
 [chat.customizations]
 use_emoji = true
