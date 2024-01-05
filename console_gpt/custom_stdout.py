@@ -17,12 +17,12 @@ def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] =
 
 
 def custom_print(
-        ptype: PrintType,
-        text: str,
-        exit_code: Optional[int] = None,
-        print_now: Optional[bool] = True,
-        start: Optional[str] = "",
-        end: Optional[str] = "",
+    ptype: PrintType,
+    text: str,
+    exit_code: Optional[int] = None,
+    print_now: Optional[bool] = True,
+    start: Optional[str] = "",
+    end: Optional[str] = "",
 ) -> Optional[str]:
     """
     Custom STDOUT function which works soft of like logging
@@ -43,7 +43,7 @@ def custom_print(
         "error": ("[ERROR] ", "red"),
         "sigint": ("[SIGINT] ", "red"),
         "exit": ("[EXIT] ", "red"),
-        "changelog": ("[CHANGELOG] ", "cyan")
+        "changelog": ("[CHANGELOG] ", "cyan"),
     }
 
     prefix, color = formats.get(ptype.lower(), ("[UNKNOWN] ", "white"))
