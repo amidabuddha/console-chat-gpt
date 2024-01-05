@@ -1,4 +1,4 @@
-name: Apply Formatting
+name: Apply Formatting and Update Changelog
 
 on:
   push:
@@ -6,8 +6,10 @@ on:
       - main
 
 jobs:
-  format:
+  format_and_update_changelog:
     runs-on: ubuntu-latest
+    env:
+      CHANGELOG_FILE: CHANGELOG.md
 
     steps:
       - name: Checkout code
@@ -28,16 +30,27 @@ jobs:
           pipreqs --force --clean requirements.txt 2>/dev/null
           pipreqs --force . 2>/dev/null
 
+      - name: Generate Changelog
+        run: |
+          echo "> Features:" > ${{ env.CHANGELOG_FILE }}
+          git log -10 --pretty=format:"%h %s" | grep -i "\[feature\(s\)\?\]" | sed -E 's/\[feature(s)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
+          
+          echo "\n> Improvements:" >> ${{ env.CHANGELOG_FILE }}
+          git log -10 --pretty=format:"%h %s" | grep -i "\[improvement\(s\)\?\]" | sed -E 's/\[improvement(s)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
+          
+          echo "\n> Bug Fixes:" >> ${{ env.CHANGELOG_FILE }}
+          git log -10 --pretty=format:"%h %s" | grep -i "\[bugfix\(es\)\?\]" | sed -E 's/\[bugfix(es)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
+          
+          echo "\n> Others:" >> ${{ env.CHANGELOG_FILE }}
+          git log -10 --pretty=format:"%h %s" | grep -i "\[other\(s\)\?\]" | sed -E 's/\[other(s)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
+
       - name: Commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add -A
-          git commit -m "Apply Black formatting" || echo "Commit failed or nothing to do, continuing workflow"
+          git commit -m "Apply Black formatting and Update Changelog" || echo "No changes to commit, continuing workflow"
 
       - name: Push changes
         if: ${{ success() }}
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+        run: git push
