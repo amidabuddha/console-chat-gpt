@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Union
 
 from questionary import Style
@@ -5,7 +6,6 @@ from questionary import Style
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
-import re
 
 
 def _validate_description(val: str) -> Union[str, bool]:
@@ -16,7 +16,7 @@ def _validate_description(val: str) -> Union[str, bool]:
     :return: Either error string or bool to confirm that
     the user input is valid
     """
-    stop_regex = re.compile(r'(\n|\s)+$')
+    stop_regex = re.compile(r"(\n|\s)+$")
     if not val or stop_regex.match(val):
         return "Empty input not allowed!"
     return True

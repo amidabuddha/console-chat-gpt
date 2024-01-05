@@ -6,7 +6,8 @@ from typing import Optional, TypeVar
 from rich.console import Console
 from rich.table import Table
 
-from console_gpt.config_manager import fetch_variable, write_to_config, _load_toml, CONFIG_SAMPLE_PATH
+from console_gpt.config_manager import (CONFIG_SAMPLE_PATH, _load_toml,
+                                        fetch_variable, write_to_config)
 from console_gpt.custom_stdout import custom_print
 
 # Used to Hint that the expected input is a single char and not a string.
