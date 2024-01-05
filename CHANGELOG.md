@@ -1,6 +1,3 @@
-> Features:
-- [c3aad59] [Feature] Add short announcement of new features.
-
 > Improvements:
 - [9784a2c] [Improvement] Completely new changelog logic and view
 - [a3fc1b9] [Improvement] Optimizing the CI/CD
@@ -13,4 +10,5 @@
 - [6866fb8] [Other] Auto-generate Changelog
 - [201606b] [Other] Preparing the gitignore for logging
 
-\n---
+
+---
