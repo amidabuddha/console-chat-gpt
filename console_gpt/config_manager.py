@@ -3,6 +3,7 @@ from typing import Any, Dict, Iterable, Optional, Union
 
 import toml
 
+from console_gpt.config_struct import CONFIG_STRUCT
 from console_gpt.custom_stdout import colored, custom_print
 
 
@@ -41,6 +42,32 @@ def _load_toml(conf_path: str) -> Optional[Dict]:
             f"Empty values and/or duplicates are NOT allowed in the config file [ {colored_error} ]",
             1,
         )
+
+
+def __structure_scanner(config, expected_structure, parent_key=""):
+    warnings = 0
+    for key, value in expected_structure.items():
+        full_key = f"{parent_key}.{key}" if parent_key else key
+        if key not in config:
+            custom_print("warn", f"Missing key: {full_key}")
+            warnings += 1
+        elif isinstance(value, dict):
+            warnings += __structure_scanner(config[key], value, parent_key=full_key)
+        elif not isinstance(config[key], value):
+            custom_print("error", f"Invalid type for {full_key}")
+            warnings += 1
+    return warnings
+
+
+def validate_structure():
+    status = __structure_scanner(_load_toml(CONFIG_PATH), CONFIG_STRUCT)
+    if status == 0:
+        custom_print("ok", "Verified and looking fine! You can now proceed with the chat.")
+        write_to_config("structure", "valid", new_value=True)
+    else:
+        write_to_config("structure", "valid", new_value=False)
+        # write_to_config("structure", "valid", new_value=False)
+        custom_print("info", "Your config file looks wrong, please refer to config.toml.sample", 1)
 
 
 def __var_error(data: Iterable[Any], auto_exit) -> Union[None, bool]:
@@ -85,14 +112,22 @@ def check_valid_config() -> None:
     """
     is_checked = fetch_variable("structure", "valid", auto_exit=False)
     if not is_checked:
-        ver_path = f"{BASE_PATH}/verify_config.py"
-        custom_print("warn", "It appears that your configuration is not verified.")
-        custom_print("info", f"Please run verify_config.py at: {ver_path}", 0)
+        custom_print("warn", "It appears that your configuration is not verified. Doing it now...")
+        validate_structure()
+
+
+def fetch_version() -> str:
+    """
+    Fetch version from the config sample file (config.toml.sample)
+    :return: config current version as string
+    """
+    config = _load_toml(CONFIG_SAMPLE_PATH)
+    return config["chat"]["structure"]["version"]
 
 
 def check_config_version() -> None:
     """
-    Checks if the config file has the curent version even if the content seems valid
+    Checks if the config file has the current version even if the content seems valid
     :return: Nothing
     """
     config_version = fetch_variable("structure", "version", auto_exit=False)
@@ -156,21 +191,3 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
 
     except KeyError:
         return __var_error(args, auto_exit)
-
-
-def fetch_version() -> str:
-    """
-    Fetch version from the config sample file (config.toml.sample)
-    :return: config current version as string
-    """
-    config = _load_toml(CONFIG_SAMPLE_PATH)
-    return config["chat"]["structure"]["version"]
-
-
-def get_changelog() -> str:
-    """
-    Fetch version from the config sample file (config.toml.sample)
-    :return: config current version as string
-    """
-    config = _load_toml(CONFIG_SAMPLE_PATH)
-    return config["chat"]["structure"]["changelog"]
