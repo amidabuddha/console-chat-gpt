@@ -7,4 +7,4 @@ def assistance_reply(data: str) -> None:
     :param data: GPT response
     :return: Nothing, just prints
     """
-    markdown_print(data, "Assistant")
+    markdown_print(data, "Assistant", end="\n")

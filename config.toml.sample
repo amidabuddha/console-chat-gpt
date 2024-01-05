@@ -7,6 +7,7 @@ version = "2.1.0"
 valid = false
 first_use = true
 changelog = """\
+- Improve markdown printing ;)\n\
 - Improve Changelog.\n\
 - Adding validate config + fixing formatting.\n\
 - Add short announcement of new features.\n\

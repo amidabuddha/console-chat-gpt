@@ -8,10 +8,10 @@ from termcolor import colored
 PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit", "changelog"]
 
 
-def markdown_print(data: str, header: Optional[str] = None):
+def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] = ""):
     console = Console()
     if header:
-        console.print(f"[blue underline bold]╰─❯ {header}:[/] ", end="")
+        console.print(f"[blue underline bold]╰─❯ {header}:[/] ", end=end)
     markdown = Markdown(data, code_theme="dracula")
     console.print(markdown)
 
