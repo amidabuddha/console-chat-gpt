@@ -34,13 +34,10 @@ jobs:
         run: |
           echo "> Features:" > ${{ env.CHANGELOG_FILE }}
           git log -10 --pretty=format:"%h %s" | grep -i "\[feature\(s\)\?\]" | sed -E 's/\[feature(s)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
-          
           echo "\n> Improvements:" >> ${{ env.CHANGELOG_FILE }}
           git log -10 --pretty=format:"%h %s" | grep -i "\[improvement\(s\)\?\]" | sed -E 's/\[improvement(s)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
-          
           echo "\n> Bug Fixes:" >> ${{ env.CHANGELOG_FILE }}
           git log -10 --pretty=format:"%h %s" | grep -i "\[bugfix\(es\)\?\]" | sed -E 's/\[bugfix(es)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
-          
           echo "\n> Others:" >> ${{ env.CHANGELOG_FILE }}
           git log -10 --pretty=format:"%h %s" | grep -i "\[other\(s\)\?\]" | sed -E 's/\[other(s)?\] //' | awk '{print "- ["$1"] "substr($0, index($0,$2))}' >> ${{ env.CHANGELOG_FILE }}
 
