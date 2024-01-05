@@ -166,6 +166,7 @@ def fetch_version() -> str:
     config = _load_toml(CONFIG_SAMPLE_PATH)
     return config["chat"]["structure"]["version"]
 
+
 def get_changelog() -> str:
     """
     Fetch version from the config sample file (config.toml.sample)
