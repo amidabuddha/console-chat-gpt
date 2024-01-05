@@ -89,6 +89,7 @@ def check_valid_config() -> None:
         custom_print("warn", "It appears that your configuration is not verified.")
         custom_print("info", f"Please run verify_config.py at: {ver_path}", 0)
 
+
 def check_config_version() -> None:
     """
     Checks if the config file has the curent version even if the content seems valid
@@ -155,7 +156,8 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
 
     except KeyError:
         return __var_error(args, auto_exit)
-    
+
+
 def fetch_version() -> str:
     """
     Fetch version from the config sample file (config.toml.sample)
@@ -163,4 +165,3 @@ def fetch_version() -> str:
     """
     config = _load_toml(CONFIG_SAMPLE_PATH)
     return config["chat"]["structure"]["version"]
-

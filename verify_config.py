@@ -14,11 +14,7 @@ with open(CONFIG_PATH, "r") as config_file:
 # Define the expected structure
 structure = {
     "chat": {
-        "structure": {
-            "version": str, 
-            "valid": bool,
-            "first_use": bool
-        },
+        "structure": {"version": str, "valid": bool, "first_use": bool},
         "customizations": {
             "use_emoji": bool,
             "fallback_char": str,

@@ -3,12 +3,9 @@ from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from rich.console import Console
 
-from console_gpt.config_manager import (
-    check_config_version,
-    check_valid_config,
-    fetch_variable,
-    write_to_config,
-)
+from console_gpt.config_manager import (check_config_version,
+                                        check_valid_config, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import help_message, set_locale
 from console_gpt.menus.combined_menu import combined_menu
