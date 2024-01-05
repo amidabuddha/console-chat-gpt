@@ -8,7 +8,7 @@ from rich.table import Table
 
 from console_gpt.config_manager import (CONFIG_SAMPLE_PATH, _load_toml,
                                         fetch_variable, write_to_config)
-from console_gpt.custom_stdout import custom_print
+from console_gpt.custom_stdout import custom_print, markdown_print
 
 # Used to Hint that the expected input is a single char and not a string.
 Char = TypeVar("Char", bound=str)
@@ -105,8 +105,7 @@ def intro_message() -> None:
     new_changelog = get_changelog()
     same_changelog = current_changelog == new_changelog
     if not same_changelog:
-        custom_print("info", f"{new_changelog}", None)
-        write_to_config("structure", "first_use", new_value=False)
+        markdown_print(new_changelog, "Changelog")
         write_to_config("structure", "changelog", new_value=new_changelog)
     if first_use:
         help_message()

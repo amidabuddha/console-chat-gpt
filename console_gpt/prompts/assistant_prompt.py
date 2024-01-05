@@ -1,5 +1,4 @@
-from rich.console import Console
-from rich.markdown import Markdown
+from console_gpt.custom_stdout import markdown_print
 
 
 def assistance_reply(data: str) -> None:
@@ -8,7 +7,4 @@ def assistance_reply(data: str) -> None:
     :param data: GPT response
     :return: Nothing, just prints
     """
-    console = Console()
-    console.print("[blue underline bold]╰─❯ Assistant:[/] ")
-    markdown = Markdown(data, code_theme="dracula")
-    console.print(markdown)
+    markdown_print(data, "Assistant")
