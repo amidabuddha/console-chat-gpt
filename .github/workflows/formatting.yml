@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 20
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,17 +35,17 @@ jobs:
       - name: Diagnose Commits
         run: |
           git log -20 --pretty=format:"%h %s"
-#      - name: Generate Changelog
-#        run: |
-#          categories=("Features" "Improvements" "Bug Fixes" "Others")
-#          patterns=("\[feature\(s\)\?\]" "\[improvement\(s\)\?\]" "\[bugfix\(es\)\?\]" "\[other\(s\)\?\]")
-#          echo -n "" > ${{ env.CHANGELOG_FILE }}
-#          for i in "${!categories[@]}"; do
-#            entries=$(git log -10 --pretty=format:"%h %s" | grep -i "${patterns[$i]}" | sed -E "s/${patterns[$i]} //" | awk '{print "- ["$1"] "substr($0, index($0,$2))}')
-#            if [ -n "$entries" ]; then
-#              echo -e "> ${categories[$i]}:\n$entries\n" >> ${{ env.CHANGELOG_FILE }}
-#            fi
-#          done
+      #      - name: Generate Changelog
+      #        run: |
+      #          categories=("Features" "Improvements" "Bug Fixes" "Others")
+      #          patterns=("\[feature\(s\)\?\]" "\[improvement\(s\)\?\]" "\[bugfix\(es\)\?\]" "\[other\(s\)\?\]")
+      #          echo -n "" > ${{ env.CHANGELOG_FILE }}
+      #          for i in "${!categories[@]}"; do
+      #            entries=$(git log -10 --pretty=format:"%h %s" | grep -i "${patterns[$i]}" | sed -E "s/${patterns[$i]} //" | awk '{print "- ["$1"] "substr($0, index($0,$2))}')
+      #            if [ -n "$entries" ]; then
+      #              echo -e "> ${categories[$i]}:\n$entries\n" >> ${{ env.CHANGELOG_FILE }}
+      #            fi
+      #          done
 
       - name: Commit changes
         run: |
