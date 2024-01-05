@@ -1,8 +1,8 @@
 > Features:
 - [c3aad59] [Feature] Add short announcement of new features.
-- [eab5563] [Feature] Add versioning to config
 
 > Improvements:
+- [9784a2c] [Improvement] Completely new changelog logic and view
 - [a3fc1b9] [Improvement] Optimizing the CI/CD
 - [75bde91] [Improvement] Improve markdown printing ;)
 - [038526f] [Improvement] Improve Changelog.
@@ -13,3 +13,4 @@
 - [6866fb8] [Other] Auto-generate Changelog
 - [201606b] [Other] Preparing the gitignore for logging
 
+\n---

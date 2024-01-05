@@ -1,7 +1,8 @@
 from hashlib import sha256
 from os.path import join
 
-from console_gpt.config_manager import fetch_variable, write_to_config, BASE_PATH
+from console_gpt.config_manager import (BASE_PATH, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdout import markdown_print
 
 CHANGELOG_PATH = join(BASE_PATH, "CHANGELOG.md")
@@ -16,7 +17,7 @@ def get_changelog() -> None:
         with open(CHANGELOG_PATH, "r") as f:
             data = f.readlines()
         if data not in [None, [], ""]:
-            markdown_print('\n'.join(data), "Changelog")
+            markdown_print("\n".join(data), "Changelog")
 
 
 def _generate_checksum() -> str:

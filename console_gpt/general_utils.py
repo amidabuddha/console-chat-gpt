@@ -6,9 +6,9 @@ from typing import Optional, TypeVar
 from rich.console import Console
 from rich.table import Table
 
+from console_gpt.changelog_manager import get_changelog
 from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.custom_stdout import custom_print, markdown_print
-from console_gpt.changelog_manager import get_changelog
 
 # Used to Hint that the expected input is a single char and not a string.
 Char = TypeVar("Char", bound=str)
@@ -105,5 +105,3 @@ def intro_message() -> None:
     if first_use:
         help_message()
         write_to_config("structure", "first_use", new_value=False)
-
-
