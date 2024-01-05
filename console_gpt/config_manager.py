@@ -70,6 +70,11 @@ CONFIG_PATH = _join_and_check(
     "config.toml",
     error_message='Please use the "config.toml.sample" to create your configuration.',
 )
+CONFIG_SAMPLE_PATH = _join_and_check(
+    BASE_PATH,
+    "config.toml.sample",
+    error_message='"config.toml.sample" is either missing or renamed, please udpate from source.',
+)
 CHATS_PATH = _join_and_check(BASE_PATH, "chats", create=True)
 
 
@@ -79,10 +84,22 @@ def check_valid_config() -> None:
     :return: Nothing
     """
     is_checked = fetch_variable("structure", "valid", auto_exit=False)
-    if is_checked == -1:
+    if not is_checked:
         ver_path = f"{BASE_PATH}/verify_config.py"
         custom_print("warn", "It appears that your configuration is not verified.")
         custom_print("info", f"Please run verify_config.py at: {ver_path}", 0)
+
+def check_config_version() -> None:
+    """
+    Checks if the config file has the curent version even if the content seems valid
+    :return: Nothing
+    """
+    config_version = fetch_variable("structure", "version", auto_exit=False)
+    sample_config_version = fetch_version()
+    if config_version != sample_config_version:
+        write_to_config("structure", "valid", new_value=False)
+        custom_print("warn", "It appears that your configuration is not up-to-date.")
+        custom_print("info", 'Please use the contents of "config.toml.sample" to update your configuration.', 0)
 
 
 def write_to_config(*args, new_value: Any, group: bool = False) -> None:
@@ -138,3 +155,12 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
 
     except KeyError:
         return __var_error(args, auto_exit)
+    
+def fetch_version() -> str:
+    """
+    Fetch version from the config sample file (config.toml.sample)
+    :return: config current version as string
+    """
+    config = _load_toml(CONFIG_SAMPLE_PATH)
+    return config["chat"]["structure"]["version"]
+

@@ -3,8 +3,12 @@ from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from rich.console import Console
 
-from console_gpt.config_manager import (check_valid_config, fetch_variable,
-                                        write_to_config)
+from console_gpt.config_manager import (
+    check_config_version,
+    check_valid_config,
+    fetch_variable,
+    write_to_config,
+)
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import help_message, set_locale
 from console_gpt.menus.combined_menu import combined_menu
@@ -25,6 +29,7 @@ def console_gpt() -> None:
     console = Console()  # Used for the status bar
     set_locale()
     check_valid_config()
+    check_config_version()
     # Outer loop
     while True:
         data = combined_menu()  # Call the main menu with all sub-menus
@@ -54,9 +59,9 @@ def console_gpt() -> None:
 
         # Inner Loop
         while True:
-            if fetch_variable("structure", "valid", auto_exit=False) == 0:
+            if fetch_variable("structure", "first_use", auto_exit=False) == True:
                 help_message()
-                write_to_config("structure", "valid", new_value=1)
+                write_to_config("structure", "first_use", new_value=False)
             response = ""  # Adding this to satisfy the IDE
             error_appeared = False  # Used when the API returns an exception
             user_input = user_prompt()
