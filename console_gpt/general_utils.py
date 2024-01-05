@@ -6,9 +6,9 @@ from typing import Optional, TypeVar
 from rich.console import Console
 from rich.table import Table
 
-from console_gpt.config_manager import (CONFIG_SAMPLE_PATH, _load_toml,
-                                        fetch_variable, write_to_config)
+from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.custom_stdout import custom_print, markdown_print
+from console_gpt.changelog_manager import get_changelog
 
 # Used to Hint that the expected input is a single char and not a string.
 Char = TypeVar("Char", bound=str)
@@ -101,21 +101,9 @@ def intro_message() -> None:
     :return: None, just prints
     """
     first_use = fetch_variable("structure", "first_use", auto_exit=False)
-    current_changelog = fetch_variable("structure", "changelog", auto_exit=False)
-    new_changelog = get_changelog()
-    same_changelog = current_changelog == new_changelog
-    if not same_changelog:
-        markdown_print(new_changelog, "Changelog")
-        write_to_config("structure", "changelog", new_value=new_changelog)
+    get_changelog()
     if first_use:
         help_message()
         write_to_config("structure", "first_use", new_value=False)
 
 
-def get_changelog() -> str:
-    """
-    Fetch version from the config sample file (config.toml.sample)
-    :return: config current version as string
-    """
-    config = _load_toml(CONFIG_SAMPLE_PATH)
-    return config["chat"]["structure"]["changelog"]

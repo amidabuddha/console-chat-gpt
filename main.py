@@ -25,6 +25,7 @@ def console_gpt() -> None:
     set_locale()
     check_valid_config()
     check_config_version()
+    intro_message()
     # Outer loop
     while True:
         data = combined_menu()  # Call the main menu with all sub-menus
@@ -54,7 +55,6 @@ def console_gpt() -> None:
 
         # Inner Loop
         while True:
-            intro_message()
             response = ""  # Adding this to satisfy the IDE
             error_appeared = False  # Used when the API returns an exception
             user_input = user_prompt()
