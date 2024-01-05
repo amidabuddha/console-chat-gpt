@@ -42,7 +42,7 @@ jobs:
               echo -e "> ${categories[$i]}:\n$entries\n" >> ${{ env.CHANGELOG_FILE }}
             fi
           done
-          echo "\n---" >> ${{ env.CHANGELOG_FILE }}
+          echo -e "\n---" >> ${{ env.CHANGELOG_FILE }}
 
       - name: Commit changes
         run: |
