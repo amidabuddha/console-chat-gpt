@@ -30,17 +30,20 @@ jobs:
           pipreqs --force --clean requirements.txt 2>/dev/null
           pipreqs --force . 2>/dev/null
 
-      - name: Generate Changelog
+      - name: Diagnose Commits
         run: |
-          categories=("Features" "Improvements" "Bug Fixes" "Others")
-          patterns=("\[feature\(s\)\?\]" "\[improvement\(s\)\?\]" "\[bugfix\(es\)\?\]" "\[other\(s\)\?\]")
-          echo -n "" > ${{ env.CHANGELOG_FILE }}
-          for i in "${!categories[@]}"; do
-            entries=$(git log -10 --pretty=format:"%h %s" | grep -i "${patterns[$i]}" | sed -E "s/${patterns[$i]} //" | awk '{print "- ["$1"] "substr($0, index($0,$2))}')
-            if [ -n "$entries" ]; then
-              echo -e "> ${categories[$i]}:\n$entries\n" >> ${{ env.CHANGELOG_FILE }}
-            fi
-          done
+          git log -20 --pretty=format:"%h %s"
+#      - name: Generate Changelog
+#        run: |
+#          categories=("Features" "Improvements" "Bug Fixes" "Others")
+#          patterns=("\[feature\(s\)\?\]" "\[improvement\(s\)\?\]" "\[bugfix\(es\)\?\]" "\[other\(s\)\?\]")
+#          echo -n "" > ${{ env.CHANGELOG_FILE }}
+#          for i in "${!categories[@]}"; do
+#            entries=$(git log -10 --pretty=format:"%h %s" | grep -i "${patterns[$i]}" | sed -E "s/${patterns[$i]} //" | awk '{print "- ["$1"] "substr($0, index($0,$2))}')
+#            if [ -n "$entries" ]; then
+#              echo -e "> ${categories[$i]}:\n$entries\n" >> ${{ env.CHANGELOG_FILE }}
+#            fi
+#          done
 
       - name: Commit changes
         run: |
