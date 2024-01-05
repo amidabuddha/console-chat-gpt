@@ -4,8 +4,9 @@
 
 [chat.structure]
 version = "2.1.0"
-valid = true
+valid = false
 first_use = true
+changelog = "Adding announcement on first chat and furter updates"
 
 [chat.customizations]
 use_emoji = true

@@ -6,7 +6,7 @@ from typing import Optional, TypeVar
 from rich.console import Console
 from rich.table import Table
 
-from console_gpt.config_manager import fetch_variable
+from console_gpt.config_manager import fetch_variable, get_changelog, write_to_config
 from console_gpt.custom_stdout import custom_print
 
 # Used to Hint that the expected input is a single char and not a string.
@@ -92,3 +92,20 @@ def help_message() -> None:
         table.add_row(f"[bold]{option}[/bold]:", description, style="green")
 
     console.print(table)
+
+def intro_message() -> None:
+    """
+    Print once the supported commands upon very first run of the application
+    :return: None, just prints
+    """
+    first_use = fetch_variable("structure", "first_use", auto_exit=False)
+    current_changelog = fetch_variable("structure", "changelog", auto_exit=False)
+    new_changelog = get_changelog()
+    same_changelog = current_changelog == new_changelog
+    if not same_changelog:
+        custom_print("info", f'{new_changelog}', None)
+        write_to_config("structure", "first_use", new_value=False)
+        write_to_config("structure", "changelog", new_value=new_changelog)
+    if first_use:
+        help_message()
+        write_to_config("structure", "first_use", new_value=False)
