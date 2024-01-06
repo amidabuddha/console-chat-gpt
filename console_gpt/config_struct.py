@@ -6,7 +6,7 @@ if everything within the config is right during upgrade.
 # Define the expected structure
 CONFIG_STRUCT = {
     "chat": {
-        "structure": {"version": str, "valid": bool, "first_use": bool, "changelog_checksum": str},
+        "structure": {"version": str, "valid": bool, "changelog_checksum": str},
         "customizations": {
             "use_emoji": bool,
             "fallback_char": str,
@@ -23,6 +23,7 @@ CONFIG_STRUCT = {
             "save_chat_on_exit": bool,
             "continue_chat": bool,
             "debug": bool,
+            "disable_intro_help_message": bool,
         },
         "roles": {
             # Ignore the content of 'chat.roles'
