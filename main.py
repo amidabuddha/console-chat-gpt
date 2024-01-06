@@ -67,7 +67,11 @@ def console_gpt() -> None:
                     help_message()
                     continue
                 case "cost":
-                    pass
+                    custom_print("warn", "Cost calculation is not yet implemented", None)
+                    continue
+                case "edit":
+                    custom_print("warn", "Edit last message is not yet implemented", None)
+                    continue
                 case "file":
                     user_input = file_prompt()
                 case "format":
