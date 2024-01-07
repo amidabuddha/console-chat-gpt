@@ -103,3 +103,17 @@ def intro_message() -> None:
     get_changelog()
     if not fetch_variable("features", "disable_intro_help_message"):
         help_message()
+
+def capitalize(string) -> str:
+    """
+    Takes snake_case strings as input and transforms into capitalized words, separated by space symbol.
+    :return: Modified string
+    """
+    return string.replace('_', ' ').title()
+
+def decapitalize(string) -> str:
+    """
+    Takes capitalized words, separated by space symbol as input and transforms into snake_case strings.
+    :return: Modified string
+    """
+    return string.replace(' ', '_').lower()

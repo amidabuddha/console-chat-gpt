@@ -24,6 +24,7 @@ CONFIG_STRUCT = {
             "continue_chat": bool,
             "debug": bool,
             "disable_intro_help_message": bool,
+            "assistant_mode": bool,
         },
         "roles": {
             # Ignore the content of 'chat.roles'

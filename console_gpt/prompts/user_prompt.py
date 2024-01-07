@@ -7,7 +7,7 @@ from console_gpt.general_utils import flush_lines, use_emoji_maybe
 
 
 @eof_wrapper
-def user_prompt() -> Union[Dict, None]:
+def user_prompt() -> str:
     """
     User chat prompt during the session
     :return: User input in expected format by the API or None if empty
@@ -25,7 +25,7 @@ def user_prompt() -> Union[Dict, None]:
         "cost": "Prints the costs of the current chat.",
         "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
-        "file": "Allows you to upload a file to the chat.",
+        "file": "Allows you to upload the content of a file to the chat.",
         "image": "Allows you to upload an image (Supported by gpt-4-vision-preview only).",
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
@@ -43,5 +43,14 @@ def user_prompt() -> Union[Dict, None]:
         style=custom_style,
         validate=lambda x: True if x and not x.isspace() else "Empty inputs are not allowed!",
     ).ask()
+    return user_input
+
+def chat_user_prompt() -> Union[Dict, None]:
+    user_input = user_prompt()
     # flush_lines will remove the default lines set by the library
     return {"role": "user", "content": user_input} if user_input else flush_lines(3)
+
+def assistant_user_prompt():
+    user_input = user_prompt()
+    # flush_lines will remove the default lines set by the library
+    return user_input if user_input else flush_lines(3)

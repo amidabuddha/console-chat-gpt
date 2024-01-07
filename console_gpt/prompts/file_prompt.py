@@ -75,4 +75,4 @@ def file_prompt() -> Union[Dict, None]:
     if not data:
         custom_print("info", "The file seems to be empty. Skipping.")
         return None
-    return {"role": "user", "content": data}
+    return data

@@ -56,4 +56,4 @@ def multiline_prompt() -> Union[Dict, None]:
         qmark="❯",
     )
     user_input = additional_data + "\n" + multiline_data
-    return {"role": "user", "content": user_input}
+    return user_input

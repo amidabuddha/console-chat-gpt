@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from console_gpt.config_manager import fetch_variable
 from console_gpt.general_utils import use_emoji_maybe
@@ -32,3 +32,24 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     model_data = fetch_variable("models", selection)
     model_data.update(dict(model_title=selection))
     return model_data
+
+def assistant_menu() -> Tuple[bool, Optional[List[Dict]]]:
+    """
+    If assitant mode is enabled collect the necessary data to create a new one.
+    :return: assitant enablement state (boolean) fro teh current chat session, optionally tools to be used
+    """
+    assistant_entity = (False, None)
+    if fetch_variable("features", "assistant_mode"):
+        assistant_selection = base_multiselect_menu("Assistant menu",["yes", "no"], "Would you like to try the beta assistant mode by OpenAI?", "no")
+        if assistant_selection == "yes":
+            assistant_entity = (True, None)
+            tools_selection = base_multiselect_menu("Assistant tools menu",["Code interpreter tool","Retrieval tool", "Both Code interpreter and Retrieval tools"], "Should we enable any of the following tools on the assistant?:", 0, True)
+            match tools_selection:
+                case "Code interpreter tool":
+                    assistant_entity = (True, [{"type": "code_interpreter"}])
+                case "Retrieval tool":
+                    assistant_entity = (True, [{"type": "retrieval"}])
+                case "Both Code interpreter and Retrieval tools":
+                    assistant_entity = (True, [{"type": "code_interpreter"},{"type": "retrieval"}])
+    return assistant_entity
+
