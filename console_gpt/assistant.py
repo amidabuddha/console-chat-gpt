@@ -95,7 +95,6 @@ def run_thread(client, assistant_id, thread_id):
         custom_print("info", "Interrupted the request. Continue normally.")
 
 def update_conversation(apikey, conversation, thread_id):
-    print("Before: ", conversation)
     messages = requests.get("https://api.openai.com/v1/threads/{thread_id}/messages".format(thread_id=thread_id), headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {apikey}"}).json()
     # Parse the JSON object to extract the required information   
     messages_list = [                                                                
