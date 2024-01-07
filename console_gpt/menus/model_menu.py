@@ -36,7 +36,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
 def assistant_menu() -> Tuple[bool, Optional[List[Dict]]]:
     """
     If assitant mode is enabled collect the necessary data to create a new one.
-    :return: assitant enablement state (boolean) fro teh current chat session, optionally tools to be used
+    :return: assitant enablement state (boolean) for the current chat session, optionally tools to be used
     """
     assistant_entity = (False, None)
     if fetch_variable("features", "assistant_mode"):

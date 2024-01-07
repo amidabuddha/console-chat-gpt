@@ -10,7 +10,7 @@ from console_gpt.general_utils import flush_lines, use_emoji_maybe
 def user_prompt() -> str:
     """
     User chat prompt during the session
-    :return: User input in expected format by the API or None if empty
+    :return: User input as string
     """
     custom_style = questionary.Style(
         [
@@ -46,11 +46,19 @@ def user_prompt() -> str:
     return user_input
 
 def chat_user_prompt() -> Union[Dict, None]:
+    """
+    Returns user prompt in expected format by the chat API
+    :return: Dictionary format to be added to the list of messages for the chat completon API or None
+    """
     user_input = user_prompt()
     # flush_lines will remove the default lines set by the library
     return {"role": "user", "content": user_input} if user_input else flush_lines(3)
 
-def assistant_user_prompt():
+def assistant_user_prompt() -> str:
+    """
+    Returns user prompt in expected format by the assistant API
+    :return: string to be nested into the thread as content
+    """
     user_input = user_prompt()
     # flush_lines will remove the default lines set by the library
     return user_input if user_input else flush_lines(3)

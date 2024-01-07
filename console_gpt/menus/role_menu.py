@@ -114,7 +114,7 @@ def _add_custom_role() -> None:
 def role_menu() -> Tuple[Optional[str],Optional[str]]:
     """
     Generates a menu with all available roles in the config
-    :return: The role description or exists with message on "Exit" or SIGINT
+    :return: The role title and description or exists with message on "Exit" or SIGINT
     """
     # Checks if the menu should be displayed at all
     _show_menu = fetch_variable("features", "role_selector")
