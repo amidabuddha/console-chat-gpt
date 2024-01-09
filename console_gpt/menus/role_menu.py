@@ -99,7 +99,7 @@ def _add_custom_role() -> None:
     )
     title = custom_input(message="Enter a title for the new role:", style=style, qmark="❯", validate=_validate_title)
     # Catch empty spaces, tabs or new lines. Otherwise, will break the config
-    title = re.sub(r"(\t|\s|\n)+", "_", title)
+    title = re.sub(r"(\t|\s|\n)+", "_", title).lower()
     description = custom_input(
         is_single_line=False,
         message="Enter description:",
@@ -108,6 +108,7 @@ def _add_custom_role() -> None:
         validate=_validate_description,
         multiline=True,
     )
+    description = re.sub(r"(\t|\s|\n)+", " ", description)
     write_to_config("roles", title, new_value=description)
 
 
