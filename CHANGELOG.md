@@ -8,7 +8,6 @@
 
 > Others:
 - [562e20c] [Other] Adding a dummy changelog file + minor fix of CI
-- [6866fb8] [Other] Auto-generate Changelog
 
 
 ---
