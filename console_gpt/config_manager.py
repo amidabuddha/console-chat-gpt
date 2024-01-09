@@ -103,7 +103,7 @@ CONFIG_SAMPLE_PATH = _join_and_check(
     error_message='"config.toml.sample" is either missing or renamed, please udpate from source.',
 )
 CHATS_PATH = _join_and_check(BASE_PATH, "chats", create=True)
-
+ASSISTANTS_PATH = _join_and_check(BASE_PATH, "assistants", create=True)
 
 def check_valid_config() -> None:
     """

@@ -16,10 +16,11 @@ class ChatObject(NamedTuple):
     temperature: float
 
 class AssistantObject(NamedTuple):
-  role_title: str
-  instructions: str
   model: Dict
   tools: Optional[List[Dict]]
+  assistant_id: str
+  thread_id: str
+  last_message: Optional[str]
 
 def combined_menu() -> ChatObject|AssistantObject:
     """
@@ -27,21 +28,21 @@ def combined_menu() -> ChatObject|AssistantObject:
     his journey through the menus
     :return: Returns the object
     """
-    model = model_menu()
-    continue_chat = select_chat_menu()
 
-    # Ask for role and assistant mode only if we're not continuing any chat
-    if not continue_chat:
-        role_title, role = role_menu() if model["model_title"] != "mistral" else (None, None)
-        assistant, tools  = assistant_menu() if model["model_title"] in ("gpt3", "gpt4") else (False, None)
-        if assistant:
-            return AssistantObject(role_title, instructions=role, model=model,tools=tools)
-        else:
+    model = model_menu()
+    assistant = assistant_menu(model) if model["model_title"] in ("gpt3", "gpt4") else None
+    if assistant:
+        return AssistantObject(model=model,tools=assistant[3], assistant_id=assistant[0], thread_id=assistant[1], last_message=assistant[2])
+    else:
+        continue_chat = select_chat_menu()
+        # Ask for role only if we're not continuing any chat
+        if not continue_chat:
+            role_title, role = role_menu() if model["model_title"] != "mistral" else (None, None)
             temperature = temperature_prompt()
             # Generate a base conversation if we're not continuing any chat
             conversation = [{"role": "system", "content": role}]
             return ChatObject(model=model, conversation=conversation, temperature=temperature)
-    else:
-        temperature = temperature_prompt()
-        conversation = continue_chat
-        return ChatObject(model=model, conversation=conversation, temperature=temperature)
+        else:
+            temperature = temperature_prompt()
+            conversation = continue_chat
+            return ChatObject(model=model, conversation=conversation, temperature=temperature)

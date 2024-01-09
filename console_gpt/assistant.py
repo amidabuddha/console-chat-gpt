@@ -10,30 +10,16 @@ from console_gpt.prompts.user_prompt import assistant_user_prompt
 
 
 def assistant(console, data) -> None:            
-    # Step 1: Create an Assistant
     client = openai.OpenAI(api_key=data.model["api_key"])
-    my_tools = [] if data.tools == None else data.tools
-    # TODO upload files for retrieval on assistant level: https://platform.openai.com/docs/assistants/tools/uploading-files-for-retrieval
-    assistant = client.beta.assistants.create(
-        name=data.role_title,
-        instructions=data.instructions,
-        tools=my_tools,
-        model=data.model["model_name"]
-    )
-    # Step 2: Create a Thread
-    thread = client.beta.threads.create()
     # Step 3: Add a Message to a Thread
-    conversation = []
+    conversation = data.last_message
     # 
     while True:
         user_input = assistant_user_prompt()
-        if not user_input or user_input == "exit":  # Used to catch SIGINT
-            # TODO Ask to save assistant
-            client.beta.assistants.delete(assistant.id)
-            # TODO Delete the thread only if keeping the assistant
-            ## Ask to save thread
-            command_handler(data.model["model_title"], data.model["model_name"], "exit", conversation)
+        if not user_input or user_input in ("exit", "quit", "bye"):  # Used to catch SIGINT
+            custom_print("exit", "Goodbye, see you soon!", 130)
         # Command Handler
+        # TODO implement dedicated command handler for assistants
         handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, conversation)
         match handled_user_input:
             case "continue" | None:
@@ -42,18 +28,18 @@ def assistant(console, data) -> None:
                 break
             case _:
                 user_input = handled_user_input
-        conversation.append({"role": "user", "content": user_input})
-        client.beta.threads.messages.create(
-            thread_id=thread.id,
+        message = client.beta.threads.messages.create(
+            thread_id=data.thread_id,
             role="user",
             content=user_input
         )
+        conversation = message.id
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             # Step 4: Run the Assistant
-            run_thread(client, assistant.id, thread.id)
+            run_thread(client, data.assistant_id, data.thread_id)
         # Step 6: Display the Assistant's Response
-        conversation, new_replies = update_conversation(data.model["api_key"], conversation, thread.id)
+        conversation, new_replies = update_conversation(data.model["api_key"], conversation, data.thread_id)
         for reply in new_replies:
             assistance_reply(reply["content"])
 
@@ -96,14 +82,26 @@ def run_thread(client, assistant_id, thread_id):
 
 def update_conversation(apikey, conversation, thread_id):
     messages = requests.get("https://api.openai.com/v1/threads/{thread_id}/messages".format(thread_id=thread_id), headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {apikey}"}).json()
+    # TODO get last message id from previous conversation and store only new messages to display
     # Parse the JSON object to extract the required information   
     messages_list = [                                                                
-        {'role': message['role'], 'content': content['text']['value']}             
+        {'id': message['id'], 'content': content['text']['value']}             
         for message in messages['data']                                            
         for content in message['content']                                          
         if content['type'] == 'text'                                               
     ]
-    reverse_list = messages_list.reverse()                                                             
-    new_messages = messages_list[len(conversation):]                                                                               
+    reverse_list = messages_list.reverse()
+    print(messages_list)
+    # Find the index of the dictionary with the specified id
+    index = next((i for i, message in enumerate(messages_list) if message['id'] == conversation), None)
+
+    # Slice the list from the next index to the end if the index was found
+    new_messages = messages_list[index + 1:] if index is not None else []
+    print (new_messages)
+    # Get the 'id' of the last item in the filtered list if it's not empty                                                          
+    conversation = messages_list[-1]['id'] if new_messages else None
+    print(conversation)
+    # TODO update "last_message" in assistant json file                                                                     
     # Reverse the list                                                                  
-    return (messages_list, new_messages)                                  
+    return (conversation, new_messages)                                  
+    
