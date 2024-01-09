@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Union
 
 from questionary import Style
@@ -15,7 +16,8 @@ def _validate_description(val: str) -> Union[str, bool]:
     :return: Either error string or bool to confirm that
     the user input is valid
     """
-    if not val or val.startswith(" "):
+    stop_regex = re.compile(r"(\n|\s)+$")
+    if not val or stop_regex.match(val):
         return "Empty input not allowed!"
     return True
 

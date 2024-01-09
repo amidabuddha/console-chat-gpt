@@ -1,4 +1,4 @@
-name: Apply Formatting
+name: Apply Formatting and Update Changelog
 
 on:
   push:
@@ -6,12 +6,17 @@ on:
       - main
 
 jobs:
-  format:
+  format_and_update_changelog:
     runs-on: ubuntu-latest
+    env:
+      CHANGELOG_FILE: CHANGELOG.md
+      FETCH_LIMIT: 20
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ env.FETCH_LIMIT }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -19,25 +24,33 @@ jobs:
           python-version: 3.11
 
       - name: Install dependencies
-        run: pip install black isort pipreqs
+        run: pip install black isort
 
       - name: Formatting
         run: |
           black --line-length 120 .
           isort .
-          pipreqs --force --clean requirements.txt 2>/dev/null
-          pipreqs --force . 2>/dev/null
+
+      - name: Generate Changelog
+        run: |
+          categories=("Features" "Improvements" "Bug Fixes" "Others")
+          patterns=("\[feature\(s\)\?\]" "\[improvement\(s\)\?\]" "\[bugfix\(es\)\?\]" "\[other\(s\)\?\]")
+          echo -n "" > ${{ env.CHANGELOG_FILE }}
+          for i in "${!categories[@]}"; do
+            entries=$(git log -${{env.FETCH_LIMIT}} --pretty=format:"%h %s" | grep -i "${patterns[$i]}" | sed -E "s/${patterns[$i]} //" | awk '{print "- ["$1"] "substr($0, index($0,$2))}')
+            if [ -n "$entries" ]; then
+              echo -e "> ${categories[$i]}:\n$entries\n" >> ${{ env.CHANGELOG_FILE }}
+            fi
+          done
+          echo -e "\n---" >> ${{ env.CHANGELOG_FILE }}
 
       - name: Commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add -A
-          git commit -m "Apply Black formatting" || echo "Commit failed or nothing to do, continuing workflow"
+          git commit -m "Formatting and updating the changelog." || echo "No changes to commit, continuing workflow"
 
       - name: Push changes
         if: ${{ success() }}
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+        run: git push

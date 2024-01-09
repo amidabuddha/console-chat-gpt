@@ -1,9 +1,19 @@
 from typing import Literal, Optional
 
+from rich.console import Console
+from rich.markdown import Markdown
 from termcolor import colored
 
 # Define the specific types for 'ptype'
-PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit"]
+PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit", "changelog"]
+
+
+def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] = ""):
+    console = Console()
+    if header:
+        console.print(f"[blue underline bold]╰─❯ {header}:[/] ", end=end)
+    markdown = Markdown(data, code_theme="dracula")
+    console.print(markdown)
 
 
 def custom_print(
@@ -33,6 +43,7 @@ def custom_print(
         "error": ("[ERROR] ", "red"),
         "sigint": ("[SIGINT] ", "red"),
         "exit": ("[EXIT] ", "red"),
+        "changelog": ("[CHANGELOG] ", "cyan"),
     }
 
     prefix, color = formats.get(ptype.lower(), ("[UNKNOWN] ", "white"))
