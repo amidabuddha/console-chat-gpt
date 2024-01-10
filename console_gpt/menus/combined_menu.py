@@ -1,6 +1,7 @@
 from typing import Dict, List, NamedTuple, Optional
 
-from console_gpt.menus.model_menu import assistant_menu, model_menu
+from console_gpt.menus.assistant_menu import assistant_menu
+from console_gpt.menus.model_menu import model_menu
 from console_gpt.menus.role_menu import role_menu
 from console_gpt.menus.select_chat_menu import select_chat_menu
 from console_gpt.prompts.temperature_prompt import temperature_prompt
@@ -19,7 +20,6 @@ class AssistantObject(NamedTuple):
   model: Dict
   assistant_id: str
   thread_id: str
-  tools: Optional[List[Dict]]
 
 def combined_menu() -> ChatObject|AssistantObject:
     """
@@ -31,7 +31,7 @@ def combined_menu() -> ChatObject|AssistantObject:
     model = model_menu()
     assistant = assistant_menu(model) if model["model_title"] in ("gpt3", "gpt4") else None
     if assistant:
-        return AssistantObject(model=model, assistant_id=assistant[0], thread_id=assistant[1],tools=assistant[2])
+        return AssistantObject(model=model, assistant_id=assistant[0], thread_id=assistant[1])
     else:
         continue_chat = select_chat_menu()
         # Ask for role only if we're not continuing any chat
