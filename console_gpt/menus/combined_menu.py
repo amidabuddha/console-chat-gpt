@@ -17,10 +17,9 @@ class ChatObject(NamedTuple):
 
 class AssistantObject(NamedTuple):
   model: Dict
-  tools: Optional[List[Dict]]
   assistant_id: str
   thread_id: str
-  last_message: Optional[str]
+  tools: Optional[List[Dict]]
 
 def combined_menu() -> ChatObject|AssistantObject:
     """
@@ -32,7 +31,7 @@ def combined_menu() -> ChatObject|AssistantObject:
     model = model_menu()
     assistant = assistant_menu(model) if model["model_title"] in ("gpt3", "gpt4") else None
     if assistant:
-        return AssistantObject(model=model,tools=assistant[3], assistant_id=assistant[0], thread_id=assistant[1], last_message=assistant[2])
+        return AssistantObject(model=model, assistant_id=assistant[0], thread_id=assistant[1],tools=assistant[2])
     else:
         continue_chat = select_chat_menu()
         # Ask for role only if we're not continuing any chat
