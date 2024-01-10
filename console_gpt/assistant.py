@@ -12,15 +12,13 @@ from console_gpt.prompts.user_prompt import assistant_user_prompt
 def assistant(console, data) -> None:            
     client = openai.OpenAI(api_key=data.model["api_key"])
     # Step 3: Add a Message to a Thread
-    conversation = data.last_message
-    # 
     while True:
         user_input = assistant_user_prompt()
         if not user_input or user_input in ("exit", "quit", "bye"):  # Used to catch SIGINT
             custom_print("exit", "Goodbye, see you soon!", 130)
         # Command Handler
         # TODO implement dedicated command handler for assistants
-        handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, conversation)
+        handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "")
         match handled_user_input:
             case "continue" | None:
                 continue
@@ -82,7 +80,6 @@ def run_thread(client, assistant_id, thread_id):
 
 def update_conversation(apikey, conversation, thread_id):
     messages = requests.get("https://api.openai.com/v1/threads/{thread_id}/messages".format(thread_id=thread_id), headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {apikey}"}).json()
-    # TODO get last message id from previous conversation and store only new messages to display
     # Parse the JSON object to extract the required information   
     messages_list = [                                                                
         {'id': message['id'], 'content': content['text']['value']}             
@@ -91,17 +88,12 @@ def update_conversation(apikey, conversation, thread_id):
         if content['type'] == 'text'                                               
     ]
     reverse_list = messages_list.reverse()
-    print(messages_list)
     # Find the index of the dictionary with the specified id
     index = next((i for i, message in enumerate(messages_list) if message['id'] == conversation), None)
-
     # Slice the list from the next index to the end if the index was found
     new_messages = messages_list[index + 1:] if index is not None else []
-    print (new_messages)
     # Get the 'id' of the last item in the filtered list if it's not empty                                                          
-    conversation = messages_list[-1]['id'] if new_messages else None
-    print(conversation)
-    # TODO update "last_message" in assistant json file                                                                     
+    conversation = messages_list[-1]['id'] if new_messages else None                                                               
     # Reverse the list                                                                  
     return (conversation, new_messages)                                  
     
