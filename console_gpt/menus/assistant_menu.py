@@ -96,6 +96,15 @@ def _list_assistants(model) -> None|Optional[List[str]]:
 
 def _new_assistant():
     role_title, role = role_menu()
+    # Check if this assistant already exist
+    if os.path.exists(os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + '.json')):
+        overwrite = custom_input(message="This assistant already exist, would you like to overwrite? (Y/N):",
+                validate=_validate_confirmation,
+            )
+        if overwrite in ["n", "no"]:
+            return _new_assistant()
+        else:
+            role_title = "NEW " + role_title
     tools_selection = base_settings_menu({"code_interpreter":"Allows the Assistants API to write and run Python code","retrieval":"Augments the Assistant with knowledge from outside its model"}, " Assistant tools")
     match tools_selection:
         case {'code_interpreter': True, 'retrieval': True}:

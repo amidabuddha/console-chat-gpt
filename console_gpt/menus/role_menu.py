@@ -3,13 +3,12 @@ import shutil
 import textwrap
 from typing import Optional, Tuple, Union
 
-from questionary import Style
-
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import capitalize, decapitalize, use_emoji_maybe
 from console_gpt.menus.skeleton_menus import base_checkbox_menu, base_multiselect_menu
+from questionary import Style
 
 
 def _role_preview(item: str) -> str:
@@ -120,10 +119,10 @@ def role_menu() -> Tuple[Optional[str],Optional[str]]:
     # Checks if the menu should be displayed at all
     _show_menu = fetch_variable("features", "role_selector")
     # Fetch default role
-    default_role = capitalize(fetch_variable("defaults", "system_role"))
+    default_role = fetch_variable("defaults", "system_role")
 
     if not _show_menu:
-        return capitalize(fetch_variable("roles", default_role))
+        return capitalize(default_role), fetch_variable("roles", default_role)
 
     # Generate a list based on the role title (chat.roles.<role>)
     role_titles = list(fetch_variable("roles").keys())
@@ -137,7 +136,7 @@ def role_menu() -> Tuple[Optional[str],Optional[str]]:
 
     menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD"))
     selection = base_multiselect_menu(
-        "Role Menu", role_titles, menu_title, default_value=default_role, preview_command=_role_preview
+        "Role Menu", role_titles, menu_title, default_value=capitalize(default_role), preview_command=_role_preview
     )
     match selection:
         case "Add New System Behavior":
