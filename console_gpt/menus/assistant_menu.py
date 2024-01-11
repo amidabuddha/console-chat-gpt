@@ -73,7 +73,7 @@ def _assistant_init(model, assistant_tools, role_title, role) -> Tuple:
     thread_id = _create_thread(model)
     if assistant and thread_id:
         _save_assistant(model, role_title,assistant.id,thread_id)
-    return [assistant.id, thread_id]
+    return role_title, assistant.id, thread_id
 
 def _list_assistants(model) -> None|Optional[List[str]]:
     api_key=model["api_key"]
@@ -179,7 +179,7 @@ def _assistant_selection_menu(model):
             data = json.load(file)
             assistant_id = data["assistant_id"]
             thread_id = data["thread_id"]
-    return assistant_id, thread_id
+    return assistant_selection, assistant_id, thread_id
 
 def _assistant_preview(item: str) -> str:
     """
