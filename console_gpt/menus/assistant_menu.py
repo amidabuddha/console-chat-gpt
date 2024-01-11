@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import openai
 import requests
 
-from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
@@ -18,6 +18,7 @@ from console_gpt.menus.skeleton_menus import (
     base_multiselect_menu,
     base_settings_menu,
 )
+from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
 
 """
@@ -147,6 +148,11 @@ def _save_assistant(model, role_title, assistant_id, thread_id=None):
         assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + ".json")
         with open(assistant_path, "w", encoding="utf-8") as file:
             json.dump({"assistant_id": assistant_id, "thread_id":thread_id}, file, indent=4, ensure_ascii=False)
+        set_default = custom_input(message="Would you like to set this Assistatn as default? (Y/N):",
+                validate=_validate_confirmation,
+            )
+        if set_default in ["y", "yes"]:
+            write_to_config("defaults", "system_role", new_value=decapitalize(role_title))
 
 def _assistant_selection_menu(model):
     assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]
