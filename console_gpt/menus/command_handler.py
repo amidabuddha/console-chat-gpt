@@ -20,10 +20,10 @@ def command_handler(model_title, model_name, user_input, conversation) -> Option
             help_message()
             return "continue"
         case "cost":
-            custom_print("warn", "Cost calculation is not yet implemented", None)
+            custom_print("warn", "Cost calculation is not yet implemented")
             return "continue"
         case "edit":
-            custom_print("warn", "Edit last message is not yet implemented", None)
+            custom_print("warn", "Edit last message is not yet implemented")
             return "continue"
         case "file":
             user_input = file_prompt()
