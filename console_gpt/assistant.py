@@ -17,12 +17,14 @@ def assistant(console, data) -> None:
         user_input = assistant_user_prompt()
         # Command Handler
         if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
+        # Command Handler
+        if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
             custom_print("exit", "Goodbye, see you soon!", 130)
         elif user_input.lower() == "save":
             custom_print("info", "Assistant conversations are not saved locally.")
             continue
         elif user_input.lower() in ["flush" , "new"]:
-            continue
+            break
         # TODO implement dedicated command handler for assistants
         handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "")
         match handled_user_input:
