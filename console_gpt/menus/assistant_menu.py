@@ -85,11 +85,9 @@ def _list_assistants(model) -> None|Optional[List[str]]:
         {"assistant_id":assistant["id"],"role_title":decapitalize(assistant["name"])}
         for assistant in list_assistants["data"]
         ]
-    remote_assistants_names = [assistant["role_title"] for assistant in remote_assistants]
-    filtered_assistants_names = [name for name in remote_assistants_names if name not in local_assistants_names]
     # Remove existing assistants from the fetched list of remote assistants
-    filtered_assistants = [role for role in remote_assistants if role["role_title"] not in local_assistants_names]       
-    for assistant in filtered_assistants:
+    filtered_remote_assistants = [role for role in remote_assistants if role["role_title"] not in local_assistants_names]       
+    for assistant in filtered_remote_assistants:
         _save_assistant(model, assistant["role_title"], assistant["assistant_id"])   
     updated_local_assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]                                              
     return updated_local_assistants_names
@@ -157,7 +155,7 @@ def _save_assistant(model, role_title, assistant_id, thread_id=None):
         assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + ".json")
         with open(assistant_path, "w", encoding="utf-8") as file:
             json.dump({"assistant_id": assistant_id, "thread_id":thread_id}, file, indent=4, ensure_ascii=False)
-        set_default = custom_input(message="Would you like to set this Assistatn as default? (Y/N):",
+        set_default = custom_input(message="Would you like to set this Assistant as default? (Y/N):",
                 validate=_validate_confirmation,
             )
         if set_default in ["y", "yes"]:

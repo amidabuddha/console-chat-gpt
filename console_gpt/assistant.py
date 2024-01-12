@@ -17,8 +17,6 @@ def assistant(console, data) -> None:
         user_input = assistant_user_prompt()
         # Command Handler
         if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
-        # Command Handler
-        if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
             custom_print("exit", "Goodbye, see you soon!", 130)
         elif user_input.lower() == "save":
             custom_print("info", "Assistant conversations are not saved locally.")
