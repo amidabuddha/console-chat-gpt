@@ -36,8 +36,9 @@ def assistant_menu(model) -> Optional[Tuple]:
         if conversation_selection == "Assistant":
             my_assistants = _list_assistants(model)
             if not my_assistants:
-                role_title, role, assistant_tools = _new_assistant(model)
-                assistant_entity = _assistant_init(model, assistant_tools, role_title, role)
+                role_title = _new_assistant(model)
+                assistant_id, thread_id = _get_assistant(role_title)
+                assistant_entity = role_title, assistant_id, thread_id
             else:
                 assistant_entity = _assistant_selection_menu(model)
     return assistant_entity
@@ -119,7 +120,7 @@ def _new_assistant(model):
             _modify_assisstant(model, role_title, role, assistant_tools)
     else: 
         _assistant_init(model, assistant_tools, role_title, role)
-    return (role_title, role, assistant_tools)
+    return (role_title)
 
 def _get_assistant(name):
     assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(name) + ".json")
