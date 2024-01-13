@@ -36,7 +36,7 @@ def assistant_menu(model) -> Optional[Tuple]:
         if conversation_selection == "Assistant":
             my_assistants = _list_assistants(model)
             if not my_assistants:
-                role_title, role, assistant_tools = _new_assistant()
+                role_title, role, assistant_tools = _new_assistant(model)
                 assistant_entity = _assistant_init(model, assistant_tools, role_title, role)
             else:
                 assistant_entity = _assistant_selection_menu(model)
@@ -92,17 +92,8 @@ def _list_assistants(model) -> None|Optional[List[str]]:
     updated_local_assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]                                              
     return updated_local_assistants_names
 
-def _new_assistant():
+def _new_assistant(model):
     role_title, role = role_menu()
-    # Check if this assistant already exist
-    if os.path.exists(os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + '.json')):
-        overwrite = custom_input(message="This assistant already exist, would you like to overwrite? (Y/N):",
-                validate=_validate_confirmation,
-            )
-        if overwrite in ["n", "no"]:
-            return _new_assistant()
-        else:
-            role_title = "NEW " + role_title
     tools_selection = base_settings_menu({"code_interpreter":"Allows the Assistants API to write and run Python code","retrieval":"Augments the Assistant with knowledge from outside its model"}, " Assistant tools")
     match tools_selection:
         case {'code_interpreter': True, 'retrieval': True}:
@@ -117,7 +108,51 @@ def _new_assistant():
         case _:
             system_reply("No tools selected.")
             assistant_tools = None
+    # Check if this assistant already exist
+    if os.path.exists(os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + '.json')):
+        overwrite = custom_input(message="This assistant already exist, would you like to overwrite? (Y/N):",
+                validate=_validate_confirmation,
+            )
+        if overwrite in ["n", "no"]:
+            return _new_assistant(model)
+        else:
+            _modify_assisstant(model, role_title, role, assistant_tools)
+    else: 
+        _assistant_init(model, assistant_tools, role_title, role)
     return (role_title, role, assistant_tools)
+
+def _get_assistant(name):
+    assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(name) + ".json")
+    with open(assistant_path, 'r') as file:                                                
+            data = json.load(file)
+            assistant_id = data["assistant_id"]
+            thread_id = data["thread_id"]
+    return assistant_id, thread_id
+
+def _modify_assisstant(model, name, instructions, tools):
+    new_tools = [] if tools == None else tools
+    id, conversation = _get_assistant(name)
+    api_key=model["api_key"]
+    # TODO add/remove assistant files
+    url = "https://api.openai.com/v1/assistants/{id}"
+    headers = {
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v1",
+        "Authorization": f"Bearer {api_key}"
+    }
+    data = {
+        "instructions": instructions,
+        "name": name,
+        "tools": new_tools,
+        "model": model["model_name"],
+        "file_ids": []
+    }
+    updated_assistant = requests.post(url.format(id=id), headers=headers, data=json.dumps(data)).json()
+    if updated_assistant["tools"] == new_tools and updated_assistant["instructions"] == instructions:
+        custom_print("info", f'Assistant {name} was succesfully updated!')
+    else:
+        custom_print("error", "Something went wrong, assistant was not updated...")
+        return _modify_assisstant
 
 def _delete_assistant(model, assistants):
     client = openai.OpenAI(api_key=model["api_key"])
@@ -175,17 +210,12 @@ def _assistant_selection_menu(model):
     assistant_selection = base_multiselect_menu("Assistant menu", selection_menu, "Please select yor Assistant:", default_role, preview_command=_assistant_preview)
     match assistant_selection:
         case "Create New Assistant":
-            name, instructions, tools = _new_assistant()
-            _assistant_init(model, tools, name, instructions)
+            _new_assistant(model)
             return _assistant_selection_menu(model)
         case "Delete an Assistant":
             _delete_assistant(model, assistants_names)
             return _assistant_selection_menu(model)
-    assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(assistant_selection) + ".json")
-    with open(assistant_path, 'r') as file:                                                
-            data = json.load(file)
-            assistant_id = data["assistant_id"]
-            thread_id = data["thread_id"]
+    assistant_id, thread_id = _get_assistant(assistant_selection)
     return assistant_selection, assistant_id, thread_id
 
 def _assistant_preview(item: str) -> str:
