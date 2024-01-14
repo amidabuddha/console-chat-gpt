@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Iterable, Optional, Union, List
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 import toml
 
@@ -141,7 +141,7 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
 
 def __verify_local_version_config() -> None:
     if not os.path.exists(CONFIG_VERSION_PATH_LOCAL):
-        dummy_data = "version = \"0.0.0\""
+        dummy_data = 'version = "0.0.0"'
         with open(CONFIG_VERSION_PATH_LOCAL, "w") as f:
             f.write(dummy_data)
 
@@ -206,17 +206,18 @@ def __compare_structures(struct1, struct2) -> List[str]:
     :return: The difference between the two dictionaries (structures)
     """
 
-    def compare_helper(dict1, dict2, path=''):
+    def compare_helper(dict1, dict2, path=""):
         differences = []
         for key in dict1:
             if key not in dict2:
                 differences.append(f"{path}{key} is missing from config.toml!")
             else:
                 if isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
-                    differences += compare_helper(dict1[key], dict2[key], path + key + '.')
+                    differences += compare_helper(dict1[key], dict2[key], path + key + ".")
                 elif dict1[key] != dict2[key]:
                     differences.append(
-                        f"{path}{key} expects a value of a type `{dict1[key]}`, found `{dict2[key]}` instead!")
+                        f"{path}{key} expects a value of a type `{dict1[key]}`, found `{dict2[key]}` instead!"
+                    )
 
         for key in dict2:
             if key not in dict1:
@@ -240,4 +241,4 @@ def validate_config_files() -> None:
         for diff in diffs:
             print("\t❯", diff)
         # Note that we're exiting here to avoid breaking the chat with the missing entries.
-        custom_print('info', "Refer to the config.toml.sample.", 1)
+        custom_print("info", "Refer to the config.toml.sample.", 1)
