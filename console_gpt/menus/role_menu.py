@@ -3,12 +3,14 @@ import shutil
 import textwrap
 from typing import Optional, Tuple, Union
 
+from questionary import Style
+
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import capitalize, decapitalize, use_emoji_maybe
-from console_gpt.menus.skeleton_menus import base_checkbox_menu, base_multiselect_menu
-from questionary import Style
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu)
 
 
 def _role_preview(item: str) -> str:
@@ -111,7 +113,7 @@ def _add_custom_role() -> None:
     write_to_config("roles", title, new_value=description)
 
 
-def role_menu() -> Tuple[Optional[str],Optional[str]]:
+def role_menu() -> Tuple[Optional[str], Optional[str]]:
     """
     Generates a menu with all available roles in the config
     :return: The role title and description or exists with message on "Exit" or SIGINT
@@ -126,7 +128,7 @@ def role_menu() -> Tuple[Optional[str],Optional[str]]:
 
     # Generate a list based on the role title (chat.roles.<role>)
     role_titles = list(fetch_variable("roles").keys())
-    role_titles = [capitalize(title) for title in role_titles] 
+    role_titles = [capitalize(title) for title in role_titles]
 
     # Add option to Add new roles
     role_titles.append("Add New System Behavior")

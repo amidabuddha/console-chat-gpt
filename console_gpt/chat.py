@@ -13,8 +13,9 @@ from console_gpt.prompts.user_prompt import chat_user_prompt
 def mistral_messages(message_dicts):
     return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in message_dicts]
 
+
 def chat(console, data) -> None:
-        # Assign all variables at once via the Object returned by the menu
+    # Assign all variables at once via the Object returned by the menu
     (
         api_key,
         api_usage,

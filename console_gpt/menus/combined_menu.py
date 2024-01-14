@@ -16,13 +16,15 @@ class ChatObject(NamedTuple):
     conversation: List[Dict]
     temperature: float
 
-class AssistantObject(NamedTuple):
-  model: Dict
-  assistant_name: str
-  assistant_id: str
-  thread_id: str
 
-def combined_menu() -> ChatObject|AssistantObject:
+class AssistantObject(NamedTuple):
+    model: Dict
+    assistant_name: str
+    assistant_id: str
+    thread_id: str
+
+
+def combined_menu() -> ChatObject | AssistantObject:
     """
     Call all menus and generate an Object based on the user actions during
     his journey through the menus
@@ -32,7 +34,9 @@ def combined_menu() -> ChatObject|AssistantObject:
     model = model_menu()
     assistant = assistant_menu(model) if model["model_title"] in ("gpt3", "gpt4") else None
     if assistant:
-        return AssistantObject(model=model, assistant_name=assistant[0], assistant_id=assistant[1], thread_id=assistant[2])
+        return AssistantObject(
+            model=model, assistant_name=assistant[0], assistant_id=assistant[1], thread_id=assistant[2]
+        )
     else:
         continue_chat = select_chat_menu()
         # Ask for role only if we're not continuing any chat

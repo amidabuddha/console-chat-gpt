@@ -8,16 +8,15 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import openai
 import requests
 
-from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
+from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import role_menu
-from console_gpt.menus.skeleton_menus import (
-    base_checkbox_menu,
-    base_multiselect_menu,
-    base_settings_menu,
-)
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu,
+                                              base_settings_menu)
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
 
@@ -27,6 +26,7 @@ Assistant Selection Menu
 OPENAI_URL = "https://api.openai.com"
 ASSISTANTS_ENDPOINT = "/v1/assistants"
 
+
 def assistant_menu(model) -> Optional[Tuple]:
     """
     If assitant mode is enabled collect the necessary data to create a new one.
@@ -34,7 +34,13 @@ def assistant_menu(model) -> Optional[Tuple]:
     """
     assistant_entity = None
     if fetch_variable("features", "assistant_mode"):
-        conversation_selection = base_multiselect_menu("Conversation menu",["Assistant", "Chat"], "Please select the converstaion type", "Assistant",preview_command=_conversation_preview)
+        conversation_selection = base_multiselect_menu(
+            "Conversation menu",
+            ["Assistant", "Chat"],
+            "Please select the converstaion type",
+            "Assistant",
+            preview_command=_conversation_preview,
+        )
         if conversation_selection == "Assistant":
             my_assistants = _list_assistants(model)
             if not my_assistants:
@@ -44,6 +50,7 @@ def assistant_menu(model) -> Optional[Tuple]:
             else:
                 assistant_entity = _assistant_selection_menu(model)
     return assistant_entity
+
 
 def _conversation_preview(item: str) -> str:
     """
@@ -61,108 +68,123 @@ def _conversation_preview(item: str) -> str:
         case _:
             return "Unknown Option"
 
+
 def _assistant_init(model, assistant_tools, role_title, role) -> Tuple:
     # Step 1: Initialize  an Assistant
     client = openai.OpenAI(api_key=model["api_key"])
     tools = [] if assistant_tools == None else assistant_tools
     # TODO upload files for retrieval on assistant level: https://platform.openai.com/docs/assistants/tools/uploading-files-for-retrieval
     assistant = client.beta.assistants.create(
-        name=role_title,
-        instructions=role,
-        tools=tools,
-        model=model["model_name"]
+        name=role_title, instructions=role, tools=tools, model=model["model_name"]
     )
     # Step 2: Create a Thread
     thread_id = _create_thread(model)
     if assistant and thread_id:
-        _save_assistant(model, role_title,assistant.id,thread_id)
+        _save_assistant(model, role_title, assistant.id, thread_id)
     return role_title, assistant.id, thread_id
 
-def _list_assistants(model) -> None|Optional[List[str]]:
-    api_key=model["api_key"]
+
+def _list_assistants(model) -> None | Optional[List[str]]:
+    api_key = model["api_key"]
     # Get assistants stored locally
-    local_assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]
+    local_assistants_names = [
+        os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, "*.json"))
+    ]
     # Get assistants stored on OpenAI servers
-    list_assistants = requests.get(f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}?order=desc".format(limit=20), headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"}).json()
+    list_assistants = requests.get(
+        f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}?order=desc".format(limit=20),
+        headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"},
+    ).json()
     remote_assistants = [
-        {"assistant_id":assistant["id"],"role_title":decapitalize(assistant["name"])}
+        {"assistant_id": assistant["id"], "role_title": decapitalize(assistant["name"])}
         for assistant in list_assistants["data"]
-        ]
+    ]
     # Remove existing assistants from the fetched list of remote assistants
-    filtered_remote_assistants = [role for role in remote_assistants if role["role_title"] not in local_assistants_names]       
+    filtered_remote_assistants = [
+        role for role in remote_assistants if role["role_title"] not in local_assistants_names
+    ]
     for assistant in filtered_remote_assistants:
-        _save_assistant(model, assistant["role_title"], assistant["assistant_id"])   
-    updated_local_assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]                                              
+        _save_assistant(model, assistant["role_title"], assistant["assistant_id"])
+    updated_local_assistants_names = [
+        os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, "*.json"))
+    ]
     return updated_local_assistants_names
+
 
 def _new_assistant(model):
     role_title, role = role_menu()
-    tools_selection = base_settings_menu({"code_interpreter":"Allows the Assistants API to write and run Python code","retrieval":"Augments the Assistant with knowledge from outside its model"}, " Assistant tools")
+    tools_selection = base_settings_menu(
+        {
+            "code_interpreter": "Allows the Assistants API to write and run Python code",
+            "retrieval": "Augments the Assistant with knowledge from outside its model",
+        },
+        " Assistant tools",
+    )
     match tools_selection:
-        case {'code_interpreter': True, 'retrieval': True}:
+        case {"code_interpreter": True, "retrieval": True}:
             system_reply("Code interpreter and Retrieval tools added to this Assistant.")
-            assistant_tools = [{"type": "code_interpreter"},{"type": "retrieval"}]
-        case {'code_interpreter': True}:
+            assistant_tools = [{"type": "code_interpreter"}, {"type": "retrieval"}]
+        case {"code_interpreter": True}:
             system_reply("Code interpeter tool added to this Assistant.")
             assistant_tools = [{"type": "code_interpreter"}]
-        case {'retrieval': True}:
+        case {"retrieval": True}:
             system_reply("Retrieval tool added to this Assistant.")
             assistant_tools = [{"type": "retrieval"}]
         case _:
             system_reply("No tools selected.")
             assistant_tools = None
     # Check if this assistant already exist
-    if os.path.exists(os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + '.json')):
-        overwrite = custom_input(message="This assistant already exist, would you like to overwrite? (Y/N):",
-                validate=_validate_confirmation,
-            )
+    if os.path.exists(os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + ".json")):
+        overwrite = custom_input(
+            message="This assistant already exist, would you like to overwrite? (Y/N):",
+            validate=_validate_confirmation,
+        )
         if overwrite in ["n", "no"]:
             return _new_assistant(model)
         else:
             _modify_assisstant(model, role_title, role, assistant_tools)
-    else: 
+    else:
         _assistant_init(model, assistant_tools, role_title, role)
-    return (role_title)
+    return role_title
+
 
 def _get_assistant(name):
     assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(name) + ".json")
-    with open(assistant_path, 'r') as file:                                                
-            data = json.load(file)
-            assistant_id = data["assistant_id"]
-            thread_id = data["thread_id"]
+    with open(assistant_path, "r") as file:
+        data = json.load(file)
+        assistant_id = data["assistant_id"]
+        thread_id = data["thread_id"]
     return assistant_id, thread_id
+
 
 def _modify_assisstant(model, name, instructions, tools):
     new_tools = [] if tools == None else tools
     id, conversation = _get_assistant(name)
-    api_key=model["api_key"]
+    api_key = model["api_key"]
     # TODO add/remove assistant files
     url = f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}/{id}"
-    headers = {
-        "Content-Type": "application/json",
-        "OpenAI-Beta": "assistants=v1",
-        "Authorization": f"Bearer {api_key}"
-    }
+    headers = {"Content-Type": "application/json", "OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"}
     data = {
         "instructions": instructions,
         "name": name,
         "tools": new_tools,
         "model": model["model_name"],
-        "file_ids": []
+        "file_ids": [],
     }
     updated_assistant = requests.post(url.format(id=id), headers=headers, data=json.dumps(data)).json()
     if updated_assistant["tools"] == new_tools and updated_assistant["instructions"] == instructions:
-        custom_print("info", f'Assistant {name} was succesfully updated!')
+        custom_print("info", f"Assistant {name} was succesfully updated!")
     else:
         custom_print("error", "Something went wrong, assistant was not updated...")
         return _modify_assisstant
+
 
 def _delete_assistant(model, assistants):
     client = openai.OpenAI(api_key=model["api_key"])
     removed_assistants = base_checkbox_menu(assistants, " Assistant removal:")
     for assistant in removed_assistants:
         assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(assistant) + ".json")
-        with open(assistant_path, 'r') as file:                                                
+        with open(assistant_path, "r") as file:
             data = json.load(file)
         assistant_id = data["assistant_id"]
         thread_id = data["thread_id"]
@@ -173,34 +195,39 @@ def _delete_assistant(model, assistants):
         os.remove(assistant_path)
         custom_print("info", f"Assistant {assistant_path}  successfully deleted ")
 
+
 def _create_thread(model) -> str:
-    api_key=model["api_key"]
+    api_key = model["api_key"]
     client = openai.OpenAI(api_key=api_key)
     thread = client.beta.threads.create()
     return thread.id
 
+
 def _save_assistant(model, role_title, assistant_id, thread_id=None):
-        if not thread_id:
-            custom_print("info", f'Remote assistant "{capitalize(role_title)}" will be saved locally!')
-            thread_provided = (
-                custom_input(
-                message="Enter an existing thread ID or press Enter to create a new one:",
-            ))
-            if thread_provided != '':
-                thread_id = thread_provided
-            else:
-                thread_id = _create_thread(model)  
-        assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + ".json")
-        with open(assistant_path, "w", encoding="utf-8") as file:
-            json.dump({"assistant_id": assistant_id, "thread_id":thread_id}, file, indent=4, ensure_ascii=False)
-        set_default = custom_input(message="Would you like to set this Assistant as default? (Y/N):",
-                validate=_validate_confirmation,
-            )
-        if set_default in ["y", "yes"]:
-            write_to_config("defaults", "system_role", new_value=decapitalize(role_title))
+    if not thread_id:
+        custom_print("info", f'Remote assistant "{capitalize(role_title)}" will be saved locally!')
+        thread_provided = custom_input(
+            message="Enter an existing thread ID or press Enter to create a new one:",
+        )
+        if thread_provided != "":
+            thread_id = thread_provided
+        else:
+            thread_id = _create_thread(model)
+    assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(role_title) + ".json")
+    with open(assistant_path, "w", encoding="utf-8") as file:
+        json.dump({"assistant_id": assistant_id, "thread_id": thread_id}, file, indent=4, ensure_ascii=False)
+    set_default = custom_input(
+        message="Would you like to set this Assistant as default? (Y/N):",
+        validate=_validate_confirmation,
+    )
+    if set_default in ["y", "yes"]:
+        write_to_config("defaults", "system_role", new_value=decapitalize(role_title))
+
 
 def _assistant_selection_menu(model):
-    assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]
+    assistants_names = [
+        os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, "*.json"))
+    ]
     selection_menu = [capitalize(name) for name in assistants_names]
     selection_menu.append("Create New Assistant")
     if assistants_names:
@@ -210,7 +237,13 @@ def _assistant_selection_menu(model):
         default_role = capitalize(config_default_role)
     else:
         default_role = "Create New Assistant"
-    assistant_selection = base_multiselect_menu("Assistant menu", selection_menu, "Please select yor Assistant:", default_role, preview_command=_assistant_preview)
+    assistant_selection = base_multiselect_menu(
+        "Assistant menu",
+        selection_menu,
+        "Please select yor Assistant:",
+        default_role,
+        preview_command=_assistant_preview,
+    )
     match assistant_selection:
         case "Create New Assistant":
             _new_assistant(model)
@@ -220,6 +253,7 @@ def _assistant_selection_menu(model):
             return _assistant_selection_menu(model)
     assistant_id, thread_id = _get_assistant(assistant_selection)
     return assistant_selection, assistant_id, thread_id
+
 
 def _assistant_preview(item: str) -> str:
     """
@@ -239,5 +273,3 @@ def _assistant_preview(item: str) -> str:
             return "Terminate the application."
         case _:
             return "\n".join(textwrap.wrap(all_roles.get(decapitalize(item), "Unknown Option"), width=line_length))
-        
-        

@@ -9,16 +9,16 @@ from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import flush_lines, use_emoji_maybe
 
 
-def _validate_file(file_path: str) -> str|bool:
-    """                                                                        
-    Verify if the given path leads to a file and not a directory or non-existe path.                                                                          
-    :param file_path: Path to file                                             
-    :return: Either an error message or True represented as string for compatibility                                                                  
-    """ 
+def _validate_file(file_path: str) -> str | bool:
+    """
+    Verify if the given path leads to a file and not a directory or non-existe path.
+    :param file_path: Path to file
+    :return: Either an error message or True represented as string for compatibility
+    """
     if os.path.isfile(file_path):
         return True
-    if os.path.isdir(file_path):                                        
-        return f"{file_path} is a directory"                             
+    if os.path.isdir(file_path):
+        return f"{file_path} is a directory"
     return "No such file!"
 
 
@@ -74,7 +74,7 @@ def file_prompt() -> Optional[str]:
     if not content:
         custom_print("info", "The file seems to be empty. Skipping.")
         return None
-    
+
     style = Style(
         [
             ("qmark", "fg:#86cdfc bold"),
@@ -82,13 +82,13 @@ def file_prompt() -> Optional[str]:
             ("answer", "fg:#69faff bold"),
         ]
     )
-        
+
     additional_data = custom_input(
         auto_exit=False,
         message="Additional clarifications? (Press 'ENTER' to skip):",
         style=style,
         qmark="❯",
-        )
+    )
     if additional_data:
         content = additional_data + ":\n" + content
     return content

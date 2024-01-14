@@ -78,6 +78,7 @@ CONFIG_SAMPLE_PATH = _join_and_check(
 CHATS_PATH = _join_and_check(BASE_PATH, "chats", create=True)
 ASSISTANTS_PATH = _join_and_check(BASE_PATH, "assistants", create=True)
 
+
 def check_valid_config() -> None:
     """
     Checks if the config file structure has been verified after upgrade

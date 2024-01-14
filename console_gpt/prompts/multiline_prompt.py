@@ -8,9 +8,10 @@ from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 
 # Compile the regex once at the module level
-stop_regex = re.compile(r"(\n|\s)+$") 
+stop_regex = re.compile(r"(\n|\s)+$")
 
-def _validate_description(val: str) -> str|bool:
+
+def _validate_description(val: str) -> str | bool:
     """
     Sub-function to _add_custom_role() which validates
     the user input and does not allow empty values
@@ -56,4 +57,4 @@ def multiline_prompt() -> Optional[str]:
         style=style,
         qmark="❯",
     )
-    return f"{additional_data}:\n{multiline_data}" if additional_data else multiline_data 
+    return f"{additional_data}:\n{multiline_data}" if additional_data else multiline_data

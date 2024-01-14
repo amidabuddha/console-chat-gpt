@@ -45,6 +45,7 @@ def user_prompt() -> str:
     ).ask()
     return user_input
 
+
 def chat_user_prompt() -> Union[Dict, None]:
     """
     Returns user prompt in expected format by the chat API
@@ -53,6 +54,7 @@ def chat_user_prompt() -> Union[Dict, None]:
     user_input = user_prompt()
     # flush_lines will remove the default lines set by the library
     return {"role": "user", "content": user_input} if user_input else flush_lines(3)
+
 
 def assistant_user_prompt() -> str:
     """

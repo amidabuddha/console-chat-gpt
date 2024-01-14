@@ -9,12 +9,12 @@ from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
 
 
-def command_handler(model_title, model_name, user_input, conversation) -> Optional[str]:  
+def command_handler(model_title, model_name, user_input, conversation) -> Optional[str]:
     """
     Handled specific keywords as features if entered by the user
     :return: None or modified user input string or hint for the caller function loop or exits the application
-    """              
-    
+    """
+
     match user_input.lower():
         case "help" | "commands":
             help_message()
