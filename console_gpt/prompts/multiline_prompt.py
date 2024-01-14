@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union
+from typing import Dict, Optional
 
 from questionary import Style
 
@@ -7,8 +7,10 @@ from console_gpt.catch_errors import eof_wrapper
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 
+# Compile the regex once at the module level
+stop_regex = re.compile(r"(\n|\s)+$") 
 
-def _validate_description(val: str) -> Union[str, bool]:
+def _validate_description(val: str) -> str|bool:
     """
     Sub-function to _add_custom_role() which validates
     the user input and does not allow empty values
@@ -16,14 +18,13 @@ def _validate_description(val: str) -> Union[str, bool]:
     :return: Either error string or bool to confirm that
     the user input is valid
     """
-    stop_regex = re.compile(r"(\n|\s)+$")
     if not val or stop_regex.match(val):
         return "Empty input not allowed!"
     return True
 
 
 @eof_wrapper
-def multiline_prompt() -> Union[Dict, None]:
+def multiline_prompt() -> Optional[str]:
     """
     Multiline prompt which allows writing on multiple lines without
     "Enter" (Return) interrupting your input.
@@ -55,5 +56,4 @@ def multiline_prompt() -> Union[Dict, None]:
         style=style,
         qmark="❯",
     )
-    user_input = additional_data + "\n" + multiline_data
-    return user_input
+    return f"{additional_data}:\n{multiline_data}" if additional_data else multiline_data 
