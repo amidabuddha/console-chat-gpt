@@ -24,6 +24,8 @@ from console_gpt.prompts.system_prompt import system_reply
 """
 Assistant Selection Menu
 """
+OPENAI_URL = "https://api.openai.com"
+ASSISTANTS_ENDPOINT = "/v1/assistants"
 
 def assistant_menu(model) -> Optional[Tuple]:
     """
@@ -81,7 +83,7 @@ def _list_assistants(model) -> None|Optional[List[str]]:
     # Get assistants stored locally
     local_assistants_names = [os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, '*.json'))]
     # Get assistants stored on OpenAI servers
-    list_assistants = requests.get("https://api.openai.com/v1//assistants?order=desc".format(limit=20), headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"}).json()
+    list_assistants = requests.get(f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}?order=desc".format(limit=20), headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"}).json()
     remote_assistants = [
         {"assistant_id":assistant["id"],"role_title":decapitalize(assistant["name"])}
         for assistant in list_assistants["data"]
@@ -135,7 +137,7 @@ def _modify_assisstant(model, name, instructions, tools):
     id, conversation = _get_assistant(name)
     api_key=model["api_key"]
     # TODO add/remove assistant files
-    url = "https://api.openai.com/v1/assistants/{id}"
+    url = f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}/{id}"
     headers = {
         "Content-Type": "application/json",
         "OpenAI-Beta": "assistants=v1",
