@@ -44,6 +44,12 @@ jobs:
           done
           echo -e "\n---" >> ${{ env.CHANGELOG_FILE }}
 
+      - name: Bump version
+        run: |
+          cd app-data
+          bash bump-version.sh
+          cd - 
+
       - name: Commit changes
         run: |
           git config --global user.name "GitHub Actions"
