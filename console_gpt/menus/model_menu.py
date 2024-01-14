@@ -1,6 +1,6 @@
 from typing import Dict, Union
 
-from console_gpt.config_manager import fetch_variable
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable
 from console_gpt.general_utils import use_emoji_maybe
 from console_gpt.menus.skeleton_menus import base_multiselect_menu
 

@@ -7,6 +7,7 @@
 
 - [ ] restore debug funtionality
 - [ ] Allow adding new models via interactive menu with `/models` endpoint
+- [ ] Check is the API key is template and if yes: propmpt for a real one based on the selected model
 - [ ] Finish the settings menu
 - [ ] Calculate used tokens and price
 - [ ] Allow the user to control colors
