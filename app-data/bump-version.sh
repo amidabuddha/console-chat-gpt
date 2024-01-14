@@ -22,7 +22,7 @@ increment_version() {
 }
 
 # Get the last commit message
-last_commit_message=$(git log -100 --pretty=%B)
+last_commit_message=$(git log -1 --pretty=%B)
 
 current_version=$(awk '($1 == "version") {print $3}' $CONFIG_FILE | tr -d '"')
 echo -e "Current version: $current_version"
