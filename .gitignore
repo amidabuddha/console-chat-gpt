@@ -8,3 +8,4 @@ chats
 test*
 *.log
 assistants
+app-data/local_*
