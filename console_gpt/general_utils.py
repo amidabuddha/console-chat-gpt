@@ -81,7 +81,7 @@ def help_message() -> None:
         "cost": "Prints the costs of the current chat.",
         "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
-        "file": "Allows you to upload a file to the chat.",
+        "file": "Allows you to upload a file content to the chat.",
         "image": "Allows you to upload an image [Supported by gpt-4-vision-preview only].",
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",

@@ -2,7 +2,7 @@ from rich.console import Console
 
 from console_gpt.assistant import assistant
 from console_gpt.chat import chat
-from console_gpt.config_manager import check_config_version, check_valid_config
+from console_gpt.config_manager import check_config_version
 from console_gpt.general_utils import intro_message, set_locale
 from console_gpt.menus.combined_menu import (AssistantObject, ChatObject,
                                              combined_menu)
@@ -11,7 +11,6 @@ from console_gpt.menus.combined_menu import (AssistantObject, ChatObject,
 def console_gpt() -> None:
     console = Console()  # Used for the status bar
     set_locale()
-    check_valid_config()
     check_config_version()
     intro_message()
     # Outer loop

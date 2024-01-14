@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import Any, Dict, Iterable, Optional, Union, List
 
 import toml
 
@@ -75,33 +75,13 @@ CONFIG_SAMPLE_PATH = _join_and_check(
     "config.toml.sample",
     error_message='"config.toml.sample" is either missing or renamed, please udpate from source.',
 )
+# Responsible for app-data/version.toml
+CONFIG_VERSION_PATH = _join_and_check(BASE_PATH, "app-data", "version.toml")
+# Responsible for app-data/local_version.toml
+CONFIG_VERSION_PATH_LOCAL = os.path.join(BASE_PATH, "app-data", "local_version.toml")
+
 CHATS_PATH = _join_and_check(BASE_PATH, "chats", create=True)
 ASSISTANTS_PATH = _join_and_check(BASE_PATH, "assistants", create=True)
-
-
-def check_valid_config() -> None:
-    """
-    Checks if the config file structure has been verified after upgrade
-    :return: Nothing
-    """
-    is_checked = fetch_variable("structure", "valid", auto_exit=False)
-    if not is_checked:
-        ver_path = f"{BASE_PATH}/verify_config.py"
-        custom_print("warn", "It appears that your configuration is not verified.")
-        custom_print("info", f"Please run verify_config.py at: {ver_path}", 0)
-
-
-def check_config_version() -> None:
-    """
-    Checks if the config file has the curent version even if the content seems valid
-    :return: Nothing
-    """
-    config_version = fetch_variable("structure", "version", auto_exit=False)
-    sample_config_version = fetch_version()
-    if config_version != sample_config_version:
-        write_to_config("structure", "valid", new_value=False)
-        custom_print("warn", "It appears that your configuration is not up-to-date.")
-        custom_print("info", 'Please use the contents of "config.toml.sample" to update your configuration.', 0)
 
 
 def write_to_config(*args, new_value: Any, group: bool = False) -> None:
@@ -159,10 +139,105 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
         return __var_error(args, auto_exit)
 
 
-def fetch_version() -> str:
+def __verify_local_version_config() -> None:
+    if not os.path.exists(CONFIG_VERSION_PATH_LOCAL):
+        dummy_data = "version = \"0.0.0\""
+        with open(CONFIG_VERSION_PATH_LOCAL, "w") as f:
+            f.write(dummy_data)
+
+
+def fetch_version(config_type: str) -> str:
     """
-    Fetch version from the config sample file (config.toml.sample)
+    Fetch version from config file
+    :param config_type: Type of config (either local or global)
     :return: config current version as string
     """
-    config = _load_toml(CONFIG_SAMPLE_PATH)
-    return config["chat"]["structure"]["version"]
+    if config_type == "global":
+        config = _load_toml(CONFIG_VERSION_PATH)
+    else:
+        __verify_local_version_config()
+        config = _load_toml(CONFIG_VERSION_PATH_LOCAL)
+    return config["version"]
+
+
+def __set_local_version(version: str) -> None:
+    config = _load_toml(CONFIG_VERSION_PATH_LOCAL)
+    config["version"] = version
+    with open(CONFIG_VERSION_PATH_LOCAL, "w") as file:
+        toml.dump(config, file)
+
+
+def check_config_version() -> None:
+    """
+    Checks if the config file has the current version even if the content seems valid
+    :return: Nothing
+    """
+    global_version = fetch_version("global")
+    local_version = fetch_version("local")
+    if global_version != local_version:
+        # If something is wrong it will exit
+        validate_config_files()
+        # Otherwise the new version will be applied to the config file.
+        __set_local_version(global_version)
+
+
+def __read_toml_structure(file_path) -> Dict:
+    """
+    Breaks down the config file structure
+    :param file_path: path to config file (and sample)
+    """
+
+    def get_structure(value):
+        if isinstance(value, dict):
+            # Skip models and roles because everyone will have different roles and models
+            return {key: get_structure(val) for key, val in value.items() if key not in ["models", "roles"]}
+            # return {key: get_structure(val) for key, val in value.items()}
+        else:
+            return type(value).__name__
+
+    return get_structure(_load_toml(file_path))
+
+
+def __compare_structures(struct1, struct2) -> List[str]:
+    """
+    Compares two dictionaries (config structure) and returns the difference.
+    :param struct1: config.toml.sample's structure
+    :param struct2: config.toml's structure
+    :return: The difference between the two dictionaries (structures)
+    """
+
+    def compare_helper(dict1, dict2, path=''):
+        differences = []
+        for key in dict1:
+            if key not in dict2:
+                differences.append(f"{path}{key} is missing from config.toml!")
+            else:
+                if isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
+                    differences += compare_helper(dict1[key], dict2[key], path + key + '.')
+                elif dict1[key] != dict2[key]:
+                    differences.append(
+                        f"{path}{key} expects a value of a type `{dict1[key]}`, found `{dict2[key]}` instead!")
+
+        for key in dict2:
+            if key not in dict1:
+                differences.append(f"{path}{key} should be removed from config.toml!")
+
+        return differences
+
+    return compare_helper(struct1, struct2)
+
+
+def validate_config_files() -> None:
+    """
+    Compare both the config.toml and config.toml.sample (which should always hold the right values)
+    And prints and error if something is not right.
+    """
+    sample = __read_toml_structure(CONFIG_SAMPLE_PATH)
+    main = __read_toml_structure(CONFIG_PATH)
+    diffs = __compare_structures(sample, main)
+    if len(diffs) > 0:
+        custom_print("error", "Inconsistency found in configuration file:")
+        for diff in diffs:
+            print("\t❯", diff)
+        # Note that we're exiting here to avoid breaking the chat with the missing entries.
+        custom_print('info', "Refer to the config.toml.sample.", 1)
