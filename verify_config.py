@@ -40,18 +40,29 @@ with open(CONFIG_PATH, "r") as config_file:
 #     }
 # }
 
-structure = {'chat': {'structure': {'version': str, 'valid': bool, 'changelog_checksum': str},
-                        'customizations': {'use_emoji': bool, 'fallback_char': str},
-                        'defaults': {'temperature': int, 'system_role': str, 'model': str},
-                        'features': {'model_selector': bool, 'adjust_temperature': bool, 'role_selector': bool,
-                                     'save_chat_on_exit': bool, 'continue_chat': bool, 'debug': bool,
-                                     'disable_intro_help_message': bool, 'assistant_mode': bool},
-                        'roles': {
-                            # Ignore
-                            },
-                        'models': {
-                            # Ignore
-                        }}}
+structure = {
+    "chat": {
+        "structure": {"version": str, "valid": bool, "changelog_checksum": str},
+        "customizations": {"use_emoji": bool, "fallback_char": str},
+        "defaults": {"temperature": int, "system_role": str, "model": str},
+        "features": {
+            "model_selector": bool,
+            "adjust_temperature": bool,
+            "role_selector": bool,
+            "save_chat_on_exit": bool,
+            "continue_chat": bool,
+            "debug": bool,
+            "disable_intro_help_message": bool,
+            "assistant_mode": bool,
+        },
+        "roles": {
+            # Ignore
+        },
+        "models": {
+            # Ignore
+        },
+    }
+}
 
 # Parse the TOML config
 parsed_config = toml.loads(toml_config)
