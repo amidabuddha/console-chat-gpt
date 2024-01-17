@@ -66,9 +66,9 @@ def run_thread(client, assistant_id, thread_id):
                     break
             time.sleep(2)
             current_time = time.time()
-            if (current_time - start_time) > 60:
+            if (current_time - start_time) > 300:
                 custom_print("error", "Maximum wait time exceeded")
-                break  # Exit the loop if more than 60 seconds have passed
+                break  # Exit the loop if more than 5 minutes have passed
             continue
     except KeyboardInterrupt:
         run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
