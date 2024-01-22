@@ -66,4 +66,4 @@ def upload_image() -> Union[Dict, None]:
         return None
     additional_data = {"type": "text", "text": additional_data}
 
-    return {"role": "user", "content": [additional_data, data]}
+    return additional_data, data
