@@ -9,6 +9,7 @@
 - [82f48aa] [Improvement] Delete local assistants that were already removed online
 
 > Bug Fixes:
+- [2baaffe] [Bugfix] Fix image prompt for gpt4-vision
 - [fee739f] [BUGFIX] Temporary fix for verify config - permanent incoming
 
 
