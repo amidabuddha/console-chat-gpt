@@ -3,6 +3,9 @@
 - [38036ac] [Feature] Automatic detection of configuration file inconsistencies + version handling
 - [c4040f7] [FEATURE] Add automatic version bumping mechanism
 
+> Improvements:
+- [82f48aa] [Improvement] Delete local assistants that were already removed online
+
 > Bug Fixes:
 - [fee739f] [BUGFIX] Temporary fix for verify config - permanent incoming
 

@@ -8,16 +8,15 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import openai
 import requests
 
-from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
+from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import role_menu
-from console_gpt.menus.skeleton_menus import (
-    base_checkbox_menu,
-    base_multiselect_menu,
-    base_settings_menu,
-)
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu,
+                                              base_settings_menu)
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
 
@@ -100,7 +99,7 @@ def _list_assistants(model) -> None | Optional[List[str]]:
         {"assistant_id": assistant["id"], "role_title": decapitalize(assistant["name"])}
         for assistant in list_assistants["data"]
     ]
-    remote_assistants_roles = {d['role_title'] for d in remote_assistants}
+    remote_assistants_roles = {d["role_title"] for d in remote_assistants}
     # Remove local assistants that do not exist online
     local_only = [role for role in local_assistants_names if role not in remote_assistants_roles]
     if local_only:
