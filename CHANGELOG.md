@@ -4,6 +4,7 @@
 - [c4040f7] [FEATURE] Add automatic version bumping mechanism
 
 > Improvements:
+- [97718d4] [Improvement] Handle obsolete threads when deleting assistants
 - [e598cb4] [Improvement] Handle old threads stored locally.
 - [82f48aa] [Improvement] Delete local assistants that were already removed online
 
