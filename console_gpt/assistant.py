@@ -32,7 +32,11 @@ def assistant(console, data) -> None:
                 break
             case _:
                 user_input = handled_user_input
-        message = client.beta.threads.messages.create(thread_id=data.thread_id, role="user", content=user_input)
+        try:
+            message = client.beta.threads.messages.create(thread_id=data.thread_id, role="user", content=user_input)
+        except openai.NotFoundError as e:
+            custom_print("error", "The thread specified in the local assistant file does not exist. Please edit the assistant and try again.")
+            break
         conversation = message.id
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
