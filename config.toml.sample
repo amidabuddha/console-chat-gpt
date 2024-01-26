@@ -44,7 +44,7 @@ api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k = 0.001
 model_max_tokens = 4096
-model_name = "gpt-3.5-turbo-1106"
+model_name = "gpt-3.5-turbo"
 model_output_pricing_per_1k = 0.002
 
 [chat.models.gpt4]
