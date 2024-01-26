@@ -69,11 +69,16 @@ def chat(console, data) -> None:
                         messages=mistral_messages(conversation),
                     )
                 else:
+                    # response = client.chat.completions.create(
+                    #     model=model_name,
+                    #     temperature=temperature,
+                    #     messages=conversation,
+                    #     max_tokens=model_max_tokens,
+                    # )
                     response = client.chat.completions.create(
                         model=model_name,
                         temperature=temperature,
                         messages=conversation,
-                        max_tokens=model_max_tokens,
                     )
             # TODO: Handle mistralai.exceptions.MistralAPIException
             except openai.APIConnectionError as e:
