@@ -11,6 +11,7 @@
 - [82f48aa] [Improvement] Delete local assistants that were already removed online
 
 > Bug Fixes:
+- [b52d028] [Bugfix] GPT3.5 broken if max_tokens is passed in the create request
 - [2baaffe] [Bugfix] Fix image prompt for gpt4-vision
 
 
