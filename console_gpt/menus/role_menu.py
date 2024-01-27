@@ -9,8 +9,7 @@ from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import capitalize, decapitalize, use_emoji_maybe
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu)
+from console_gpt.menus.skeleton_menus import base_checkbox_menu, base_multiselect_menu
 
 
 def _role_preview(item: str) -> str:
@@ -86,10 +85,12 @@ def _remove_custom_role() -> None:
 
 
 @eof_wrapper
-def _add_custom_role() -> None:
+def _add_custom_role(title=None, return_role=False) -> Optional[str]:
     """
     Sub-function to role_menu() which allows adding new roles
-    :return: Nothing, just write to the config.
+    :param title: defaults to None, a predefined title may be passed
+    :param return_role: besides writing to config may return the string for further use
+    :return: by default nothing, just write to the config, may also return the role string
     """
     style = Style(
         [
@@ -98,7 +99,8 @@ def _add_custom_role() -> None:
             ("answer", "fg:#69faff bold"),
         ]
     )
-    title = custom_input(message="Enter a title for the new role:", style=style, qmark="❯", validate=_validate_title)
+    if not title:
+        title = custom_input(message="Enter a title for the new role:", style=style, qmark="❯", validate=_validate_title)
     # Catch empty spaces, tabs or new lines. Otherwise, will break the config
     title = re.sub(r"(\t|\s|\n)+", "_", title).lower()
     description = custom_input(
@@ -111,6 +113,9 @@ def _add_custom_role() -> None:
     )
     description = re.sub(r"(\t|\s|\n)+", " ", description)
     write_to_config("roles", title, new_value=description)
+    if return_role:
+        return description
+
 
 
 def role_menu() -> Tuple[Optional[str], Optional[str]]:
