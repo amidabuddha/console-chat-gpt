@@ -40,7 +40,9 @@ def assistant(console, data) -> None:
             case _:
                 user_input = handled_user_input
         try:
-            message = client.beta.threads.messages.create(thread_id=data.thread_id, role="user", content=user_input, file_ids=message_files)
+            message = client.beta.threads.messages.create(
+                thread_id=data.thread_id, role="user", content=user_input, file_ids=message_files
+            )
         except openai.NotFoundError as e:
             custom_print(
                 "error",

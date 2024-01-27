@@ -1,4 +1,5 @@
 > Features:
+- [1f964ea] [Feature] Add files to individual  messages in Assistant mode
 - [02c9b3d] [Feature] Upload Assistant files
 - [2506de3] [Feature] Edit Assistant
 
