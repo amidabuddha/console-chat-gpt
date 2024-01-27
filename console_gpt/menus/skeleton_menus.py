@@ -17,6 +17,7 @@ def base_multiselect_menu(
     preview_command: Optional[Callable] = None,
     preview_size: float = 0.25,
     preview_title: str = "preview",
+    exit: bool = True,
     exit_message: str = "Goodbye! See you later!",
 ) -> Union[str, None]:
     """
@@ -31,6 +32,7 @@ def base_multiselect_menu(
     :param preview_title: Preview title to be displayed
     :param preview_size: Box width and height of the preview
     :param preview_command: Function used to generate a preview
+    :param exit: Allows the user to quit the appication from this menu
     :param exit_message: Message to display to the user before exiting
     :return: Exits upon ctrl+c and the given keys, otherwise returns the item from the menu
     """
@@ -50,7 +52,8 @@ def base_multiselect_menu(
         data.insert(0, "Skip")
 
     # Adding Exit button at the end
-    data.append("Exit")
+    if exit:
+        data.append("Exit")
 
     terminal_menu = TerminalMenu(
         data,
