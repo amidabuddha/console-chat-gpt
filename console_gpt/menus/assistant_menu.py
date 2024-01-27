@@ -3,20 +3,21 @@ import json
 import os
 import shutil
 import textwrap
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import openai
 import requests
 
-from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
-                                        write_to_config)
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu,
-                                              base_settings_menu)
+from console_gpt.menus.skeleton_menus import (
+    base_checkbox_menu,
+    base_multiselect_menu,
+    base_settings_menu,
+)
 from console_gpt.prompts.file_prompt import _validate_file, browser_files
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
@@ -140,25 +141,30 @@ def _new_assistant(model):
 
 
 def _selected_remote_files(model):
-    files = []
     upload_files = custom_input(
         message="Would you like to upload any files to be used by the Assistant? (Y/N):",
         validate=_validate_confirmation,
     )
     if upload_files in ["y", "yes"]:
-        while True:
-            added_file = _upload_file(model)
-            files.append(added_file)
-            more_files = custom_input(
-                message="Would you like to upload another file? (Y/N):",
-                validate=_validate_confirmation,
-            )
-            if more_files in ["y", "yes"]:
-                continue
-            else:
-                return files
-    return None
+        files = _upload_files(model)
+        return files
+    else:
+        return None
 
+def _upload_files(model):
+    files = []
+    while True:
+        added_file = _upload_file(model)
+        if added_file:
+            files.append(added_file)
+        more_files = custom_input(
+            message="Would you like to upload another file? (Y/N):",
+            validate=_validate_confirmation,
+        )
+        if more_files in ["y", "yes"]:
+            continue
+        else:
+            return files
 
 def _select_assistant_tools():
     tools_selection = base_settings_menu(
@@ -390,6 +396,8 @@ def _assistant_files_menu(model, assistant):
 def _upload_file(model):
     api_key = model["api_key"]
     file_path = browser_files("Select a file:", "File selection cancelled.", _validate_file)
+    if not file_path:
+        return None
     url = f"{OPENAI_URL}/v1/files"
     headers = {"Authorization": f"Bearer {api_key}"}
     data = {
@@ -403,10 +411,10 @@ def _upload_file(model):
     if file_upload.status_code == 200:
         file_id = file_upload.json()["id"]
         file_name = file_upload.json()["filename"]
-        print(f'File "{file_name}" uploaded successfully.')
+        custom_print("info", f'File "{file_name}" uploaded successfully.')
         return file_id
     else:
-        print("Failed to upload the file.")
+        custom_print("error", "Failed to upload the file.")
         print(f"Error: {file_upload.text}")
         return None
 
@@ -461,12 +469,12 @@ def _remove_assistant_files(model, assistant):
         assistant_fileurl = f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}/{assistant_id}/files/{fileid}"
         response = requests.delete(assistant_fileurl, headers=assistant_headers).json()
         if response["deleted"] == True:
-            print(
+            custom_print("info",
                 f'File "{next(item["filename"] for item in remote_assistant_files if item["id"]==fileid)}"" successfully removed from {assistant_name}.'
             )
         confirmation = _delete_file(model, fileid)
         if confirmation == True:
-            print(
+            custom_print("info",
                 f'File "{next(item["filename"] for item in remote_assistant_files if item["id"]==fileid)}" deleted successfully.'
             )
 
