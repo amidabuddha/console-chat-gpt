@@ -1,9 +1,9 @@
 > Features:
-- [ea66838] [Feature] Dummy feature because the bump mechanism was 'broken' and the increment was wrong
-- [38036ac] [Feature] Automatic detection of configuration file inconsistencies + version handling
-- [c4040f7] [FEATURE] Add automatic version bumping mechanism
+- [02c9b3d] [Feature] Upload Assistant files
+- [2506de3] [Feature] Edit Assistant
 
 > Improvements:
+- [fae92a3] [improvement] Exit is optional in base multiselect menu
 - [493f43c] [Improvement] Update GPT4 alias for version autoupgrades
 - [d459c19] [Improvement] Update GPT3.5 alias for version autoupgrades
 - [97718d4] [Improvement] Handle obsolete threads when deleting assistants

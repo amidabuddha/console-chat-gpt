@@ -8,16 +8,15 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import openai
 import requests
 
-from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
+from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (
-    base_checkbox_menu,
-    base_multiselect_menu,
-    base_settings_menu,
-)
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu,
+                                              base_settings_menu)
 from console_gpt.prompts.file_prompt import _validate_file, browser_files
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
@@ -139,6 +138,7 @@ def _new_assistant(model):
         _assistant_init(model, assistant_tools, assistant_files, role_title, role)
     return role_title
 
+
 def _selected_remote_files(model):
     files = []
     upload_files = custom_input(
@@ -158,6 +158,7 @@ def _selected_remote_files(model):
             else:
                 return files
     return None
+
 
 def _select_assistant_tools():
     tools_selection = base_settings_menu(
@@ -181,6 +182,7 @@ def _select_assistant_tools():
             system_reply("No tools selected.")
             return None
 
+
 def _get_local_assistant(name):
     assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(name) + ".json")
     with open(assistant_path, "r") as file:
@@ -188,6 +190,7 @@ def _get_local_assistant(name):
         assistant_id = data["assistant_id"]
         thread_id = data["thread_id"]
     return assistant_id, thread_id
+
 
 def _get_remote_assistant(model, id):
     api_key = model["api_key"]
@@ -205,7 +208,7 @@ def _modify_assisstant(model, name, instructions, tools, files):
     new_tools = [] if tools == None else tools
     new_files = [] if files == None else files
     id, conversation = _get_local_assistant(name)
-    old_files = _get_remote_assistant(model,id)["file_ids"]
+    old_files = _get_remote_assistant(model, id)["file_ids"]
     if new_files != old_files:
         _delete_assistant_files(model, id)
     api_key = model["api_key"]
@@ -225,10 +228,12 @@ def _modify_assisstant(model, name, instructions, tools, files):
         custom_print("error", "Something went wrong, assistant was not updated...")
         return _modify_assisstant(model, name, instructions, tools, files)
 
+
 def _delete_assistant_files(model, id):
-        assistant_files = _get_remote_assistant(model,id)["file_ids"]
-        for file in assistant_files:
-            _delete_file(model, file)
+    assistant_files = _get_remote_assistant(model, id)["file_ids"]
+    for file in assistant_files:
+        _delete_file(model, file)
+
 
 def _delete_assistant(model, assistants):
     client = openai.OpenAI(api_key=model["api_key"])
@@ -313,6 +318,7 @@ def _assistant_selection_menu(model):
     assistant_id, thread_id = _get_local_assistant(assistant_selection)
     return assistant_selection, assistant_id, thread_id
 
+
 def _edit_assistant_menu(model, assistants):
     assistant_selection_menu = [capitalize(name) for name in assistants]
     edited_assistant = base_multiselect_menu(
@@ -322,6 +328,7 @@ def _edit_assistant_menu(model, assistants):
         exit=False,
     )
     _edit_tools(model, edited_assistant)
+
 
 def _edit_tools(model, assistant):
     id, conversation = _get_local_assistant(assistant)
@@ -337,19 +344,32 @@ def _edit_tools(model, assistant):
         case "Done editing":
             return
         case "Edit Assistant tools":
-            new_assistant_tools = _select_assistant_tools()    
-            _modify_assisstant(model, remote_assistant["name"], remote_assistant["instructions"], new_assistant_tools, remote_assistant["file_ids"])
+            new_assistant_tools = _select_assistant_tools()
+            _modify_assisstant(
+                model,
+                remote_assistant["name"],
+                remote_assistant["instructions"],
+                new_assistant_tools,
+                remote_assistant["file_ids"],
+            )
             return _edit_tools(model, assistant)
         case "Update Assistant instructions":
             new_assistant_instructions = _add_custom_role(assistant, True)
-            _modify_assisstant(model, remote_assistant["name"], new_assistant_instructions, remote_assistant["tools"], remote_assistant["file_ids"])
+            _modify_assisstant(
+                model,
+                remote_assistant["name"],
+                new_assistant_instructions,
+                remote_assistant["tools"],
+                remote_assistant["file_ids"],
+            )
             return _edit_tools(model, assistant)
         case "Add/remove Assistant files":
             _assistant_files_menu(model, remote_assistant)
             return _edit_tools(model, assistant)
 
+
 def _assistant_files_menu(model, assistant):
-    upload_file_str = f'Upload a file to "{assistant["name"]}"'           
+    upload_file_str = f'Upload a file to "{assistant["name"]}"'
     remove_files_str = f'Remove files from "{assistant["name"]}"'
     files = assistant["file_ids"]
     selection_menu = [upload_file_str]
@@ -360,11 +380,12 @@ def _assistant_files_menu(model, assistant):
         selection_menu,
         "Add/remove Assistant files",
         exit=False,
-    )                       
-    if files_menu_selection == upload_file_str:   
-        _create_assistant_file(model, assistant)            
+    )
+    if files_menu_selection == upload_file_str:
+        _create_assistant_file(model, assistant)
     elif files_menu_selection == remove_files_str:
         _remove_assistant_files(model, assistant)
+
 
 def _upload_file(model):
     api_key = model["api_key"]
@@ -373,69 +394,90 @@ def _upload_file(model):
     headers = {"Authorization": f"Bearer {api_key}"}
     data = {
         "purpose": "assistants",
-    } 
+    }
     files = {
         "file": open(file_path, "rb"),
     }
     file_upload = requests.post(url, headers=headers, data=data, files=files)
-    files["file"].close()  
-    if file_upload.status_code == 200:                    
+    files["file"].close()
+    if file_upload.status_code == 200:
         file_id = file_upload.json()["id"]
         file_name = file_upload.json()["filename"]
-        print(f'File "{file_name}" uploaded successfully.') 
+        print(f'File "{file_name}" uploaded successfully.')
         return file_id
-    else:                                                       
-        print("Failed to upload the file.")                     
-        print(f"Error: {file_upload.text}") 
+    else:
+        print("Failed to upload the file.")
+        print(f"Error: {file_upload.text}")
         return None
+
 
 def _create_assistant_file(model, assistant):
     api_key = model["api_key"]
-    file = _upload_file(model)                        
+    file = _upload_file(model)
     if file:
-        assistant_id=assistant["id"]
+        assistant_id = assistant["id"]
         url = f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}/{assistant_id}/files"
-        headers = {"Content-Type": "application/json", "OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"}
+        headers = {
+            "Content-Type": "application/json",
+            "OpenAI-Beta": "assistants=v1",
+            "Authorization": f"Bearer {api_key}",
+        }
         data = {
             "file_id": file,
         }
-        assistant_file = requests.post(url.format(assistant_id=assistant_id), headers=headers, data=json.dumps(data)).json()
+        assistant_file = requests.post(
+            url.format(assistant_id=assistant_id), headers=headers, data=json.dumps(data)
+        ).json()
         if file == assistant_file["id"]:
             custom_print("info", f'Assistant "{assistant["name"]}" was succesfully updated!')
         else:
             custom_print("error", "Something went wrong, assistant was not updated...")
-            return _create_assistant_file(model, assistant)                   
+            return _create_assistant_file(model, assistant)
+
 
 def _remove_assistant_files(model, assistant):
     api_key = model["api_key"]
-    assistant_id=assistant["id"]
-    assistant_name=assistant["name"]
-    assistant_headers = {"Content-Type": "application/json", "OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"}
+    assistant_id = assistant["id"]
+    assistant_name = assistant["name"]
+    assistant_headers = {
+        "Content-Type": "application/json",
+        "OpenAI-Beta": "assistants=v1",
+        "Authorization": f"Bearer {api_key}",
+    }
     assistant_files = assistant["file_ids"]
     url = f"{OPENAI_URL}/v1/files"
     headers = {"Authorization": f"Bearer {api_key}"}
     remote_files = requests.get(url, headers=headers).json()
-    remote_assistant_files = [{'id': file_data['id'], 'filename': file_data['filename']}                                      
-        for file_data in remote_files['data']
-        if file_data['id'] in assistant_files
+    remote_assistant_files = [
+        {"id": file_data["id"], "filename": file_data["filename"]}
+        for file_data in remote_files["data"]
+        if file_data["id"] in assistant_files
     ]
-    filenames_to_remove = base_checkbox_menu([file['filename'] for file in remote_assistant_files], "Select files to remove:")
+    filenames_to_remove = base_checkbox_menu(
+        [file["filename"] for file in remote_assistant_files], "Select files to remove:"
+    )
     files_to_remove = [item["id"] for item in remote_assistant_files if item["filename"] in filenames_to_remove]
     for fileid in files_to_remove:
         assistant_fileurl = f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}/{assistant_id}/files/{fileid}"
         response = requests.delete(assistant_fileurl, headers=assistant_headers).json()
         if response["deleted"] == True:
-            print(f'File "{next(item["filename"] for item in remote_assistant_files if item["id"]==fileid)}"" successfully removed from {assistant_name}.') 
+            print(
+                f'File "{next(item["filename"] for item in remote_assistant_files if item["id"]==fileid)}"" successfully removed from {assistant_name}.'
+            )
         confirmation = _delete_file(model, fileid)
         if confirmation == True:
-            print(f'File "{next(item["filename"] for item in remote_assistant_files if item["id"]==fileid)}" deleted successfully.') 
+            print(
+                f'File "{next(item["filename"] for item in remote_assistant_files if item["id"]==fileid)}" deleted successfully.'
+            )
 
-def _delete_file(model,id):
+
+def _delete_file(model, id):
     api_key = model["api_key"]
     url = f"{OPENAI_URL}/v1/files/{id}"
     headers = {"Authorization": f"Bearer {api_key}"}
     response = requests.delete(url, headers=headers).json()
-    return response["deleted"] 
+    return response["deleted"]
+
 
 def _assistant_preview(item: str) -> str:
     """
