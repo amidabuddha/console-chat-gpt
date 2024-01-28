@@ -8,15 +8,16 @@ from typing import List, Optional, Tuple
 import openai
 import requests
 
-from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
-                                        write_to_config)
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu,
-                                              base_settings_menu)
+from console_gpt.menus.skeleton_menus import (
+    base_checkbox_menu,
+    base_multiselect_menu,
+    base_settings_menu,
+)
 from console_gpt.prompts.file_prompt import _validate_file, browser_files
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
@@ -26,7 +27,7 @@ Assistant Selection Menu
 """
 OPENAI_URL = "https://api.openai.com"
 ASSISTANTS_ENDPOINT = "/v1/assistants"
-
+FILES_ENDPOINT = "/v1/files"
 
 def assistant_menu(model) -> Optional[Tuple]:
     """
@@ -399,7 +400,7 @@ def _upload_file(model):
     file_path = browser_files("Select a file:", "File selection cancelled.", _validate_file)
     if not file_path:
         return None
-    url = f"{OPENAI_URL}/v1/files"
+    url = f"{OPENAI_URL}{FILES_ENDPOINT}"
     headers = {"Authorization": f"Bearer {api_key}"}
     data = {
         "purpose": "assistants",
@@ -454,7 +455,7 @@ def _remove_assistant_files(model, assistant):
         "Authorization": f"Bearer {api_key}",
     }
     assistant_files = assistant["file_ids"]
-    url = f"{OPENAI_URL}/v1/files"
+    url = f"{OPENAI_URL}{FILES_ENDPOINT}"
     headers = {"Authorization": f"Bearer {api_key}"}
     remote_files = requests.get(url, headers=headers).json()
     remote_assistant_files = [
@@ -484,7 +485,7 @@ def _remove_assistant_files(model, assistant):
 
 def _delete_file(model, id):
     api_key = model["api_key"]
-    url = f"{OPENAI_URL}/v1/files/{id}"
+    url = f"{OPENAI_URL}{FILES_ENDPOINT}/{id}"
     headers = {"Authorization": f"Bearer {api_key}"}
     response = requests.delete(url, headers=headers).json()
     return response["deleted"]

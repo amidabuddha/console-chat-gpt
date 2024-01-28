@@ -10,6 +10,7 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.user_prompt import assistant_user_prompt
 
+TIMEOUT = 300
 
 def assistant(console, data) -> None:
     client = openai.OpenAI(api_key=data.model["api_key"])
@@ -85,7 +86,7 @@ def run_thread(client, assistant_id, thread_id):
                     break
             time.sleep(2)
             current_time = time.time()
-            if (current_time - start_time) > 300:
+            if (current_time - start_time) > TIMEOUT:
                 custom_print("error", "Maximum wait time exceeded")
                 run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
                 break  # Exit the loop if more than 5 minutes have passed
@@ -110,7 +111,7 @@ def update_conversation(apikey, conversation, thread_id):
         for content in message["content"]
         if content["type"] == "text"
     ]
-    reverse_list = messages_list.reverse()
+    messages_list.reverse()
     # Find the index of the dictionary with the specified id
     index = next((i for i, message in enumerate(messages_list) if message["id"] == conversation), None)
     # Slice the list from the next index to the end if the index was found
