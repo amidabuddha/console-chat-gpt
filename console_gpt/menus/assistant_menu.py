@@ -8,15 +8,16 @@ from typing import List, Optional, Tuple
 import openai
 import requests
 
-from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
-                                        write_to_config)
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu,
-                                              base_settings_menu)
+from console_gpt.menus.skeleton_menus import (
+    base_checkbox_menu,
+    base_multiselect_menu,
+    base_settings_menu,
+)
 from console_gpt.prompts.file_prompt import _validate_file, browser_files
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
@@ -86,15 +87,19 @@ def _assistant_init(model, assistant_tools, assistant_files, role_title, role) -
     return role_title, assistant.id, thread_id
 
 
-def _list_assistants(model) -> None | Optional[List[str]]:
+def _list_assistants(model) -> Optional[List[str]]:
     api_key = model["api_key"]
     # Get assistants stored locally
     local_assistants_names = [
         os.path.splitext(os.path.basename(path))[0] for path in glob.glob(os.path.join(ASSISTANTS_PATH, "*.json"))
     ]
     # Get assistants stored on OpenAI servers
+    params = {
+        'order': 'desc',
+        'limit': '20',
+    }
     list_assistants = requests.get(
-        f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}?order=desc".format(limit=20),
+        f"{OPENAI_URL}{ASSISTANTS_ENDPOINT}", params=params,
         headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {api_key}"},
     ).json()
     remote_assistants = [
@@ -215,7 +220,7 @@ def _get_remote_assistant(model, id):
 def _modify_assisstant(model, name, instructions, tools, files):
     new_tools = [] if tools == None else tools
     new_files = [] if files == None else files
-    id, conversation = _get_local_assistant(name)
+    id, _ = _get_local_assistant(name)
     old_files = _get_remote_assistant(model, id)["file_ids"]
     if new_files != old_files:
         _delete_assistant_files(model, id)

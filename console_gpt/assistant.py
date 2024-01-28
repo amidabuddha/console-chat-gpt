@@ -30,7 +30,7 @@ def assistant(console, data) -> None:
         elif user_input.lower() == "file":
             message_files = _upload_files(data.model)
             if message_files:
-                custom_print("info", "The upoaded infromation will be added to your next message.")
+                custom_print("info", "The uploaded infromation will be added to your next message.")
             continue
         # TODO implement dedicated command handler for assistants
         handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "")

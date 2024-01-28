@@ -41,7 +41,7 @@ def combined_menu() -> ChatObject | AssistantObject:
         continue_chat = select_chat_menu()
         # Ask for role only if we're not continuing any chat
         if not continue_chat:
-            role_title, role = role_menu() if model["model_title"] != "mistral" else (None, None)
+            _, role = role_menu() if model["model_title"] != "mistral" else (None, None)
             temperature = temperature_prompt()
             # Generate a base conversation if we're not continuing any chat
             conversation = [{"role": "system", "content": role}]
