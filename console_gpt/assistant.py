@@ -12,6 +12,7 @@ from console_gpt.prompts.user_prompt import assistant_user_prompt
 
 TIMEOUT = 300
 
+
 def assistant(console, data) -> None:
     client = openai.OpenAI(api_key=data.model["api_key"])
     # Step 3: Add a Message to a Thread
