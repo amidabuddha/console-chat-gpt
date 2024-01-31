@@ -1,12 +1,15 @@
 import os
-from typing import Any, Dict, Iterable, List, Optional, Union
+import shutil
+from typing import Any, Dict, Iterable, List, Literal, Optional, Union
 
 import toml
 
 from console_gpt.custom_stdout import colored, custom_print
 
+# Define the specific types for 'create' for join_and_check function
+CreateType = Literal["folder", "config"]
 
-def _join_and_check(*paths, error_message: Optional[str] = None, create: bool = False) -> str:
+def _join_and_check(*paths, error_message: Optional[str] = None, create: Optional[CreateType] = None) -> str:
     """
     Join path presented by `paths` (separate args) and check if exists.
     The path can be created if it doesn't exist and create is enabled
@@ -17,10 +20,14 @@ def _join_and_check(*paths, error_message: Optional[str] = None, create: bool = 
     """
     q_path = os.path.join(*paths)
     if not os.path.exists(q_path):
-        if not create:
+        if create == "folder":
+            os.mkdir(q_path)
+            custom_print("ok", f"Created the folder - {paths[-1]}")
+        elif create == "config":
+            shutil.copy(q_path + ".sample", q_path)
+            custom_print("ok", f'"config.toml" created from sample - {paths[-1]}')
+        else: 
             custom_print("error", error_message, 2)
-        os.mkdir(q_path)
-        custom_print("ok", f"Created the folder - {paths[-1]}")
     return str(q_path)
 
 
@@ -65,23 +72,23 @@ def __var_error(data: Iterable[Any], auto_exit) -> Union[None, bool]:
 
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
-CONFIG_PATH = _join_and_check(
-    BASE_PATH,
-    "config.toml",
-    error_message='Please use the "config.toml.sample" to create your configuration.',
-)
 CONFIG_SAMPLE_PATH = _join_and_check(
     BASE_PATH,
     "config.toml.sample",
     error_message='"config.toml.sample" is either missing or renamed, please udpate from source.',
+)
+CONFIG_PATH = _join_and_check(
+    BASE_PATH,
+    "config.toml",
+    create="config",
 )
 # Responsible for app-data/version.toml
 CONFIG_VERSION_PATH = _join_and_check(BASE_PATH, "app-data", "version.toml")
 # Responsible for app-data/local_version.toml
 CONFIG_VERSION_PATH_LOCAL = os.path.join(BASE_PATH, "app-data", "local_version.toml")
 
-CHATS_PATH = _join_and_check(BASE_PATH, "chats", create=True)
-ASSISTANTS_PATH = _join_and_check(BASE_PATH, "assistants", create=True)
+CHATS_PATH = _join_and_check(BASE_PATH, "chats", create="folder")
+ASSISTANTS_PATH = _join_and_check(BASE_PATH, "assistants", create="folder")
 
 
 def write_to_config(*args, new_value: Any, group: bool = False) -> None:

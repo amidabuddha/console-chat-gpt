@@ -2,7 +2,7 @@
 
 <h1>
 
-console-chat-gpt v2
+console-chat-gpt v3
 
 </h1>
 
@@ -47,21 +47,17 @@ or relationship with OpenAI, MistralAI, or their subsidiaries in any form.
 
 ## Features
 
+- :star: **OpenAI Assistants Beta** fully supported
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
-  how the app works.
+  how the app works. :new: now supported in-app via the "settings" command
 - **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
   interactive experience.
 - **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
   conversation.
-- **Color Customization**: Personalize the interface by customizing the colors used in the app.
 - **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
 - **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
 - **Conversation History**: Review previous interactions and save conversations for future reference, providing context
   and continuity.
-- **Token Limit Alerts**: Get alerts when approaching the maximum allowed token limit to manage conversation length
-  effectively.
-- **Cost Estimation**: Inquire about estimated costs of the chat based on the number of tokens used for better cost
-  management.
 - **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of
   progress.
 - **A nice team**: Actively adding features, open for ideas and fixing bugs.
@@ -96,7 +92,7 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
 
 4. Get your API key from [HERE](https://platform.openai.com/account/api-keys) or [HERE](https://console.mistral.ai/user/api-keys/) depending on your selected LLM
 
-5. Copy `config.toml.sample` into `config.toml`, replace the text "YOUR_OPENAI_API_KEY" and/or "YOUR_MISTRALAI_API_KEY" with your API key/s and save the new config file. Feel free to change any of the other defaults as per your needs.
+5. The `config.toml.sample` will be automatically copiend into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults thta are not available in hte "settings" in-app menu as per your needs.
 
 6. Run the executable:
 
