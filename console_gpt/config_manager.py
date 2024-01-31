@@ -9,6 +9,7 @@ from console_gpt.custom_stdout import colored, custom_print
 # Define the specific types for 'create' for join_and_check function
 CreateType = Literal["folder", "config"]
 
+
 def _join_and_check(*paths, error_message: Optional[str] = None, create: Optional[CreateType] = None) -> str:
     """
     Join path presented by `paths` (separate args) and check if exists.
@@ -26,7 +27,7 @@ def _join_and_check(*paths, error_message: Optional[str] = None, create: Optiona
         elif create == "config":
             shutil.copy(q_path + ".sample", q_path)
             custom_print("ok", f'"config.toml" created from sample - {paths[-1]}')
-        else: 
+        else:
             custom_print("error", error_message, 2)
     return str(q_path)
 
