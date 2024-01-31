@@ -78,8 +78,8 @@ def help_message() -> None:
 
     options = {
         "help": "Prints all available commands.",
-        "cost": "Prints the costs of the current chat.",
-        "edit": "Prints the last prompt so you can edit it.",
+        # "cost": "Prints the costs of the current chat.",
+        # "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
         "file": "Allows you to upload a file content to the chat.",
         "image": "Allows you to upload an image [Supported by gpt-4-vision-preview only].",

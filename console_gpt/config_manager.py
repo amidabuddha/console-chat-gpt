@@ -26,7 +26,7 @@ def _join_and_check(*paths, error_message: Optional[str] = None, create: Optiona
             custom_print("ok", f"Created the folder - {paths[-1]}")
         elif create == "config":
             shutil.copy(q_path + ".sample", q_path)
-            custom_print("ok", f'"config.toml" created from sample - {paths[-1]}')
+            custom_print("ok", f'"config.toml" created from sample')
         else:
             custom_print("error", error_message, 2)
     return str(q_path)
