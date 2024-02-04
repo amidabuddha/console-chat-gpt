@@ -8,15 +8,16 @@ from typing import List, Optional, Tuple
 import openai
 import requests
 
-from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
-                                        write_to_config)
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu,
-                                              base_settings_menu)
+from console_gpt.menus.skeleton_menus import (
+    base_checkbox_menu,
+    base_multiselect_menu,
+    base_settings_menu,
+)
 from console_gpt.prompts.file_prompt import _validate_file, browser_files
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
@@ -344,7 +345,7 @@ def _edit_assistant_menu(model, assistants):
 
 
 def _edit_tools(model, assistant):
-    id, conversation = _get_local_assistant(assistant)
+    id, _ = _get_local_assistant(assistant)
     remote_assistant = _get_remote_assistant(model, id)
     edit_menu = ["Done editing", "Edit Assistant tools", "Update Assistant instructions", "Add/remove Assistant files"]
     edit_menu_selection = base_multiselect_menu(
