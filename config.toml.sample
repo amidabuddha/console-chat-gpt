@@ -68,5 +68,5 @@ api_key = "YOUR_MISTRALAI_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k = 0.0025
 model_max_tokens = 0
-model_name = "mistral-medium"
+model_name = "mistral-medium-latest"
 model_output_pricing_per_1k = 0.0075
