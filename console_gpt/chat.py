@@ -97,7 +97,7 @@ def chat(console, data) -> None:
                         max_tokens=model_max_tokens,
                         temperature=float(temperature) / 2,
                         system=role,
-                        messages=conversation
+                        messages=conversation,
                     ).model_dump_json()
                 else:
                     # response = client.chat.completions.create(
@@ -139,7 +139,7 @@ def chat(console, data) -> None:
             continue
         if model_title == "anthropic":
             response = json.loads(response)
-            response = response["content"][0]["text"] 
+            response = response["content"][0]["text"]
         else:
             response = response.choices[0].message.content
         assistant_response = dict(role="assistant", content=response)
