@@ -34,7 +34,7 @@ def _encode_image(image_path) -> str:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 
-def upload_image() -> Union[Dict, None]:
+def upload_image(model_title) -> Union[Dict, None]:
     """
     Allows uploading images to GPT by converting them to Base64 and encode them
     :return: None if SIGINT or the whole request body
@@ -51,16 +51,28 @@ def upload_image() -> Union[Dict, None]:
         ]
     )
     encoded_image = _encode_image(image_path)
-    data = {
-        "type": "image_url",
-        "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
-    }
+
+    if model_title == "anthropic":
+        data = {
+            "type": "image", "source": {
+                "type": "base64",
+                "media_type": "image/jpeg",
+                "data": encoded_image
+                }
+            }
+    else:
+        data = {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
+        }
+
     additional_data = custom_input(
         auto_exit=False,
         message="Additional clarifications? (Press 'ENTER' to skip):",
         style=style,
         qmark="❯",
     )
+
     if additional_data is None:
         custom_print("info", "Cancelled. Continuing normally!")
         return None

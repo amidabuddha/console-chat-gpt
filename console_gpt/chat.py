@@ -1,4 +1,6 @@
+import anthropic
 import openai
+import requests
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
@@ -29,12 +31,17 @@ def chat(console, data) -> None:
     # Initiate API
     if model_title == "mistral":
         client = MistralClient(api_key=api_key)
+    elif model_title == "anthropic":
+        client = anthropic.Anthropic(api_key=api_key)
+        role = data.conversation[0]["content"]
     else:
         client = openai.OpenAI(api_key=api_key)
 
     # Set defaults
     if model_title == "mistral":
         conversation = [message for message in data.conversation if message["role"] != "system"]
+    elif model_title == "anthropic":
+        conversation = []
     else:
         conversation = data.conversation
     temperature = data.temperature
@@ -68,6 +75,27 @@ def chat(console, data) -> None:
                         temperature=float(temperature) / 2,
                         messages=mistral_messages(conversation),
                     )
+                elif model_title == "anthropic":
+                    headers = {
+                        "x-api-key": api_key,
+                        "anthropic-version": "2023-06-01",
+                        "content-type": "application/json"
+                    }
+                    payload = {
+                        "model": model_name,
+                        "max_tokens": model_max_tokens,
+                        "temperature": (float(temperature) / 2),
+                        "system":role,
+                        "messages":conversation
+                    }
+                    response = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers).json()
+                    # response = client.messages.create(
+                    #     model=model_name,
+                    #     max_tokens=model_max_tokens,
+                    #     temperature=float(temperature) / 2,
+                    #     system=role,
+                    #     messages=conversation
+                    # )
                 else:
                     # response = client.chat.completions.create(
                     #     model=model_name,
@@ -81,14 +109,14 @@ def chat(console, data) -> None:
                         messages=conversation,
                     )
             # TODO: Handle mistralai.exceptions.MistralAPIException
-            except openai.APIConnectionError as e:
+            except openai.APIConnectionError or anthropic.APIConnectionError as e:
                 error_appeared = True
                 print("The server could not be reached")
                 print(e.__cause__)
-            except openai.RateLimitError as e:
+            except openai.RateLimitError or anthropic.RateLimitError as e:
                 error_appeared = True
                 print(f"A 429 status code was received; we should back off a bit. - {e}")
-            except openai.APIStatusError as e:
+            except openai.APIStatusError or anthropic.APIStatusError as e:
                 error_appeared = True
                 print("Another non-200-range status code was received")
                 print(e.status_code)
@@ -106,7 +134,10 @@ def chat(console, data) -> None:
             # Removes the last user input in order to avoid issues if the conversation continues
             conversation.pop(-1)
             continue
-        response = response.choices[0].message.content
+        if model_title == "anthropic":
+            response = response["content"][0]["text"]
+        else:
+            response = response.choices[0].message.content
         assistant_response = dict(role="assistant", content=response)
         conversation.append(assistant_response)
         assistance_reply(response)

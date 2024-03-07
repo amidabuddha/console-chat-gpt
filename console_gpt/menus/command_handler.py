@@ -42,13 +42,13 @@ def command_handler(model_title, model_name, user_input, conversation) -> Option
             save_chat(conversation, skip_exit=True)
             return "continue"
         case "image":
-            if model_title != "gpt4-vision":
+            if model_title not in ("gpt4-vision", "anthropic"):
                 custom_print(
                     "error",
                     f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
                 )
                 return "continue"
-            user_input = upload_image()
+            user_input = upload_image(model_title)
             return user_input
         case "exit" | "quit" | "bye":
             save_chat(conversation, ask=True)

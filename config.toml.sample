@@ -70,3 +70,11 @@ model_input_pricing_per_1k = 0.0025
 model_max_tokens = 0
 model_name = "mistral-medium-latest"
 model_output_pricing_per_1k = 0.0075
+
+[chat.models.anthropic]
+api_key = "YOUR_ANTHROPIC_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.015
+model_max_tokens = 4096
+model_name = "claude-3-opus-20240229"
+model_output_pricing_per_1k = 0.075
