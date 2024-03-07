@@ -1,3 +1,6 @@
+> Features:
+- [31f73b8] [Feature] Anthropic Messages API
+
 > Improvements:
 - [521d94a] [Improvement] Autogenerate "config.toml" if missing
 - [ee93c52] [Improvement] Check for default API key values and prompt for a real one

@@ -79,16 +79,18 @@ def chat(console, data) -> None:
                     headers = {
                         "x-api-key": api_key,
                         "anthropic-version": "2023-06-01",
-                        "content-type": "application/json"
+                        "content-type": "application/json",
                     }
                     payload = {
                         "model": model_name,
                         "max_tokens": model_max_tokens,
                         "temperature": (float(temperature) / 2),
-                        "system":role,
-                        "messages":conversation
+                        "system": role,
+                        "messages": conversation,
                     }
-                    response = requests.post("https://api.anthropic.com/v1/messages", json=payload, headers=headers).json()
+                    response = requests.post(
+                        "https://api.anthropic.com/v1/messages", json=payload, headers=headers
+                    ).json()
                     # response = client.messages.create(
                     #     model=model_name,
                     #     max_tokens=model_max_tokens,
