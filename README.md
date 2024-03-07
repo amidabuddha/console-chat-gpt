@@ -6,7 +6,7 @@ console-chat-gpt v3
 
 </h1>
 
-The ultimate command line interface for chatting with ChatGPT or MistralAI! Save time and effort with this simple yet effective tool.
+The ultimate command line interface for chatting with **ChatGPT / MistralAI/ Claude by Anthropic**! Save time and effort with this simple yet effective tool.
 
 <h3>
 
@@ -40,8 +40,8 @@ The ultimate command line interface for chatting with ChatGPT or MistralAI! Save
 ---
 
 **DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, or their subsidiaries in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic or any other related parties. There is no affiliation
+or relationship with OpenAI, MistralAI, Anthropic or their subsidiaries in any form.
 
 ---
 
@@ -55,6 +55,7 @@ or relationship with OpenAI, MistralAI, or their subsidiaries in any form.
 - **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
   conversation.
 - **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
+- **Image input**: with selected models
 - **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
 - **Conversation History**: Review previous interactions and save conversations for future reference, providing context
   and continuity.
@@ -90,7 +91,7 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
    python3 -m pip install -r requirements.txt
    ```
 
-4. Get your API key from [HERE](https://platform.openai.com/account/api-keys) or [HERE](https://console.mistral.ai/user/api-keys/) depending on your selected LLM
+4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/) or [Anthtopic](https://console.anthropic.com/settings/keys) depending on your selected LLM
 
 5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the "settings" in-app menu as per your needs.
 
