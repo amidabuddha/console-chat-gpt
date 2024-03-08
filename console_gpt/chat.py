@@ -34,7 +34,6 @@ def chat(console, data) -> None:
         client = MistralClient(api_key=api_key)
     elif model_title == "anthropic":
         client = anthropic.Anthropic(api_key=api_key)
-        #  data.conversation = [{"role": "system", "content": role}]
         role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
     else:
         client = openai.OpenAI(api_key=api_key)
@@ -125,6 +124,7 @@ def chat(console, data) -> None:
                 print(e.response)
                 print(e.message)
             except Exception as e:
+                error_appeared = True
                 print(f"Unexpected error: {e}")
             except KeyboardInterrupt:
                 # Notifying the user about the interrupt but continues normally.
