@@ -146,4 +146,4 @@ def chat(console, data) -> None:
             response = response.choices[0].message.content
         assistant_response = dict(role="assistant", content=response)
         conversation.append(assistant_response)
-        assistance_reply(response)
+        assistance_reply(response, model_name)
