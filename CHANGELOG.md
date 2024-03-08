@@ -7,7 +7,7 @@
 - [eba9c57] [Improvement] Revert from using requests back to anthropic client
 
 > Others:
-- [bd67aee] [Other] Hide not implemented commands from help
+- [52f5d1d] [Other] Cleanup
 
 
 ---
