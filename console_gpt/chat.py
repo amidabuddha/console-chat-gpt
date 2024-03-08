@@ -34,15 +34,14 @@ def chat(console, data) -> None:
         client = MistralClient(api_key=api_key)
     elif model_title == "anthropic":
         client = anthropic.Anthropic(api_key=api_key)
-        role = data.conversation[0]["content"]
+        #  data.conversation = [{"role": "system", "content": role}]
+        role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
     else:
         client = openai.OpenAI(api_key=api_key)
 
     # Set defaults
-    if model_title == "mistral":
+    if model_title == "anthropic":
         conversation = [message for message in data.conversation if message["role"] != "system"]
-    elif model_title == "anthropic":
-        conversation = []
     else:
         conversation = data.conversation
     temperature = data.temperature
@@ -112,18 +111,21 @@ def chat(console, data) -> None:
                         messages=conversation,
                     )
             # TODO: Handle mistralai.exceptions.MistralAPIException
-            except openai.APIConnectionError or anthropic.APIConnectionError as e:
+            except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
                 error_appeared = True
                 print("The server could not be reached")
                 print(e.__cause__)
-            except openai.RateLimitError or anthropic.RateLimitError as e:
+            except (openai.RateLimitError, anthropic.RateLimitError) as e:
                 error_appeared = True
                 print(f"A 429 status code was received; we should back off a bit. - {e}")
-            except openai.APIStatusError or anthropic.APIStatusError as e:
+            except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
                 error_appeared = True
                 print("Another non-200-range status code was received")
                 print(e.status_code)
                 print(e.response)
+                print(e.message)
+            except Exception as e:
+                print(f"Unexpected error: {e}")
             except KeyboardInterrupt:
                 # Notifying the user about the interrupt but continues normally.
                 custom_print("info", "Interrupted the request. Continue normally.")
