@@ -6,7 +6,9 @@ console-chat-gpt v3
 
 </h1>
 
-The ultimate command line interface for chatting with **ChatGPT / MistralAI/ Claude by Anthropic**! Save time and effort with this simple yet effective tool.
+**Your Ultimate CLI Companion for Chatting with AI Models**
+
+_Enjoy seamless interactions with **ChatGPT**, **MistralAI**, and **Claude by Anthropic** directly from your command line. </br>Elevate your chat experience with efficiency and ease._
 
 <h3>
 
@@ -20,7 +22,6 @@ The ultimate command line interface for chatting with **ChatGPT / MistralAI/ Cla
   </a>
   <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Working on Python 3.10+" />
   <img src="https://img.shields.io/github/stars/amidabuddha/consoleChatGPT"/>
-  <img src="http://hits.dwyl.com/amidabuddha/consoleChatGPT.svg"/>
   <img src="https://img.shields.io/github/issues/amidabuddha/consoleChatGPT"/>
   <img src="https://img.shields.io/github/forks/amidabuddha/consoleChatGPT"/>
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-blue"/>
@@ -34,8 +35,8 @@ The ultimate command line interface for chatting with **ChatGPT / MistralAI/ Cla
 
 - [Features](#features)
 - [Installation and Usage](#installation-and-usage)
-- [Examples and Preview](#examples-and-preview)
-- [TODOs](#todos)
+- [Examples](#examples)
+- [Contributing](#contributing)
 
 ---
 
@@ -49,7 +50,7 @@ or relationship with OpenAI, MistralAI, Anthropic or their subsidiaries in any f
 
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
-  how the app works. :new:Now supported in-app via the "settings" command:new:
+  how the app works. :new: Now supported in-app via the `settings` command :new:
 - **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
   interactive experience.
 - **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
@@ -70,8 +71,7 @@ personalization, control, and convenience.
 
 ## Installation and Usage
 
-The script should work fine in Linux and macOS terminals. There might be some libraries that are currently not supported
-on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-us/windows/wsl/)
+> The script works fine on Linux and MacOS terminals. For Windows it's recommended to use [WSL](https://learn.microsoft.com/en-us/windows/wsl/).
 
 1. Clone the repository:
 
@@ -91,9 +91,9 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
    python3 -m pip install -r requirements.txt
    ```
 
-4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/) or [Anthtopic](https://console.anthropic.com/settings/keys) depending on your selected LLM
+4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/) or [Anthropic](https://console.anthropic.com/settings/keys) depending on your selected LLM.
 
-5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the "settings" in-app menu as per your needs.
+5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the `settings` in-app menu as per your needs.
 
 6. Run the executable:
 
@@ -102,7 +102,7 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
    ```
 
    > Pro-tip:
-   > Create an alias for the executable to run from anywhere
+   > Create an alias for the executable to run from anywhere.
 
 7. Use the `help` command within the chat to check the available options.
 
@@ -110,49 +110,24 @@ on Windows, the recommended use is inside [WSL](https://learn.microsoft.com/en-u
 
 ---
 
-## Examples and Preview
+## Examples
 
-1. **Upon execution of the script, you'll be prompted to select the model you would like to use:**
-   </br>![start_chat](examples/model_select.png)
-   > Use arrow keys or keyboard to navigate.
-   > The signs/numbers inside the "[]" (e.g. [x]) are the actual keybinds to access the displayed function.
+- Prompt example:
 
+  ![example_python](examples/python_for_loop.gif)
 
-2. **Afterwards, you'll be prompted to continue a previous chat:**
-   </br>![continue_chat](examples/continue_chat.png)
+- Markdown example:
 
+  ![example_markdown](examples/markdown_preview.gif)
 
-3. **Select how the GPT should behave:**
-   ![roles](examples/role_select.png)
-   > These roles are set inside your `config.toml`. You can add/remove or adjust them.
+- Settings and help:
 
+  ![example_settings](examples/settings_preview.gif)
 
-4. **Prompt for temperature (GPT randomness):**
-   </br>![temperature](examples/temperature.png)
+> You can see more examples on our [Examples page](EXAMPLES.md).
 
-
-5. **Help menu with built-in commands:**
-   </br>![built-in_commands](examples/commands.png)
-
-
-6. **Language formatting and coloring:**
-   </br>![example_python](examples/code_highlight.png)
-   > [Supported languages](https://pygments.org/languages/)
-
-
-7. Additional features:
-    1. Loading animation when waiting for response:
-       </br>![loading](examples/loading.png)
-    2. Path completion when using the `file` command:
-       </br>![path](examples/path_compl.png)
-    3. Vision by `gpt-4-vision-preview`:
-       </br>![path](examples/vision1.png)
-       </br>![path](examples/vision2.png)
-       </br>![path](examples/vision3.png)
 ---
 
-## TODOs
+## Contributing
 
-Features that are currently not available in v2 will be soon added, you can keep track of that
-at [the TODO List](todo.md)
-
+Contributions are welcome! If you find any bugs, have feature requests, or want to contribute improvements, please open an issue or submit a pull request.
