@@ -124,7 +124,7 @@ personalization, control, and convenience.
 
   ![example_settings](examples/settings_preview.gif)
 
-> You can see more examples on our [Examples page](EXAMPLES.md).
+> You can find more examples on our [Examples page](EXAMPLES.md).
 
 ---
 

@@ -52,4 +52,4 @@
 
 ---
 
-### :star: After exploring the examples, you've seen just a glimpse of what console-chat-gpt can do. Now it's time to experience its full potential yourself. :start:
+### :star: After exploring the examples, you've seen just a glimpse of what console-chat-gpt can do. Now it's time to experience its full potential yourself. :star:
