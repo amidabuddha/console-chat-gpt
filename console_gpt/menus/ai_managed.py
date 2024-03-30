@@ -8,6 +8,7 @@ from console_gpt.menus.combined_menu import ChatObject
 from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
+from console_gpt.custom_stdout import custom_print
 
 
 def managed_prompt() -> Tuple[ChatObject, str]:
@@ -36,6 +37,7 @@ def configure_assistant():
 
 
 def get_prompt(assistant):
+    error_appeared = False
     prompt = [chat_user_prompt()]
     client = anthropic.Anthropic(api_key=assistant["api_key"])
     try:
@@ -47,17 +49,26 @@ def get_prompt(assistant):
             messages=prompt,
         ).model_dump_json()
     except anthropic.APIConnectionError as e:
+        error_appeared = True
         print("The server could not be reached")
         print(e.__cause__)
     except anthropic.RateLimitError as e:
+        error_appeared = True
         print(f"A 429 status code was received; we should back off a bit. - {e}")
     except (anthropic.APIStatusError, anthropic.BadRequestError) as e:
+        error_appeared = True
         print("Another non-200-range status code was received")
         print(e.status_code)
         print(e.response)
         print(e.message)
     except Exception as e:
+        error_appeared = True
         print(f"Unexpected error: {e}")
+    if error_appeared:
+        custom_print(
+            "error",
+            "Exception was raised. Decided whether to continue. Your last message is lost as well",
+            exit_code=1)
     response = json.loads(response)
     response = response["content"][0]["text"]
     response = json.loads(response)
