@@ -7,6 +7,8 @@
 - [eba9c57] [Improvement] Revert from using requests back to anthropic client
 
 > Others:
+- [da8c911] [OTHERS] Add all supported models to sample
+- [c5658e8] [OTHERS] Update models pricing in sample
 - [52f5d1d] [Other] Cleanup
 
 
