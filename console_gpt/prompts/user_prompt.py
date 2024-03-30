@@ -26,7 +26,7 @@ def user_prompt() -> str:
         "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
         "file": "Allows you to upload the content of a file to the chat.",
-        "image": "Allows you to upload an image (Supported by gpt-4-vision-preview and anthropic only).",
+        "image": "Allows you to upload an image (Supported by gpt-4-vision-preview and anthropic models only).",
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
         "save": "Saves the chat to a given file.",

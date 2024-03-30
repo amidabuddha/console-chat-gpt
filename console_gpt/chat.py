@@ -17,7 +17,7 @@ def mistral_messages(message_dicts):
     return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in message_dicts]
 
 
-def chat(console, data) -> None:
+def chat(console, data, managed_user_prompt) -> None:
     # Assign all variables at once via the Object returned by the menu
     (
         api_key,
@@ -32,14 +32,14 @@ def chat(console, data) -> None:
     # Initiate API
     if model_title == "mistral":
         client = MistralClient(api_key=api_key)
-    elif model_title == "anthropic":
+    elif model_title.startswith("anthropic"):
         client = anthropic.Anthropic(api_key=api_key)
         role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
     else:
         client = openai.OpenAI(api_key=api_key)
 
     # Set defaults
-    if model_title == "anthropic":
+    if model_title.startswith("anthropic"):
         conversation = [message for message in data.conversation if message["role"] != "system"]
     else:
         conversation = data.conversation
@@ -49,7 +49,11 @@ def chat(console, data) -> None:
     while True:
         response = ""  # Adding this to satisfy the IDE
         error_appeared = False  # Used when the API returns an exception
-        user_input = chat_user_prompt()
+        if managed_user_prompt:
+            user_input = managed_user_prompt
+            managed_user_prompt = False
+        else:
+            user_input = chat_user_prompt()
         if not user_input:  # Used to catch SIGINT
             save_chat(conversation, ask=True)
         # Command Handler
@@ -74,7 +78,7 @@ def chat(console, data) -> None:
                         temperature=float(temperature) / 2,
                         messages=mistral_messages(conversation),
                     )
-                elif model_title == "anthropic":
+                elif model_title.startswith("anthropic"):
                     # headers = {
                     #     "x-api-key": api_key,
                     #     "anthropic-version": "2023-06-01",
@@ -139,7 +143,7 @@ def chat(console, data) -> None:
             # Removes the last user input in order to avoid issues if the conversation continues
             conversation.pop(-1)
             continue
-        if model_title == "anthropic":
+        if model_title.startswith("anthropic"):
             response = json.loads(response)
             response = response["content"][0]["text"]
         else:

@@ -15,6 +15,8 @@ fallback_char = "?"
 temperature = 1
 system_role = "assistant"
 model = "gpt3"
+assistant = "anthropic-haiku"
+assistant_role = "<instructions>You are an AI assistant that helps select the optimal model for answering user questions. When the user provides a question, analyze its complexity across key dimensions like topic (general knowledge, math, coding, etc.), depth of knowledge required, and length. Based on the complexity analysis, recommend the most suitable model from the following list, optimizing for query type, model capability rank, and price: When I give you a question you have to evaluate the complexity and decide what would be the best model/price/rank fit for the task based on the following table: | model_name | Input cost in USD per 1M tokens | Output cost in USD per 1M tokens | Rank | |--------------------------|---------------------|----------------------|------------------------------| | anthropic-opus | 15.00 | 75.00 | 1 | | gpt4 | 10.00 | 30.00 | 2 | | anthropic-sonnet | 3.00 | 15.00 | 4 | | anthropic-haiku | 0.25 | 1.25 | 7 | The models are listed from best to worst. Always suggest only the best fitting model. Use the below table to analyze the query and provide the best fit: | Complexity Category | Description | Examples | |---------------------|-------------|----------| | Extremely Complex | Challenging tasks requiring deep reasoning and specialized knowledge. | - Solving complex mathematical equations - Software debugging and optimization - Theoretical physics simulations | | 2. Scientific and Technical | Handling scientific research, engineering, and technical domains. | - Predicting protein structures - Simulating fluid dynamics - Natural language understanding for scientific literature | | 3. Real-World Applications | Practical applications impacting daily life. | - Autonomous driving systems - Medical diagnosis using radiological images - Financial risk assessment | | 4. Common Tasks and Productivity | Routine tasks enhancing productivity. | - Language translation - Image recognition in photo apps - Virtual assistants for scheduling and reminders | | 5. General Conversational Topics | Casual conversations and natural language understanding. | - Chatbots providing friendly responses - Social media bots interacting with users - Creative writing | <examples> anthropic-opus is the most capable model that should be used for extremely complex tasks such as Category 1. For general knowledge queries matching Category 5, prioritize cheapest cost model with the highest possible rank such as anthropic-haiku. For Categories 2, 3 and 4 estimate how specialized or complex the topic is, evaluate the models ranked below anthropic-opus combining their Input cost and Rank into an \"suitability\" coefficient that should provide optimal cost/value balance. </examples> In your response, return only a semantically optimized, token-efficient version of the original question to send to the model. Create a custom system propmpt that corresponds to the question. Provide your full response as the specified JSON format only, with no additional text in your reply: <example> {\"reasoning\": \"clear_explanation_why_you_have_decided_to_select_this_model_without_discussing_the_user_question_and_the_calculated_coefficient\", \"prompt\": { \"model\": \"the_model_you_think_will_answer_properly_at_a_reasonable_cost, \"messages\": [ { \"role\": \"system\", \"content\": \"the_system_instruction_you_think_is_the_best_fit_for_the_question.\" }, { \"role\": \"user\", \"content\": \"optimized_token-efficient_version_of_the_original_question\" } ] }} </example> </instructions>"
 
 [chat.features]
 model_selector = true
@@ -25,6 +27,7 @@ continue_chat = true
 debug = true
 disable_intro_help_message = false
 assistant_mode = true
+ai_managed = false
 
 [chat.roles]
 ai_expert = "Simplify AI principles, Machine Learning, and Neural Networks for all understanding levels."
@@ -87,23 +90,23 @@ model_output_pricing_per_1k = 0.0081
 # model_name = "mistral-large-latest"
 # model_output_pricing_per_1k = 0.024
 
-# [chat.models.anthropic]
-# api_key = "YOUR_ANTHROPIC_API_KEY"
-# api_usage = 0
-# model_input_pricing_per_1k = 0.00025
-# model_max_tokens = 4096
-# model_name = "claude-3-haiku-20240307"
-# model_output_pricing_per_1k = 0.00125
+[chat.models.anthropic-haiku]
+api_key = "YOUR_ANTHROPIC_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.00025
+model_max_tokens = 4096
+model_name = "claude-3-haiku-20240307"
+model_output_pricing_per_1k = 0.00125
 
-# [chat.models.anthropic]
-# api_key = "YOUR_ANTHROPIC_API_KEY"
-# api_usage = 0
-# model_input_pricing_per_1k = 0.003
-# model_max_tokens = 4096
-# model_name = "claude-3-sonnet-20240229"
-# model_output_pricing_per_1k = 0.015
+[chat.models.anthropic-sonnet]
+api_key = "YOUR_ANTHROPIC_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.003
+model_max_tokens = 4096
+model_name = "claude-3-sonnet-20240229"
+model_output_pricing_per_1k = 0.015
 
-[chat.models.anthropic]
+[chat.models.anthropic-opus]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k = 0.015

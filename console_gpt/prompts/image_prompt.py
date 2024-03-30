@@ -52,7 +52,7 @@ def upload_image(model_title) -> Union[Dict, None]:
     )
     encoded_image = _encode_image(image_path)
 
-    if model_title == "anthropic":
+    if model_title.startswith("anthropic"):
         data = {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": encoded_image}}
     else:
         data = {
