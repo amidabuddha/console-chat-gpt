@@ -47,20 +47,16 @@ def get_prompt(assistant):
             messages=prompt,
         ).model_dump_json()
     except anthropic.APIConnectionError as e:
-        error_appeared = True
         print("The server could not be reached")
         print(e.__cause__)
     except anthropic.RateLimitError as e:
-        error_appeared = True
         print(f"A 429 status code was received; we should back off a bit. - {e}")
     except (anthropic.APIStatusError, anthropic.BadRequestError) as e:
-        error_appeared = True
         print("Another non-200-range status code was received")
         print(e.status_code)
         print(e.response)
         print(e.message)
     except Exception as e:
-        error_appeared = True
         print(f"Unexpected error: {e}")
     response = json.loads(response)
     response = response["content"][0]["text"]
