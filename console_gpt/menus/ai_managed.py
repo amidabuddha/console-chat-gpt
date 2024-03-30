@@ -77,11 +77,14 @@ def get_prompt(assistant):
     print(response["reasoning"])
     return response["prompt"]["model"], response["prompt"]["messages"][0]["content"], response["prompt"]["messages"][1]
 
+
 def command_catcher(assistant):
     while True:
         prompt = [chat_user_prompt()]
         # Command Handler
-        handled_prompt = command_handler(assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt)
+        handled_prompt = command_handler(
+            assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt
+        )
         match handled_prompt:
             case "continue" | None:
                 continue
