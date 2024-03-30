@@ -1,4 +1,5 @@
 > Features:
+- [eb3a7ad] [Feature] AI assisted model selection
 - [31f73b8] [Feature] Anthropic Messages API
 
 > Improvements:

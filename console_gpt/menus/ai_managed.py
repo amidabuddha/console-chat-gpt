@@ -1,4 +1,3 @@
-
 import json
 from typing import Tuple
 
@@ -13,7 +12,7 @@ from console_gpt.prompts.user_prompt import chat_user_prompt
 
 def managed_prompt() -> Tuple[ChatObject, str]:
     """
-    Use assistant help to determine the best model and fromat for the query 
+    Use assistant help to determine the best model and fromat for the query
     :return: Returns a ChatObject object
     """
     assistant = configure_assistant()
@@ -34,6 +33,7 @@ def configure_assistant():
     if model_data["api_key"] == "YOUR_ANTHROPIC_API_KEY":
         model_data = set_api_key(model_data)
     return model_data
+
 
 def get_prompt(assistant):
     prompt = [chat_user_prompt()]
