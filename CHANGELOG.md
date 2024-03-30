@@ -2,6 +2,7 @@
 - [eb3a7ad] [Feature] AI assisted model selection
 
 > Improvements:
+- [5721f35] [Improvement] Avoid crashing during exception
 - [663ad9a] [Improvement] Model name as title in assistant response
 - [d3ab59d] [Improvement] Handle continue chat by all models properly
 - [eba9c57] [Improvement] Revert from using requests back to anthropic client

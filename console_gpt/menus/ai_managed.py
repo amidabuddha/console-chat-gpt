@@ -4,11 +4,11 @@ from typing import Tuple
 import anthropic
 
 from console_gpt.config_manager import fetch_variable
+from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.combined_menu import ChatObject
 from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
-from console_gpt.custom_stdout import custom_print
 
 
 def managed_prompt() -> Tuple[ChatObject, str]:
@@ -66,9 +66,8 @@ def get_prompt(assistant):
         print(f"Unexpected error: {e}")
     if error_appeared:
         custom_print(
-            "error",
-            "Exception was raised. Decided whether to continue. Your last message is lost as well",
-            exit_code=1)
+            "error", "Exception was raised. Decided whether to continue. Your last message is lost as well", exit_code=1
+        )
     response = json.loads(response)
     response = response["content"][0]["text"]
     response = json.loads(response)
