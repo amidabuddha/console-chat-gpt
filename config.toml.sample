@@ -42,10 +42,10 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 [chat.models.gpt3]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k = 0.001
+model_input_pricing_per_1k = 0.0005
 model_max_tokens = 4096
 model_name = "gpt-3.5-turbo"
-model_output_pricing_per_1k = 0.002
+model_output_pricing_per_1k = 0.0015
 
 [chat.models.gpt4]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -66,10 +66,10 @@ model_output_pricing_per_1k = 0.03
 [chat.models.mistral]
 api_key = "YOUR_MISTRALAI_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k = 0.0025
+model_input_pricing_per_1k = 0.0027
 model_max_tokens = 0
 model_name = "mistral-medium-latest"
-model_output_pricing_per_1k = 0.0075
+model_output_pricing_per_1k = 0.0081
 
 [chat.models.anthropic]
 api_key = "YOUR_ANTHROPIC_API_KEY"
