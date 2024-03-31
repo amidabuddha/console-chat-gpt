@@ -2,6 +2,7 @@
 - [eb3a7ad] [Feature] AI assisted model selection
 
 > Improvements:
+- [e793670] [Improvement] assitant role refinement
 - [decad70] [Improvement] Enable OpenAI models for managed mode
 - [86c60e3] [Improvement] Simplyfy JSON structure to prevent parsing problems
 - [9b7e9cc] [Improvement] Add command handler to ai managed chat
