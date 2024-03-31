@@ -9,3 +9,4 @@ test*
 *.log
 assistants
 app-data/local_*
+venv
