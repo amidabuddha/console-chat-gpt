@@ -9,7 +9,6 @@ from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.combined_menu import ChatObject
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.menus.key_menu import set_api_key
-from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
 
@@ -41,57 +40,58 @@ def configure_assistant():
     return model_data
 
 
-def get_prompt(assistant):
-    error_appeared = False
-    handled_prompt = command_catcher(assistant)
+def get_client(assistant):
+    """
+    Get the default model based on the config
+    :param assistant: Data from the config
+    """
     if assistant["model_title"].startswith("gpt"):
-        client = openai.OpenAI(api_key=assistant["api_key"])
+        return openai.OpenAI(api_key=assistant["api_key"])
     elif assistant["model_title"].startswith("anthropic"):
-        client = anthropic.Anthropic(api_key=assistant["api_key"])
-    try:
-        if assistant["model_title"].startswith("anthropic"):
-            response = client.messages.create(
-                model=assistant["model_name"],
-                max_tokens=assistant["model_max_tokens"],
-                temperature=0,
-                system=assistant["role"],
-                messages=handled_prompt,
-            ).model_dump_json()
-        else:
-            response = client.chat.completions.create(
-                model=assistant["model_name"],
-                temperature=0,
-                messages=[{"role": "system", "content": assistant["role"]}, handled_prompt[0]],
-            )
-    except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
-        error_appeared = True
-        print("The server could not be reached")
-        print(e.__cause__)
-    except (openai.RateLimitError, anthropic.RateLimitError) as e:
-        error_appeared = True
-        print(f"A 429 status code was received; we should back off a bit. - {e}")
-    except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
-        error_appeared = True
-        print("Another non-200-range status code was received")
-        print(e.status_code)
-        print(e.response)
-        print(e.message)
-    except Exception as e:
-        error_appeared = True
-        print(f"Unexpected error: {e}")
-    if error_appeared:
-        custom_print(
-            "error", "Exception was raised. Decided whether to continue. Your last message is lost as well", exit_code=1
+        return anthropic.Anthropic(api_key=assistant["api_key"])
+
+
+def send_request(client, assistant, conversation):
+    if assistant["model_title"].startswith("anthropic"):
+        return client.messages.create(
+            model=assistant["model_name"],
+            max_tokens=assistant["model_max_tokens"],
+            temperature=0,
+            system=assistant["role"],
+            messages=conversation,
+        ).model_dump_json()
+    else:
+        role = {"role": "system", "content": assistant["role"]}
+        conversation.insert(0, role)
+        return client.chat.completions.create(
+            model=assistant["model_name"],
+            temperature=0,
+            messages=conversation,
         )
+
+
+def handle_error(*args):
+    for error in args:
+        print(error)
+    custom_print("error", "Exception was raised. Please check the error above for more information.",
+                 exit_code=1)
+
+
+def parse_response(response, assistant):
     if assistant["model_title"].startswith("anthropic"):
         response = json.loads(response)
-        response = response["content"][0]["text"]
-    else:
-        response = response.choices[0].message.content
-    response = json.loads(response)
-    custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
-    custom_print("info", f'Optimized User prompt: {response["messages"][1]["content"]}')
-    return response["model"], response["messages"][0]["content"], response["messages"][1]
+        return response["content"][0]["text"]
+    return response.choices[0].message.content
+
+
+def self_correction(last_reply):
+    conversation = []
+    fallback_prompt = ("Your previous response did not adhere to the specified format. "
+                       "Please carefully review the instructions and provide your response strictly in the "
+                       "specified JSON format, without any additional text or explanations outside the JSON structure.")
+    conversation.append({"role": "assistant", "content": last_reply})
+    conversation.append({"role": "user", "content": fallback_prompt})
+    return conversation
 
 
 def command_catcher(assistant):
@@ -112,3 +112,33 @@ def command_catcher(assistant):
                 prompt[0]["content"] = handled_prompt
                 break
     return prompt
+
+
+def get_prompt(assistant):
+    conversation = command_catcher(assistant)
+    client = get_client(assistant)
+    max_retries = 3
+    custom_print("info", f'Base: {conversation}')
+    while max_retries > 0:
+        try:
+            response = send_request(client, assistant, conversation)
+        except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
+            handle_error("The server could not be reached", e.__cause__)
+        except (openai.RateLimitError, anthropic.RateLimitError) as e:
+            handle_error(f"A 429 status code was received; we should back off a bit. - {e}")
+        except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
+            handle_error("Another non-200-range status code was received", e.status_code, e.response, e.message)
+        except Exception as e:
+            handle_error(f"Unexpected error: {e}")
+        response = parse_response(response, assistant)
+        try:
+            response = json.loads(response)
+            break
+        except json.decoder.JSONDecodeError:
+            max_retries -= 1
+            custom_print("info", f"Self-correction due to incorrect format. Attempts left: {max_retries}")
+            conversation.extend(self_correction(response))
+            continue
+    custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
+    custom_print("info", f'Optimized User prompt: {response["messages"][1]["content"]}')
+    return response["model"], response["messages"][0]["content"], response["messages"][1]
