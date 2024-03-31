@@ -119,7 +119,6 @@ def get_prompt(assistant):
     conversation = command_catcher(assistant)
     client = get_client(assistant)
     max_retries = 3
-    custom_print("info", f"Base: {conversation}")
     while max_retries > 0:
         try:
             response = send_request(client, assistant, conversation)
