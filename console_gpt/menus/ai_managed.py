@@ -39,10 +39,12 @@ def configure_assistant():
     model_data = update_api_key_if_placeholder(model_data)
     return model_data
 
-def update_api_key_if_placeholder(model_data):                                 
-    if model_data["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):                           
-        return set_api_key(model_data)                                         
-    return model_data  
+
+def update_api_key_if_placeholder(model_data):
+    if model_data["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):
+        return set_api_key(model_data)
+    return model_data
+
 
 def get_client(assistant):
     """
