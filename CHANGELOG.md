@@ -5,12 +5,12 @@
 - [d9ee576] [Improvement] SIGINT wrapper for ai_managed requests
 - [9c7ec90] [Improvement] Handle incorrect JSON response for ai_managed
 - [932f4ef] [Improvement] Manged mode as an optional selection
-- [3969054] [Improvement] Add some transparancy of the AI managed prompt
 
 > Bug Fixes:
 - [bcb06a5] [Bugfix] Minor bug between gpt3 and haiku when handling data
 
 > Others:
+- [11be10f] [Other] remove debug print
 - [3f880d6] [Other] Update README.md to highlight new feature
 - [69a2506] [Other] Add vevn to .gitignore
 - [92a491e] [Other] Clean-up
