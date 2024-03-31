@@ -88,6 +88,8 @@ def get_prompt(assistant):
     else:
         response = response.choices[0].message.content
     response = json.loads(response)
+    custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
+    custom_print("info", f'Optimized User prompt: {response["messages"][1]["content"]}')
     return response["model"], response["messages"][0]["content"], response["messages"][1]
 
 
