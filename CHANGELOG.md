@@ -2,6 +2,7 @@
 - [eb3a7ad] [Feature] AI assisted model selection
 
 > Improvements:
+- [932f4ef] [Improvement] Manged mode as an optional selection
 - [3969054] [Improvement] Add some transparancy of the AI managed prompt
 - [e793670] [Improvement] assitant role refinement
 - [decad70] [Improvement] Enable OpenAI models for managed mode
@@ -12,8 +13,6 @@
 > Others:
 - [aaea3c2] [Others] Fine tune assistant_role
 - [29bf182] [Others] cleanup
-- [da8c911] [OTHERS] Add all supported models to sample
-- [c5658e8] [OTHERS] Update models pricing in sample
 
 
 ---
