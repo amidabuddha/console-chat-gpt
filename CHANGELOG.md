@@ -6,9 +6,9 @@
 - [e793670] [Improvement] assitant role refinement
 - [decad70] [Improvement] Enable OpenAI models for managed mode
 - [86c60e3] [Improvement] Simplyfy JSON structure to prevent parsing problems
-- [9b7e9cc] [Improvement] Add command handler to ai managed chat
 
 > Others:
+- [69a2506] [Other] Add vevn to .gitignore
 - [92a491e] [Other] Clean-up
 - [aaea3c2] [Others] Fine tune assistant_role
 
