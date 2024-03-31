@@ -2,6 +2,7 @@ import json
 from typing import Tuple
 
 import anthropic
+import openai
 
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
@@ -34,7 +35,7 @@ def configure_assistant():
     model_data = fetch_variable("models", assistant_model)
     model_data.update(dict(model_title=assistant_model))
     model_data.update(dict(role=assistant_role))
-    if model_data["api_key"] == "YOUR_ANTHROPIC_API_KEY":
+    if model_data["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):
         model_data = set_api_key(model_data)
     return model_data
 
@@ -42,23 +43,33 @@ def configure_assistant():
 def get_prompt(assistant):
     error_appeared = False
     handled_prompt = command_catcher(assistant)
-    client = anthropic.Anthropic(api_key=assistant["api_key"])
+    if assistant["model_title"].startswith("gpt"):
+        client = openai.OpenAI(api_key=assistant["api_key"])
+    elif assistant["model_title"].startswith("anthropic"):
+        client = anthropic.Anthropic(api_key=assistant["api_key"])
     try:
-        response = client.messages.create(
-            model=assistant["model_name"],
-            max_tokens=assistant["model_max_tokens"],
-            temperature=0,
-            system=assistant["role"],
-            messages=handled_prompt,
-        ).model_dump_json()
-    except anthropic.APIConnectionError as e:
+        if assistant["model_title"].startswith("anthropic"):
+            response = client.messages.create(
+                model=assistant["model_name"],
+                max_tokens=assistant["model_max_tokens"],
+                temperature=0,
+                system=assistant["role"],
+                messages=handled_prompt,
+            ).model_dump_json()
+        else:
+            response = client.chat.completions.create(
+                model=assistant["model_name"],
+                temperature=0,
+                messages=[{"role":"system", "content":assistant["role"]},handled_prompt[0]],
+            )
+    except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
         error_appeared = True
         print("The server could not be reached")
         print(e.__cause__)
-    except anthropic.RateLimitError as e:
+    except (openai.RateLimitError, anthropic.RateLimitError)  as e:
         error_appeared = True
         print(f"A 429 status code was received; we should back off a bit. - {e}")
-    except (anthropic.APIStatusError, anthropic.BadRequestError) as e:
+    except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
         error_appeared = True
         print("Another non-200-range status code was received")
         print(e.status_code)
@@ -71,8 +82,11 @@ def get_prompt(assistant):
         custom_print(
             "error", "Exception was raised. Decided whether to continue. Your last message is lost as well", exit_code=1
         )
-    response = json.loads(response)
-    response = response["content"][0]["text"]
+    if assistant["model_title"].startswith("anthropic"):
+            response = json.loads(response)
+            response = response["content"][0]["text"]
+    else:
+        response = response.choices[0].message.content
     response = json.loads(response)
     return response["model"], response["messages"][0]["content"], response["messages"][1]
 
