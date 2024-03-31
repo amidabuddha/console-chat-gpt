@@ -3,7 +3,7 @@ from typing import Tuple
 
 import anthropic
 import openai
-
+from rich.console import Console
 from console_gpt.catch_errors import sigint_wrapper
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
@@ -118,29 +118,31 @@ def command_catcher(assistant):
 
 
 def get_prompt(assistant):
+    console = Console()
     conversation = command_catcher(assistant)
     client = get_client(assistant)
     max_retries = 3
     while max_retries > 0:
-        try:
-            response = send_request(client, assistant, conversation)
-        except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
-            handle_error("The server could not be reached", e.__cause__)
-        except (openai.RateLimitError, anthropic.RateLimitError) as e:
-            handle_error(f"A 429 status code was received; we should back off a bit. - {e}")
-        except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
-            handle_error("Another non-200-range status code was received", e.status_code, e.response, e.message)
-        except Exception as e:
-            handle_error(f"Unexpected error: {e}")
-        response = parse_response(response, assistant)
-        try:
-            response = json.loads(response)
-            break
-        except json.decoder.JSONDecodeError:
-            max_retries -= 1
-            custom_print("info", f"Self-correction due to incorrect format. Attempts left: {max_retries}")
-            conversation.extend(self_correction(response))
-            continue
+        with console.status("[bold cyan]Choosing the best model for you...", spinner="aesthetic"):
+            try:
+                response = send_request(client, assistant, conversation)
+            except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
+                handle_error("The server could not be reached", e.__cause__)
+            except (openai.RateLimitError, anthropic.RateLimitError) as e:
+                handle_error(f"A 429 status code was received; we should back off a bit. - {e}")
+            except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
+                handle_error("Another non-200-range status code was received", e.status_code, e.response, e.message)
+            except Exception as e:
+                handle_error(f"Unexpected error: {e}")
+            response = parse_response(response, assistant)
+            try:
+                response = json.loads(response)
+                break
+            except json.decoder.JSONDecodeError:
+                max_retries -= 1
+                custom_print("info", f"Self-correction due to incorrect format. Attempts left: {max_retries}")
+                conversation.extend(self_correction(response))
+                continue
     custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
     custom_print("info", f'Optimized User prompt: {response["messages"][1]["content"]}')
     return response["model"], response["messages"][0]["content"], response["messages"][1]
