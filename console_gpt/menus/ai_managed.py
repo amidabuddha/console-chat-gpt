@@ -74,8 +74,7 @@ def get_prompt(assistant):
     response = json.loads(response)
     response = response["content"][0]["text"]
     response = json.loads(response)
-    print(response["reasoning"])
-    return response["prompt"]["model"], response["prompt"]["messages"][0]["content"], response["prompt"]["messages"][1]
+    return response["model"], response["messages"][0]["content"], response["messages"][1]
 
 
 def command_catcher(assistant):
