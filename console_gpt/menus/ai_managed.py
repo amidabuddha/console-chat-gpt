@@ -60,13 +60,13 @@ def get_prompt(assistant):
             response = client.chat.completions.create(
                 model=assistant["model_name"],
                 temperature=0,
-                messages=[{"role":"system", "content":assistant["role"]},handled_prompt[0]],
+                messages=[{"role": "system", "content": assistant["role"]}, handled_prompt[0]],
             )
     except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
         error_appeared = True
         print("The server could not be reached")
         print(e.__cause__)
-    except (openai.RateLimitError, anthropic.RateLimitError)  as e:
+    except (openai.RateLimitError, anthropic.RateLimitError) as e:
         error_appeared = True
         print(f"A 429 status code was received; we should back off a bit. - {e}")
     except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
@@ -83,8 +83,8 @@ def get_prompt(assistant):
             "error", "Exception was raised. Decided whether to continue. Your last message is lost as well", exit_code=1
         )
     if assistant["model_title"].startswith("anthropic"):
-            response = json.loads(response)
-            response = response["content"][0]["text"]
+        response = json.loads(response)
+        response = response["content"][0]["text"]
     else:
         response = response.choices[0].message.content
     response = json.loads(response)
