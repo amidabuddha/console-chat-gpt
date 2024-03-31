@@ -73,8 +73,7 @@ def send_request(client, assistant, conversation):
 def handle_error(*args):
     for error in args:
         print(error)
-    custom_print("error", "Exception was raised. Please check the error above for more information.",
-                 exit_code=1)
+    custom_print("error", "Exception was raised. Please check the error above for more information.", exit_code=1)
 
 
 def parse_response(response, assistant):
@@ -86,9 +85,11 @@ def parse_response(response, assistant):
 
 def self_correction(last_reply):
     conversation = []
-    fallback_prompt = ("Your previous response did not adhere to the specified format. "
-                       "Please carefully review the instructions and provide your response strictly in the "
-                       "specified JSON format, without any additional text or explanations outside the JSON structure.")
+    fallback_prompt = (
+        "Your previous response did not adhere to the specified format. "
+        "Please carefully review the instructions and provide your response strictly in the "
+        "specified JSON format, without any additional text or explanations outside the JSON structure."
+    )
     conversation.append({"role": "assistant", "content": last_reply})
     conversation.append({"role": "user", "content": fallback_prompt})
     return conversation
@@ -118,7 +119,7 @@ def get_prompt(assistant):
     conversation = command_catcher(assistant)
     client = get_client(assistant)
     max_retries = 3
-    custom_print("info", f'Base: {conversation}')
+    custom_print("info", f"Base: {conversation}")
     while max_retries > 0:
         try:
             response = send_request(client, assistant, conversation)

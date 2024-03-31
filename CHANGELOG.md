@@ -1,7 +1,5 @@
-> Features:
-- [eb3a7ad] [Feature] AI assisted model selection
-
 > Improvements:
+- [9c7ec90] [Improvement] Handle incorrect JSON response for ai_managed
 - [932f4ef] [Improvement] Manged mode as an optional selection
 - [3969054] [Improvement] Add some transparancy of the AI managed prompt
 - [e793670] [Improvement] assitant role refinement
