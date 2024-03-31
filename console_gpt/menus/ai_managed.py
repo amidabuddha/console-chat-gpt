@@ -143,6 +143,9 @@ def get_prompt(assistant):
                 custom_print("info", f"Self-correction due to incorrect format. Attempts left: {max_retries}")
                 conversation.extend(self_correction(response))
                 continue
+    if max_retries == 0:
+        custom_print("error", f"Couldn't optimise the request properly and failed. Please restart and try again.")
+        custom_print("info", "Tip: Try using a different model as the default assistant.", exit_code=1)
     custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
     custom_print("info", f'Optimized User prompt: {response["messages"][1]["content"]}')
     return response["model"], response["messages"][0]["content"], response["messages"][1]
