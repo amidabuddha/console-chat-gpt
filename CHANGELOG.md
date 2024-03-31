@@ -2,6 +2,7 @@
 - [eb3a7ad] [Feature] AI assisted model selection
 
 > Improvements:
+- [3969054] [Improvement] Add some transparancy of the AI managed prompt
 - [e793670] [Improvement] assitant role refinement
 - [decad70] [Improvement] Enable OpenAI models for managed mode
 - [86c60e3] [Improvement] Simplyfy JSON structure to prevent parsing problems
