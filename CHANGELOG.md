@@ -1,4 +1,5 @@
 > Improvements:
+- [d9ee576] [Improvement] SIGINT wrapper for ai_managed requests
 - [9c7ec90] [Improvement] Handle incorrect JSON response for ai_managed
 - [932f4ef] [Improvement] Manged mode as an optional selection
 - [3969054] [Improvement] Add some transparancy of the AI managed prompt
@@ -6,7 +7,6 @@
 - [decad70] [Improvement] Enable OpenAI models for managed mode
 - [86c60e3] [Improvement] Simplyfy JSON structure to prevent parsing problems
 - [9b7e9cc] [Improvement] Add command handler to ai managed chat
-- [5721f35] [Improvement] Avoid crashing during exception
 
 > Others:
 - [92a491e] [Other] Clean-up

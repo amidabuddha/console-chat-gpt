@@ -4,6 +4,7 @@ from typing import Tuple
 import anthropic
 import openai
 
+from console_gpt.catch_errors import sigint_wrapper
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.combined_menu import ChatObject
@@ -11,7 +12,6 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
-from console_gpt.catch_errors import sigint_wrapper
 
 
 def managed_prompt() -> Tuple[ChatObject, str]:
@@ -50,6 +50,7 @@ def get_client(assistant):
         return openai.OpenAI(api_key=assistant["api_key"])
     elif assistant["model_title"].startswith("anthropic"):
         return anthropic.Anthropic(api_key=assistant["api_key"])
+
 
 @sigint_wrapper
 def send_request(client, assistant, conversation):

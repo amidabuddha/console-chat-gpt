@@ -12,11 +12,7 @@ def sigint_wrapper(func):
         try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
-            custom_print(
-                "warn",
-                f"Caught irregular interrupt (SIGINT). Exiting gracefully. Bye!",
-                exit_code=130
-            )
+            custom_print("warn", f"Caught irregular interrupt (SIGINT). Exiting gracefully. Bye!", exit_code=130)
 
     return inner
 
