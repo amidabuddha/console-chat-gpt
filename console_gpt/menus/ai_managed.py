@@ -21,11 +21,10 @@ def managed_prompt() -> Tuple[ChatObject, str]:
     :return: Returns a ChatObject object
     """
     assistant = configure_assistant()
-    model_name, system_prompt, user_prompt = get_prompt(assistant)
+    model_name, system_prompt, user_prompt = get_model_and_prompts_based_on_conversation(assistant)
     model_data = fetch_variable("models", model_name)
     model_data.update(dict(model_title=model_name))
-    if model_data["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):
-        model_data = set_api_key(model_data)
+    model_data = update_api_key_if_placeholder(model_data)
     temperature = temperature_prompt()
     conversation = [{"role": "system", "content": system_prompt}]
     return ChatObject(model=model_data, conversation=conversation, temperature=temperature), user_prompt
@@ -37,10 +36,13 @@ def configure_assistant():
     model_data = fetch_variable("models", assistant_model)
     model_data.update(dict(model_title=assistant_model))
     model_data.update(dict(role=assistant_role))
-    if model_data["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):
-        model_data = set_api_key(model_data)
+    model_data = update_api_key_if_placeholder(model_data)
     return model_data
 
+def update_api_key_if_placeholder(model_data):                                 
+    if model_data["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):                           
+        return set_api_key(model_data)                                         
+    return model_data  
 
 def get_client(assistant):
     """
@@ -118,7 +120,7 @@ def command_catcher(assistant):
     return prompt
 
 
-def get_prompt(assistant):
+def get_model_and_prompts_based_on_conversation(assistant):
     console = Console()
     conversation = command_catcher(assistant)
     client = get_client(assistant)
@@ -148,5 +150,4 @@ def get_prompt(assistant):
         custom_print("error", f"Couldn't optimise the request properly and failed. Please restart and try again.")
         custom_print("info", "Tip: Try using a different model as the default assistant.", exit_code=1)
     custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
-    custom_print("info", f'Optimized User prompt: {response["messages"][1]["content"]}')
-    return response["model"], response["messages"][0]["content"], response["messages"][1]
+    return response["model"], response["messages"][0]["content"], conversation[1]
