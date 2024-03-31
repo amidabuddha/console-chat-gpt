@@ -11,6 +11,7 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
+from console_gpt.catch_errors import sigint_wrapper
 
 
 def managed_prompt() -> Tuple[ChatObject, str]:
@@ -50,7 +51,7 @@ def get_client(assistant):
     elif assistant["model_title"].startswith("anthropic"):
         return anthropic.Anthropic(api_key=assistant["api_key"])
 
-
+@sigint_wrapper
 def send_request(client, assistant, conversation):
     if assistant["model_title"].startswith("anthropic"):
         return client.messages.create(

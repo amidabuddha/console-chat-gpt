@@ -1,6 +1,26 @@
 from console_gpt.custom_stdout import custom_print
 
 
+def sigint_wrapper(func):
+    """
+    Decorator to wrap SIGINT exception from a function
+    :param func: function to wrap
+    :return: wrapped function or exit
+    """
+
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except KeyboardInterrupt:
+            custom_print(
+                "warn",
+                f"Caught irregular interrupt (SIGINT). Exiting gracefully. Bye!",
+                exit_code=130
+            )
+
+    return inner
+
+
 def eof_wrapper(func):
     """
     Decorator to wrap EOFError exception from a function and allow
