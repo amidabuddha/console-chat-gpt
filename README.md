@@ -48,6 +48,7 @@ or relationship with OpenAI, MistralAI, Anthropic or their subsidiaries in any f
 
 ## Features
 
+- :new: **AI Managed mode** :new:: Based on the complexity of the task, automatically determines which model to use.
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
   how the app works. :new: Now supported in-app via the `settings` command :new:
