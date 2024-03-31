@@ -9,6 +9,7 @@ from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.combined_menu import ChatObject
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.menus.key_menu import set_api_key
+from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
 
@@ -96,6 +97,8 @@ def get_prompt(assistant):
 def command_catcher(assistant):
     while True:
         prompt = [chat_user_prompt()]
+        if prompt == [None]:  # Used to catch SIGINT
+            custom_print("exit", "Goodbye, see you soon!", 130)
         # Command Handler
         handled_prompt = command_handler(
             assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt

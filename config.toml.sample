@@ -27,7 +27,7 @@ continue_chat = true
 debug = true
 disable_intro_help_message = false
 assistant_mode = true
-ai_managed = false
+ai_managed = true
 
 [chat.roles]
 ai_expert = "Simplify AI principles, Machine Learning, and Neural Networks for all understanding levels."
