@@ -107,6 +107,9 @@ def command_catcher(assistant):
         prompt = [chat_user_prompt()]
         if prompt == [None]:  # Used to catch SIGINT
             custom_print("exit", "Goodbye, see you soon!", 130)
+        if prompt[0]["content"].lower() == "image":
+            custom_print("warn", "Please upload your image after the conversation is already initiated!")
+            continue
         # Command Handler
         handled_prompt = command_handler(
             assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt
