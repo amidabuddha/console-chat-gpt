@@ -4,9 +4,9 @@
 - [eadbe90] [Improvement] Adding spinner for Ai Managed prompt
 - [d9ee576] [Improvement] SIGINT wrapper for ai_managed requests
 - [9c7ec90] [Improvement] Handle incorrect JSON response for ai_managed
-- [932f4ef] [Improvement] Manged mode as an optional selection
 
 > Bug Fixes:
+- [27a17c0] [Bugfix] Fix compatibility between GPT and Claude
 - [bcb06a5] [Bugfix] Minor bug between gpt3 and haiku when handling data
 
 > Others:
