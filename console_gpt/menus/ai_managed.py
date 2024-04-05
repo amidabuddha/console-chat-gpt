@@ -125,6 +125,7 @@ def command_catcher(assistant):
 def get_model_and_prompts_based_on_conversation(assistant):
     console = Console()
     conversation = command_catcher(assistant)
+    user_prompt = conversation.copy()
     client = get_client(assistant)
     max_retries = 3
     while max_retries > 0:
@@ -152,4 +153,4 @@ def get_model_and_prompts_based_on_conversation(assistant):
         custom_print("error", f"Couldn't optimise the request properly and failed. Please restart and try again.")
         custom_print("info", "Tip: Try using a different model as the default assistant.", exit_code=1)
     custom_print("info", f'System prompt: {response["messages"][0]["content"]}')
-    return response["model"], response["messages"][0]["content"], conversation[-1]
+    return response["model"], response["messages"][0]["content"], user_prompt[0]
