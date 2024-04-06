@@ -1,4 +1,4 @@
-from typing import Dict, List, NamedTuple, Optional
+from typing import Dict, List, NamedTuple
 
 from console_gpt.menus.assistant_menu import assistant_menu
 from console_gpt.menus.key_menu import set_api_key

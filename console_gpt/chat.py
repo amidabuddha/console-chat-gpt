@@ -6,7 +6,6 @@ from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
 from console_gpt.custom_stdout import custom_print
-from console_gpt.menus.combined_menu import AssistantObject, ChatObject
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
