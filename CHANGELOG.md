@@ -12,7 +12,6 @@
 - [fab4bdd] [OTHERS] Clean-up and update dependencies
 - [11be10f] [Other] remove debug print
 - [3f880d6] [Other] Update README.md to highlight new feature
-- [69a2506] [Other] Add vevn to .gitignore
 
 
 ---
