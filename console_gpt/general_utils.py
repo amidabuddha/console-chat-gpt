@@ -82,7 +82,7 @@ def help_message() -> None:
         # "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
         "file": "Allows you to upload a file content to the chat.",
-        "image": "Allows you to upload an image [Supported by gpt-4-vision-preview only].",
+        "image": "Allows you to upload an image [Supported by gpt-4-turbo and anthropic models].",
         "flush": "Start the chat all over again.",
         "format": "Allows you to write multiline messages.",
         "save": "Saves the chat to a given file.",

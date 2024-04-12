@@ -42,7 +42,7 @@ def command_handler(model_title, model_name, user_input, conversation) -> Option
             save_chat(conversation, skip_exit=True)
             return "continue"
         case "image":
-            if model_title not in ("gpt4-vision") and not model_title.startswith("anthropic"):
+            if model_title not in ("gpt4") and not model_title.startswith("anthropic"):
                 custom_print(
                     "error",
                     f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
