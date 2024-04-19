@@ -25,6 +25,9 @@ def assistant(console, data) -> None:
         elif user_input.lower() == "save":
             custom_print("info", "Assistant conversations are not saved locally.")
             continue
+        elif user_input.lower() == "image":
+            custom_print("warn", "Assistant conversations do not support processing images yet.")
+            continue
         elif user_input.lower() in ["flush", "new"]:
             break
         elif user_input.lower() == "file":
