@@ -51,13 +51,13 @@ or relationship with OpenAI, MistralAI, Anthropic or their subsidiaries in any f
 - :new: **AI Managed mode** :new:: Based on the complexity of the task, automatically determines which model to use.
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
-  how the app works. :new: Now supported in-app via the `settings` command :new:
+  how the app works. Also supported in-app via the `settings` command.
 - **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
   interactive experience.
 - **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
   conversation.
 - **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
-- **Image input**: with selected models
+- **Image input**: with selected models.
 - **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
 - **Conversation History**: Review previous interactions and save conversations for future reference, providing context
   and continuity.
@@ -117,7 +117,7 @@ personalization, control, and convenience.
 
   ![example_python](examples/python_for_loop.gif)
 
-- Markdown example:
+- Markdown visualization example:
 
   ![example_markdown](examples/markdown_preview.gif)
 
