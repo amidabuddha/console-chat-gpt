@@ -1,6 +1,6 @@
 > Improvements:
+- [426b4a7] [Improvement] Add "image" command handler for Assistant mode
 - [14dbd04] [Improvement] Exclude image prompts on ai_managed chat initiation
-- [0b40f52] [Improvement] Removed printing the user input as it is not modified
 
 > Bug Fixes:
 - [27a17c0] [Bugfix] Fix compatibility between GPT and Claude
