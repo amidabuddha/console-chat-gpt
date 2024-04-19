@@ -4,9 +4,9 @@
 
 > Bug Fixes:
 - [27a17c0] [Bugfix] Fix compatibility between GPT and Claude
-- [bcb06a5] [Bugfix] Minor bug between gpt3 and haiku when handling data
 
 > Others:
+- [b4f5f88] [Other] Bump openai version
 - [fab4bdd] [OTHERS] Clean-up and update dependencies
 - [11be10f] [Other] remove debug print
 
