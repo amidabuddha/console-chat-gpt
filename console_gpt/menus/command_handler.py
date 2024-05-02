@@ -7,7 +7,7 @@ from console_gpt.prompts.file_prompt import file_prompt
 from console_gpt.prompts.image_prompt import upload_image
 from console_gpt.prompts.multiline_prompt import multiline_prompt
 from console_gpt.prompts.save_chat_prompt import save_chat
-from console_gpt.prompts.url_prompt import input_url, additional_info
+from console_gpt.prompts.url_prompt import additional_info, input_url
 from console_gpt.scrape_page import page_content
 
 

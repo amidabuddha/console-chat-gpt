@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 from questionary import Style, text
@@ -6,7 +7,6 @@ from console_gpt.catch_errors import eof_wrapper
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import flush_lines, use_emoji_maybe
-import re
 
 
 def _validate_url(url: str) -> str | bool:
@@ -16,12 +16,14 @@ def _validate_url(url: str) -> str | bool:
     :return: Either an error message or True represented as string for compatibility
     """
     url_pattern = re.compile(
-        r'^(?:(?:https?|ftp)://'  # Optional scheme (http, https, ftp)
-        r')?(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # Domain
-        r'localhost|'  # localhost
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # IP address
-        r'(?::\d+)?'  # Optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        r"^(?:(?:https?|ftp)://"  # Optional scheme (http, https, ftp)
+        r")?(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # Domain
+        r"localhost|"  # localhost
+        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # IP address
+        r"(?::\d+)?"  # Optional port
+        r"(?:/?|[/?]\S+)$",
+        re.IGNORECASE,
+    )
     if url_pattern.match(url):
         return True
     return "Invalid URL"

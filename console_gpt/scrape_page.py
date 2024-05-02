@@ -1,9 +1,11 @@
+import re
+
 import requests
 from bs4 import BeautifulSoup
 from markdownify import markdownify as md
-import re
-from console_gpt.prompts.system_prompt import system_reply
 from rich.console import Console
+
+from console_gpt.prompts.system_prompt import system_reply
 
 
 def _fetch_html(url) -> tuple[str, bool]:
@@ -14,7 +16,7 @@ def _fetch_html(url) -> tuple[str, bool]:
     """
     console = Console()
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
     }
 
     if not (url.startswith("http://") or url.startswith("https://")):
@@ -37,21 +39,21 @@ def _clean_html(html_content) -> str:
     Remove unnecessary HTML tags
     :param html_content: HTML content
     :return: HTML without unnecessary HTML tags"""
-    soup = BeautifulSoup(html_content, 'html.parser')
+    soup = BeautifulSoup(html_content, "html.parser")
 
     # List of unnecessary tags you might want to remove
     useless_tags = [
-        'script',
-        'style',
-        'meta',
-        'link',
-        'head',
-        'noscript',
-        'footer',
-        'iframe',
-        'input',
-        'form',
-        'comment'
+        "script",
+        "style",
+        "meta",
+        "link",
+        "head",
+        "noscript",
+        "footer",
+        "iframe",
+        "input",
+        "form",
+        "comment",
     ]
     for tag in useless_tags:
         for script in soup(tag):
@@ -68,7 +70,7 @@ def _convert_html_to_markdown(html) -> str:
     """
     markdown_text_raw = md(html)
     # Remove useless empty lines from purged HTML
-    markdown_text = re.sub(r'\n{3,}', '\n\n', markdown_text_raw).strip()
+    markdown_text = re.sub(r"\n{3,}", "\n\n", markdown_text_raw).strip()
     return markdown_text
 
 
