@@ -8,3 +8,5 @@ simple_term_menu~=1.6.4
 termcolor~=2.4.0
 toml~=0.10.2
 requests~=2.31.0
+beautifulsoup4~=4.12.3
+markdownify~=0.12.1

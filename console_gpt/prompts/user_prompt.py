@@ -22,6 +22,7 @@ def user_prompt() -> str:
 
     option_description = {
         "help": "Prints all available commands.",
+        "browser": "Allows you to scrape the content of page as input.",
         "cost": "Prints the costs of the current chat.",
         "edit": "Prints the last prompt so you can edit it.",
         "exit": "Exits the chat.",
@@ -34,7 +35,7 @@ def user_prompt() -> str:
     }
 
     prompt_title = "User:"
-    options = ["help", "cost", "edit", "exit", "file", "image", "flush", "format", "save", "settings"]
+    options = ["help", "browser", "cost", "edit", "exit", "file", "image", "flush", "format", "save", "settings"]
     user_input = questionary.autocomplete(
         message=prompt_title,
         choices=options,
