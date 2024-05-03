@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from markdownify import markdownify as md
 from rich.console import Console
 
+from console_gpt.custom_stdout import custom_print
 from console_gpt.prompts.system_prompt import system_reply
 
 
@@ -87,6 +88,10 @@ def page_content(url: str) -> tuple[str, int]:
     if success:
         cleaned_html = _clean_html(html_content)
         markdown_output = _convert_html_to_markdown(cleaned_html)
-        return markdown_output, success
+        if markdown_output:
+            return markdown_output, success
+        else:
+            custom_print("error", "This webpage has no contents")
+            return "", False
     system_reply(html_content)
     return "", success
