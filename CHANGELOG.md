@@ -2,6 +2,7 @@
 - [8a1d1fe] [Feature] Adding support for web browsing (manual bump)
 
 > Improvements:
+- [641b806] [Improvement] Handle empty body pages
 - [426b4a7] [Improvement] Add "image" command handler for Assistant mode
 
 > Bug Fixes:

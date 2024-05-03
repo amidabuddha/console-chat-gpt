@@ -108,7 +108,10 @@ def command_catcher(assistant):
         if prompt == [None]:  # Used to catch SIGINT
             custom_print("exit", "Goodbye, see you soon!", 130)
         if prompt[0]["content"].lower() in ("image"):
-            custom_print("warn", f'Command {prompt[0]["content"].lower()} is available only when the conversation is already initiated!')
+            custom_print(
+                "warn",
+                f'Command {prompt[0]["content"].lower()} is available only when the conversation is already initiated!',
+            )
             continue
         # Command Handler
         handled_prompt = command_handler(
