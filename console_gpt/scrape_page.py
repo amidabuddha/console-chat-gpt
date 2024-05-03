@@ -90,8 +90,7 @@ def page_content(url: str) -> tuple[str, int]:
         markdown_output = _convert_html_to_markdown(cleaned_html)
         if markdown_output:
             return markdown_output, success
-        else:
-            custom_print("error", "This webpage has no contents")
-            return "", False
-    system_reply(html_content)
+        system_reply(url, "[ERROR] No content was found on the page:")
+        return "", False
+    system_reply(html_content, "[ERROR] Failed to fetch the content due to:")
     return "", success
