@@ -5,7 +5,7 @@ help_options = {
     # "cost": "Prints the costs of the current chat.",
     # "edit": "Prints the last prompt so you can edit it.",
     "exit": "Exits the chat.",
-    "file": "Allows you to upload a file content to the chat.",
+    "file": "Allows you to upload a TXT or PDF file content to the chat.",
     "image": "Allows you to upload an image [Supported by gpt-4-turbo and anthropic models].",
     "flush": "Start the chat all over again.",
     "format": "Allows you to write multiline messages.",

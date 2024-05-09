@@ -1,4 +1,5 @@
 import os
+import PyPDF2 
 from typing import Callable, Optional
 
 from questionary import path
@@ -25,15 +26,34 @@ def _validate_file(file_path: str) -> str | bool:
 
 def _read_file(file_path: str) -> Optional[str]:
     """
-    Read the content of a file
+    Read the content of a file (TXT or PDF)
     :param file_path: Path to the file
-    :return: The content or None (NoneType) if empty
+    :return: The content or None if empty or unsupported file type  
     """
-    with open(file_path, "r") as file:
-        content = file.read().strip()
-
-    return content if content else None
-
+    print(file_path)
+    if file_path.endswith('.pdf'):                                                                                                                                                                                                      
+         try:                                                                                                                                                                                                                            
+             with open(file_path, "rb") as file:                                                                                                                                                                                         
+                 pdf_reader = PyPDF2.PdfReader(file)                                                                                                                                                                                     
+                 text = []                                                                                                                                                                                                               
+                 for page in pdf_reader.pages:                                                                                                                                                                                           
+                     text.append(page.extract_text())                                                                                                                                                                                    
+                 content = ' '.join(text).strip()                                                                                                                                                                                        
+                 return content if content else None                                                                                                                                                                                     
+         except Exception as e:                                                                                                                                                                                                          
+             custom_print("error", f"Failed to read PDF file: {e}")                                                                                                                                                                                      
+             return None                                                                                                                                                                                                                 
+    elif file_path.endswith('.txt'):                                                                                                                                                                                                    
+        try:                                                                                                                                                                                                                            
+            with open(file_path, "r") as file:                                                                                                                                                                                          
+                content = file.read().strip()                                                                                                                                                                                           
+                return content if content else None                                                                                                                                                                                     
+        except Exception as e:                                                                                                                                                                                                          
+            custom_print("error", f"Failed to read text file: {e}")                                                                                                                                                                                     
+            return None                                                                                                                                                                                                                 
+    else:                                                                                                                                                                                                                               
+        custom_print("error", f"Unsupported file type: {file_path}")                                                                                                                                                                                    
+        return None   
 
 @eof_wrapper
 def browser_files(input_message: str, interrupt_message: str, validate_func: Callable[[str], str]) -> Optional[str]:
