@@ -1,7 +1,8 @@
 import re
 from typing import Optional
 
-from questionary import Style, text
+from questionary import text
+from console_gpt.constants import style, custom_style
 
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.custom_stdin import custom_input
@@ -35,13 +36,6 @@ def input_url() -> Optional[str]:
     A base prompt for getting URL
     :return: Either none if SIGINT or the URL
     """
-    custom_style = Style(
-        [
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff"),  # answer color
-            ("selected", "fg:#ffffff bg:#000000 bold"),  # selected text color
-        ]
-    )
     url = text(
         message="Provide a URL:", style=custom_style, validate=_validate_url, qmark=use_emoji_maybe("\U0001F30D")
     ).ask()
@@ -57,14 +51,6 @@ def additional_info(content: str) -> str:
     Asking for additional info besides the existing
     :return: The content or content + additional info
     """
-
-    style = Style(
-        [
-            ("qmark", "fg:#86cdfc bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
 
     additional_data = custom_input(
         auto_exit=False,

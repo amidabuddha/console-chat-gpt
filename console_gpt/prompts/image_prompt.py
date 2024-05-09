@@ -2,8 +2,8 @@ import base64
 from typing import Dict, Union
 
 from PIL import Image
-from questionary import Style
 
+from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.prompts.file_prompt import browser_files
@@ -43,13 +43,6 @@ def upload_image(model_title) -> Union[Dict, None]:
     if not image_path:
         return None
 
-    style = Style(
-        [
-            ("qmark", "fg:#86cdfc bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
     encoded_image = _encode_image(image_path)
 
     if model_title.startswith("anthropic"):

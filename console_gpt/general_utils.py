@@ -7,7 +7,8 @@ from rich.console import Console
 from rich.table import Table
 
 from console_gpt.changelog_manager import get_changelog
-from console_gpt.config_manager import fetch_variable, write_to_config
+from console_gpt.config_manager import fetch_variable
+from console_gpt.constants import help_options
 from console_gpt.custom_stdout import custom_print
 
 # Used to Hint that the expected input is a single char and not a string.
@@ -75,21 +76,7 @@ def help_message() -> None:
     table = Table(show_header=False, box=None, padding=(0, 1, 0, 0))
     table.add_column(justify="right")
     table.add_column(justify="left")
-
-    options = {
-        "help": "Prints all available commands.",
-        # "cost": "Prints the costs of the current chat.",
-        # "edit": "Prints the last prompt so you can edit it.",
-        "exit": "Exits the chat.",
-        "file": "Allows you to upload a file content to the chat.",
-        "image": "Allows you to upload an image [Supported by gpt-4-turbo and anthropic models].",
-        "flush": "Start the chat all over again.",
-        "format": "Allows you to write multiline messages.",
-        "save": "Saves the chat to a given file.",
-        "settings": "Manage available features.",
-    }
-
-    for option, description in options.items():
+    for option, description in help_options.items():
         table.add_row(f"[bold]{option}[/bold]:", description, style="green")
 
     console.print(table)

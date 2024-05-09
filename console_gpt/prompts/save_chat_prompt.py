@@ -4,10 +4,9 @@ import re
 from datetime import datetime
 from typing import Dict, List
 
-from questionary import Style
-
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import CHATS_PATH, fetch_variable
+from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 
@@ -40,13 +39,6 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
         if not skip_exit:
             custom_print("exit", "Goodbye, see you soon!", 130)
 
-    style = Style(
-        [
-            ("qmark", "fg:#ffdb38 bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
     base_name = "chat"
     timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
     file_name = f"{base_name}_{timestamp}.json"

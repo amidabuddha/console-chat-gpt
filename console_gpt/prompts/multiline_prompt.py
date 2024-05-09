@@ -1,9 +1,8 @@
 import re
 from typing import Dict, Optional
 
-from questionary import Style
-
 from console_gpt.catch_errors import eof_wrapper
+from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 
@@ -31,13 +30,6 @@ def multiline_prompt() -> Optional[str]:
     "Enter" (Return) interrupting your input.
     :return: The content or None (If cancelled)
     """
-    style = Style(
-        [
-            ("qmark", "fg:#86cdfc bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
     multiline_data = custom_input(
         is_single_line=False,
         auto_exit=False,

@@ -1,9 +1,10 @@
 import os
 from typing import Callable, Optional
 
-from questionary import Style, path
+from questionary import path
 
 from console_gpt.catch_errors import eof_wrapper
+from console_gpt.constants import style, custom_style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import flush_lines, use_emoji_maybe
@@ -43,13 +44,6 @@ def browser_files(input_message: str, interrupt_message: str, validate_func: Cal
     :param validate_func: The function to use to validate the user input
     :return: Either none if SIGINT or the Path
     """
-    custom_style = Style(
-        [
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff"),  # answer color
-            ("selected", "fg:#ffffff bg:#000000 bold"),  # selected text color
-        ]
-    )
     file_name = path(
         message=input_message, style=custom_style, validate=validate_func, qmark=use_emoji_maybe("\U0001F4C1")
     ).ask()
@@ -75,13 +69,6 @@ def file_prompt() -> Optional[str]:
         custom_print("info", "The file seems to be empty. Skipping.")
         return None
 
-    style = Style(
-        [
-            ("qmark", "fg:#86cdfc bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
 
     additional_data = custom_input(
         auto_exit=False,

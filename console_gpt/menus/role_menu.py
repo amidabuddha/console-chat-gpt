@@ -3,14 +3,12 @@ import shutil
 import textwrap
 from typing import Optional, Tuple, Union
 
-from questionary import Style
-
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import fetch_variable, write_to_config
+from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import capitalize, decapitalize, use_emoji_maybe
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu)
+from console_gpt.menus.skeleton_menus import base_checkbox_menu, base_multiselect_menu
 
 
 def _role_preview(item: str) -> str:
@@ -93,13 +91,6 @@ def _add_custom_role(title=None, return_role=False) -> Optional[str]:
     :param return_role: besides writing to config may return the string for further use
     :return: by default nothing, just write to the config, may also return the role string
     """
-    style = Style(
-        [
-            ("qmark", "fg:#86cdfc bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
     if not title:
         title = custom_input(
             message="Enter a title for the new role:", style=style, qmark="❯", validate=_validate_title

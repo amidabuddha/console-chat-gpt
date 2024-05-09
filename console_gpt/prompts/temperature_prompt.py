@@ -1,9 +1,8 @@
 from typing import Union
 
-from questionary import Style
-
 from console_gpt.catch_errors import eof_wrapper
 from console_gpt.config_manager import fetch_variable
+from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 
 
@@ -33,13 +32,6 @@ def temperature_prompt() -> Union[float, int]:
     if not _show_menu:
         return default_temperature
 
-    style = Style(
-        [
-            ("qmark", "fg:#ffdb38 bold"),
-            ("question", "fg:#ffdb38 bold"),
-            ("answer", "fg:#69faff bold"),
-        ]
-    )
     prompt_message = (
         f"Enter a value between 0 and 2 to define GPT randomness.\n"
         f"╰─❯ Press 'ENTER' for the default setting ({default_temperature}):"
