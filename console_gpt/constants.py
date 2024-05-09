@@ -11,7 +11,7 @@ help_options = {
     "format": "Allows you to write multiline messages.",
     "save": "Saves the chat to a given file.",
     "settings": "Manage available features.",
-    }
+}
 
 style = Style(
     [

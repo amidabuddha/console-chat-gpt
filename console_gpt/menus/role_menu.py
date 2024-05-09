@@ -8,7 +8,8 @@ from console_gpt.config_manager import fetch_variable, write_to_config
 from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import capitalize, decapitalize, use_emoji_maybe
-from console_gpt.menus.skeleton_menus import base_checkbox_menu, base_multiselect_menu
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu)
 
 
 def _role_preview(item: str) -> str:

@@ -4,7 +4,7 @@ from typing import Callable, Optional
 from questionary import path
 
 from console_gpt.catch_errors import eof_wrapper
-from console_gpt.constants import style, custom_style
+from console_gpt.constants import custom_style, style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import flush_lines, use_emoji_maybe
@@ -68,7 +68,6 @@ def file_prompt() -> Optional[str]:
     if not content:
         custom_print("info", "The file seems to be empty. Skipping.")
         return None
-
 
     additional_data = custom_input(
         auto_exit=False,
