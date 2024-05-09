@@ -1,4 +1,5 @@
 > Features:
+- [669b1ae] [Feature] Add PDF file reading support
 - [8a1d1fe] [Feature] Adding support for web browsing (manual bump)
 
 > Improvements:
