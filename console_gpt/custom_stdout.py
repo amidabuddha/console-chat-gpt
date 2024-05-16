@@ -23,6 +23,7 @@ def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] =
     # Print the Markdown content with word wrapping handled by Console
     console.print(markdown, width=console.width)
 
+
 def custom_print(
     ptype: PrintType,
     text: str,
