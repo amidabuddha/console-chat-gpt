@@ -2,6 +2,7 @@ from typing import Literal, Optional
 
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.text import Text
 from termcolor import colored
 
 # Define the specific types for 'ptype'
@@ -10,11 +11,17 @@ PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit", "changelog"
 
 def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] = ""):
     console = Console()
-    if header:
-        console.print(f"[blue underline bold]╰─❯ {header}:[/] ", end=end)
-    markdown = Markdown(data, code_theme="dracula")
-    console.print(markdown)
 
+    # Print the header if it exists
+    if header:
+        header_text = Text(f"╰─❯ {header}:", style="blue underline bold")
+        console.print(header_text, end=end)
+
+    # Create a Markdown object
+    markdown = Markdown(data, code_theme="dracula")
+
+    # Print the Markdown content with word wrapping handled by Console
+    console.print(markdown, width=console.width)
 
 def custom_print(
     ptype: PrintType,
