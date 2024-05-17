@@ -1,11 +1,9 @@
 import time
 
 import openai
-import requests
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize
-from console_gpt.menus.assistant_menu import _delete_file, _upload_files
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.user_prompt import assistant_user_prompt
@@ -30,11 +28,6 @@ def assistant(console, data) -> None:
             continue
         elif user_input.lower() in ["flush", "new"]:
             break
-        elif user_input.lower() == "file":
-            message_files = _upload_files(data.model)
-            if message_files:
-                custom_print("info", "The uploaded infromation will be added to your next message.")
-            continue
         # TODO implement dedicated command handler for assistants
         handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "")
         match handled_user_input:
@@ -46,7 +39,7 @@ def assistant(console, data) -> None:
                 user_input = handled_user_input
         try:
             message = client.beta.threads.messages.create(
-                thread_id=data.thread_id, role="user", content=user_input, file_ids=message_files
+                thread_id=data.thread_id, role="user", content=user_input
             )
         except openai.NotFoundError as e:
             custom_print(
@@ -60,13 +53,9 @@ def assistant(console, data) -> None:
             # Step 4: Run the Assistant
             run_thread(client, data.assistant_id, data.thread_id)
         # Step 6: Display the Assistant's Response
-        conversation, new_replies = update_conversation(data.model["api_key"], conversation, data.thread_id)
+        conversation, new_replies = update_conversation(client, conversation, data.thread_id)
         for reply in new_replies:
             assistance_reply(reply["content"], capitalize(data.assistant_name))
-        for file in message_files:
-            _delete_file(data.model, file)
-        message_files = []
-
 
 def run_thread(client, assistant_id, thread_id):
     try:
@@ -103,17 +92,13 @@ def run_thread(client, assistant_id, thread_id):
         print(e)
 
 
-def update_conversation(apikey, conversation, thread_id):
-    messages = requests.get(
-        "https://api.openai.com/v1/threads/{thread_id}/messages".format(thread_id=thread_id),
-        headers={"OpenAI-Beta": "assistants=v1", "Authorization": f"Bearer {apikey}"},
-    ).json()
-    # Parse the JSON object to extract the required information
+def update_conversation(client, conversation, thread_id):
+    messages = client.beta.threads.messages.list(thread_id),
     messages_list = [
-        {"id": message["id"], "content": content["text"]["value"]}
-        for message in messages["data"]
-        for content in message["content"]
-        if content["type"] == "text"
+        {"id": message.id, "content": content.text.value}
+        for message in messages[0].data
+        for content in message.content
+        if content.type == "text"
     ]
     messages_list.reverse()
     # Find the index of the dictionary with the specified id
