@@ -9,10 +9,10 @@
 
 > Bug Fixes:
 - [e408039] [Bugfix] Fix nasty bug where lines are not properly wrapped and chars gone missing
-- [2f2f099] [Bugfix] revert openai version bump, assistnace v2 needed
 
 > Others:
-- [b4f5f88] [Other] Bump openai version
+- [b1d302f] [Others] Replace all http requests with openai client calls
+- [94975ec] [Others] Refactoring to support assistants v2
 
 
 ---

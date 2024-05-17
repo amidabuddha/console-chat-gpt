@@ -7,21 +7,21 @@ from typing import List, Optional, Tuple
 
 import openai
 
-from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
+from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize, decapitalize
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (
-    base_checkbox_menu,
-    base_multiselect_menu,
-    base_settings_menu,
-)
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu,
+                                              base_settings_menu)
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
 
 # Internal Functions
 ## Menus
+
 
 def assistant_menu(model) -> Optional[Tuple]:
     """
@@ -47,6 +47,7 @@ def assistant_menu(model) -> Optional[Tuple]:
                 assistant_entity = _assistant_selection_menu(model)
     return assistant_entity
 
+
 def _conversation_preview(item: str) -> str:
     """
     Returns a short description of the hovered conversation type inside the menu
@@ -62,6 +63,7 @@ def _conversation_preview(item: str) -> str:
             return "Terminate the application."
         case _:
             return "Unknown Option"
+
 
 def _assistant_selection_menu(model):
     assistants_names = [
@@ -97,6 +99,7 @@ def _assistant_selection_menu(model):
     assistant_id, thread_id = _get_local_assistant(assistant_selection)
     return assistant_selection, assistant_id, thread_id
 
+
 def _assistant_preview(item: str) -> str:
     """
     Returns a preview of the hovered assistant inside the menu
@@ -118,6 +121,7 @@ def _assistant_preview(item: str) -> str:
         case _:
             return "\n".join(textwrap.wrap(all_roles.get(decapitalize(item), "Unknown Option"), width=line_length))
 
+
 def _edit_assistant_menu(model, assistants):
     assistant_selection_menu = [capitalize(name) for name in assistants]
     edited_assistant = base_multiselect_menu(
@@ -130,6 +134,7 @@ def _edit_assistant_menu(model, assistants):
 
 
 ## Assistant
+
 
 def _new_assistant(model):
     role_title, role = role_menu()
@@ -148,6 +153,7 @@ def _new_assistant(model):
         _assistant_init(model, assistant_tools, role_title, role)
     return role_title
 
+
 def _assistant_init(model, assistant_tools, role_title, role) -> Tuple:
     client = openai.OpenAI(api_key=model["api_key"])
     # Step 1: Initialize  an Assistant
@@ -158,6 +164,7 @@ def _assistant_init(model, assistant_tools, role_title, role) -> Tuple:
         _save_assistant(client, role_title, assistant.id, thread_id)
     return role_title, assistant.id, thread_id
 
+
 def _get_local_assistant(name):
     assistant_path = os.path.join(ASSISTANTS_PATH, decapitalize(name) + ".json")
     with open(assistant_path, "r") as file:
@@ -165,6 +172,7 @@ def _get_local_assistant(name):
         assistant_id = data["assistant_id"]
         thread_id = data["thread_id"]
     return assistant_id, thread_id
+
 
 def _save_assistant(model, role_title, assistant_id, thread_id=None):
     if not thread_id:
@@ -185,6 +193,7 @@ def _save_assistant(model, role_title, assistant_id, thread_id=None):
     )
     if set_default in ["y", "yes"]:
         write_to_config("defaults", "system_role", new_value=decapitalize(role_title))
+
 
 def _edit_tools(model, assistant):
     id, _ = _get_local_assistant(assistant)
@@ -218,8 +227,10 @@ def _edit_tools(model, assistant):
             )
             return _edit_tools(model, assistant)
 
+
 # OpenAI Assistants
 ## Create assistant
+
 
 def _select_assistant_tools():
     tools_selection = base_settings_menu(
@@ -235,7 +246,8 @@ def _select_assistant_tools():
         case _:
             system_reply("No tools selected.")
             return None
-        
+
+
 def _create_assistant(client, model, assistant_tools, role_title, role):
     tools = [] if assistant_tools == None else assistant_tools
     assistant = client.beta.assistants.create(
@@ -243,7 +255,9 @@ def _create_assistant(client, model, assistant_tools, role_title, role):
     )
     return assistant
 
+
 ## List assistants
+
 
 def _list_assistants(model) -> Optional[List[str]]:
     client = openai.OpenAI(api_key=model["api_key"])
@@ -257,8 +271,7 @@ def _list_assistants(model) -> Optional[List[str]]:
         limit="20",
     )
     remote_assistants = [
-        {"assistant_id": assistant.id, "role_title": decapitalize(assistant.name)}
-        for assistant in list_assistants
+        {"assistant_id": assistant.id, "role_title": decapitalize(assistant.name)} for assistant in list_assistants
     ]
     remote_assistants_roles = {d["role_title"] for d in remote_assistants}
     # Remove local assistants that do not exist online
@@ -279,7 +292,9 @@ def _list_assistants(model) -> Optional[List[str]]:
     ]
     return updated_local_assistants_names
 
+
 ## Retrieve assistants
+
 
 def _get_remote_assistant(model, id):
     client = openai.OpenAI(api_key=model["api_key"])
@@ -293,28 +308,28 @@ def _get_remote_assistant(model, id):
     else:
         custom_print("error", "Something went wrong, assistant was not retrieved...")
         return _get_remote_assistant(model, id)
-    
+
+
 ## Modify assistant
+
 
 def _modify_assisstant(model, name, instructions, tools):
     client = openai.OpenAI(api_key=model["api_key"])
     new_tools = [] if tools == None else tools
     id, _ = _get_local_assistant(name)
     updated_assistant = client.beta.assistants.update(
-        assistant_id=id,
-        instructions=instructions,
-        name=name,
-        tools=new_tools,
-        model=model["model_name"]
-    ).model_dump_json() 
+        assistant_id=id, instructions=instructions, name=name, tools=new_tools, model=model["model_name"]
+    ).model_dump_json()
     updated_assistant_json = json.loads(updated_assistant)
     if updated_assistant_json["tools"] == new_tools and updated_assistant_json["instructions"] == instructions:
         custom_print("info", f"Assistant {name} was succesfully updated!")
     else:
         custom_print("error", "Something went wrong, assistant was not updated...")
         return _modify_assisstant(model, name, instructions, tools)
-    
+
+
 ## Delete assistant
+
 
 def _delete_assistant(model, assistants):
     client = openai.OpenAI(api_key=model["api_key"])
@@ -335,13 +350,16 @@ def _delete_assistant(model, assistants):
         os.remove(assistant_path)
         custom_print("info", f"Assistant {assistant_path}  successfully deleted.")
 
+
 # Threads
 ## Create thread
+
 
 def _create_thread(model) -> str:
     client = openai.OpenAI(api_key=model["api_key"])
     thread = client.beta.threads.create()
     return thread.id
+
 
 ## Retrieve thread
 ## Modify thread

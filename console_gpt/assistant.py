@@ -38,9 +38,7 @@ def assistant(console, data) -> None:
             case _:
                 user_input = handled_user_input
         try:
-            message = client.beta.threads.messages.create(
-                thread_id=data.thread_id, role="user", content=user_input
-            )
+            message = client.beta.threads.messages.create(thread_id=data.thread_id, role="user", content=user_input)
         except openai.NotFoundError as e:
             custom_print(
                 "error",
@@ -56,6 +54,7 @@ def assistant(console, data) -> None:
         conversation, new_replies = update_conversation(client, conversation, data.thread_id)
         for reply in new_replies:
             assistance_reply(reply["content"], capitalize(data.assistant_name))
+
 
 def run_thread(client, assistant_id, thread_id):
     try:
@@ -93,7 +92,7 @@ def run_thread(client, assistant_id, thread_id):
 
 
 def update_conversation(client, conversation, thread_id):
-    messages = client.beta.threads.messages.list(thread_id),
+    messages = (client.beta.threads.messages.list(thread_id),)
     messages_list = [
         {"id": message.id, "content": content.text.value}
         for message in messages[0].data
