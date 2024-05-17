@@ -153,9 +153,9 @@ def _assistant_init(model, assistant_tools, role_title, role) -> Tuple:
     # Step 1: Initialize  an Assistant
     assistant = _create_assistant(client, model, assistant_tools, role_title, role)
     # Step 2: Create a Thread
-    thread_id = _create_thread(client)
+    thread_id = _create_thread(model)
     if assistant and thread_id:
-        _save_assistant(model, role_title, assistant.id, thread_id)
+        _save_assistant(client, role_title, assistant.id, thread_id)
     return role_title, assistant.id, thread_id
 
 def _get_local_assistant(name):
@@ -188,7 +188,7 @@ def _save_assistant(model, role_title, assistant_id, thread_id=None):
 
 def _edit_tools(model, assistant):
     id, _ = _get_local_assistant(assistant)
-    remote_assistant = _get_remote_assistant(model, id)
+    name, instructions, tools = _get_remote_assistant(model, id)
     edit_menu = ["Done editing", "Edit Assistant tools", "Update Assistant instructions"]
     edit_menu_selection = base_multiselect_menu(
         "Assistant settings",
@@ -203,19 +203,18 @@ def _edit_tools(model, assistant):
             new_assistant_tools = _select_assistant_tools()
             _modify_assisstant(
                 model,
-                remote_assistant["name"],
-                remote_assistant["instructions"],
+                name,
+                instructions,
                 new_assistant_tools,
-                remote_assistant["file_ids"],
             )
             return _edit_tools(model, assistant)
         case "Update Assistant instructions":
             new_assistant_instructions = _add_custom_role(assistant, True)
             _modify_assisstant(
                 model,
-                remote_assistant["name"],
+                name,
                 new_assistant_instructions,
-                remote_assistant["tools"],
+                tools,
             )
             return _edit_tools(model, assistant)
 
@@ -258,8 +257,8 @@ def _list_assistants(model) -> Optional[List[str]]:
         limit="20",
     )
     remote_assistants = [
-        {"assistant_id": assistant["id"], "role_title": decapitalize(assistant["name"])}
-        for assistant in list_assistants["data"]
+        {"assistant_id": assistant.id, "role_title": decapitalize(assistant.name)}
+        for assistant in list_assistants
     ]
     remote_assistants_roles = {d["role_title"] for d in remote_assistants}
     # Remove local assistants that do not exist online
@@ -284,9 +283,13 @@ def _list_assistants(model) -> Optional[List[str]]:
 
 def _get_remote_assistant(model, id):
     client = openai.OpenAI(api_key=model["api_key"])
-    assistant = client.beta.assistants.retrieve(id)
-    if assistant["id"] == id:
-        return assistant
+    assistant = client.beta.assistants.retrieve(id).model_dump_json()
+    assistant_json = json.loads(assistant)
+    if assistant_json["id"] == id:
+        name = assistant_json["name"]
+        instructions = assistant_json["instructions"]
+        tools = assistant_json["tools"]
+        return name, instructions, tools
     else:
         custom_print("error", "Something went wrong, assistant was not retrieved...")
         return _get_remote_assistant(model, id)
@@ -298,14 +301,14 @@ def _modify_assisstant(model, name, instructions, tools):
     new_tools = [] if tools == None else tools
     id, _ = _get_local_assistant(name)
     updated_assistant = client.beta.assistants.update(
-        id,
-        {"instructions": instructions,
-        "name": name,
-        "tools": new_tools,
-        "model": model["model_name"]}
-    )
-                                                      
-    if updated_assistant["tools"] == new_tools and updated_assistant["instructions"] == instructions:
+        assistant_id=id,
+        instructions=instructions,
+        name=name,
+        tools=new_tools,
+        model=model["model_name"]
+    ).model_dump_json() 
+    updated_assistant_json = json.loads(updated_assistant)
+    if updated_assistant_json["tools"] == new_tools and updated_assistant_json["instructions"] == instructions:
         custom_print("info", f"Assistant {name} was succesfully updated!")
     else:
         custom_print("error", "Something went wrong, assistant was not updated...")
@@ -335,7 +338,8 @@ def _delete_assistant(model, assistants):
 # Threads
 ## Create thread
 
-def _create_thread(client) -> str:
+def _create_thread(model) -> str:
+    client = openai.OpenAI(api_key=model["api_key"])
     thread = client.beta.threads.create()
     return thread.id
 

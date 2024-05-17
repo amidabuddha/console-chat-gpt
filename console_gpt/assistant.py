@@ -94,12 +94,11 @@ def run_thread(client, assistant_id, thread_id):
 
 def update_conversation(client, conversation, thread_id):
     messages = client.beta.threads.messages.list(thread_id),
-    # Parse the JSON object to extract the required information
     messages_list = [
-        {"id": message["id"], "content": content["text"]["value"]}
-        for message in messages["data"]
-        for content in message["content"]
-        if content["type"] == "text"
+        {"id": message.id, "content": content.text.value}
+        for message in messages[0].data
+        for content in message.content
+        if content.type == "text"
     ]
     messages_list.reverse()
     # Find the index of the dictionary with the specified id
