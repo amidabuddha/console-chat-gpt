@@ -14,7 +14,6 @@ TIMEOUT = 300
 def assistant(console, data) -> None:
     client = openai.OpenAI(api_key=data.model["api_key"])
     # Step 3: Add a Message to a Thread
-    message_files = []
     while True:
         user_input = assistant_user_prompt()
         # Command Handler
