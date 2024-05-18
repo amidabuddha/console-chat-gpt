@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import textwrap
+import time
 from typing import List, Optional, Tuple
 
 import openai
@@ -18,6 +19,8 @@ from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_settings_menu)
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
+
+TIMEOUT = 300
 
 # Internal Functions
 ## Menus
@@ -367,12 +370,70 @@ def _create_thread(model) -> str:
 
 # Messages
 ## Create message
+
+def create_message(client, thread_id, user_input):
+    message = client.beta.threads.messages.create(thread_id=thread_id, role="user", content=user_input)
+    return message
 ## List message
+
+def update_conversation(client, conversation, thread_id):
+    messages = (client.beta.threads.messages.list(thread_id),)
+    messages_list = [
+        {"id": message.id, "content": content.text.value}
+        for message in messages[0].data
+        for content in message.content
+        if content.type == "text"
+    ]
+    messages_list.reverse()
+    # Find the index of the dictionary with the specified id
+    index = next((i for i, message in enumerate(messages_list) if message["id"] == conversation), None)
+    # Slice the list from the next index to the end if the index was found
+    new_messages = messages_list[index + 1 :] if index is not None else []
+    # Get the 'id' of the last item in the filtered list if it's not empty
+    conversation = messages_list[-1]["id"] if new_messages else None
+    # Reverse the list
+    return (conversation, new_messages)
+
 ## Retrieve message
 ## Modify message
 ## Delete message
 
 # Runs
+
+def run_thread(client, assistant_id, thread_id):
+    try:
+        run = client.beta.threads.runs.create(
+            thread_id=thread_id,
+            assistant_id=assistant_id,
+        )
+        # Step 5: Check the Run status
+        start_time = time.time()
+        while run.status != "completed":
+            run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+            match run.status:
+                case "expired":
+                    custom_print("error", "Maximum wait time exceeded, please try again")
+                    break
+                case "cancelled":
+                    custom_print("error", "Request interrupted, please submit a new one")
+                    break
+                case "failed":
+                    custom_print("error", run.last_error)
+                    break
+            time.sleep(2)
+            current_time = time.time()
+            if (current_time - start_time) > TIMEOUT:
+                custom_print("error", "Maximum wait time exceeded")
+                run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
+                break  # Exit the loop if more than 5 minutes have passed
+            continue
+    except KeyboardInterrupt:
+        run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
+        # Notifying the user about the interrupt but continues normally.
+        custom_print("info", "Interrupted the request. Continue normally.")
+    except openai.BadRequestError as e:
+        print(e)
+
 ## Create run
 ## Create thread and run
 ## Retrieve run
