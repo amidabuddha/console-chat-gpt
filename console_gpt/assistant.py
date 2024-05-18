@@ -2,10 +2,12 @@ import openai
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize
-from console_gpt.menus.assistant_menu import create_message, run_thread, update_conversation
+from console_gpt.menus.assistant_menu import (create_message, run_thread,
+                                              update_conversation)
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.user_prompt import assistant_user_prompt
+
 
 def assistant(console, data) -> None:
     client = openai.OpenAI(api_key=data.model["api_key"])
@@ -49,5 +51,3 @@ def assistant(console, data) -> None:
         conversation, new_replies = update_conversation(client, conversation, data.thread_id)
         for reply in new_replies:
             assistance_reply(reply["content"], capitalize(data.assistant_name))
-
-

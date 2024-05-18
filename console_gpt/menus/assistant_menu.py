@@ -371,10 +371,14 @@ def _create_thread(model) -> str:
 # Messages
 ## Create message
 
+
 def create_message(client, thread_id, user_input):
     message = client.beta.threads.messages.create(thread_id=thread_id, role="user", content=user_input)
     return message
+
+
 ## List message
+
 
 def update_conversation(client, conversation, thread_id):
     messages = (client.beta.threads.messages.list(thread_id),)
@@ -394,11 +398,13 @@ def update_conversation(client, conversation, thread_id):
     # Reverse the list
     return (conversation, new_messages)
 
+
 ## Retrieve message
 ## Modify message
 ## Delete message
 
 # Runs
+
 
 def run_thread(client, assistant_id, thread_id):
     try:
@@ -433,6 +439,7 @@ def run_thread(client, assistant_id, thread_id):
         custom_print("info", "Interrupted the request. Continue normally.")
     except openai.BadRequestError as e:
         print(e)
+
 
 ## Create run
 ## Create thread and run
