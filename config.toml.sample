@@ -42,21 +42,37 @@ nutritionist = "Advise on nutrition blending science with practicality, focusing
 scientist = "Make science engaging and understandable across math, physics, chemistry, and biology."
 assistant = "Deliver precise and informative virtual assistance for any inquiry efficiently."
 
-[chat.models.gpt3]
-api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.0005
-model_max_tokens = 4096
-model_name = "gpt-3.5-turbo"
-model_output_pricing_per_1k = 0.0015
+# [chat.models.gpt3]
+# api_key = "YOUR_OPENAI_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.0005
+# model_max_tokens = 4096
+# model_name = "gpt-3.5-turbo"
+# model_output_pricing_per_1k = 0.0015
+
+# [chat.models.gpt4]
+# api_key = "YOUR_OPENAI_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.01
+# model_max_tokens = 4096
+# model_name = "gpt-4-turbo"
+# model_output_pricing_per_1k = 0.03
 
 [chat.models.gpt4]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k = 0.01
+model_input_pricing_per_1k = 0.00015
 model_max_tokens = 4096
-model_name = "gpt-4-turbo"
-model_output_pricing_per_1k = 0.03
+model_name = "gpt-4o-mini"
+model_output_pricing_per_1k = 0.0006
+
+# [chat.models.gpt4]
+# api_key = "YOUR_OPENAI_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.005
+# model_max_tokens = 4096
+# model_name = "gpt-4o"
+# model_output_pricing_per_1k = 0.015
 
 # [chat.models.mistral]
 # api_key = "YOUR_MISTRALAI_API_KEY"
@@ -66,13 +82,13 @@ model_output_pricing_per_1k = 0.03
 # model_name = "mistral-small-latest"
 # model_output_pricing_per_1k = 0.006
 
-[chat.models.mistral]
-api_key = "YOUR_MISTRALAI_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.0027
-model_max_tokens = 0
-model_name = "mistral-medium-latest"
-model_output_pricing_per_1k = 0.0081
+# [chat.models.mistral]
+# api_key = "YOUR_MISTRALAI_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.0027
+# model_max_tokens = 0
+# model_name = "mistral-medium-latest"
+# model_output_pricing_per_1k = 0.0081
 
 # [chat.models.mistral]
 # api_key = "YOUR_MISTRALAI_API_KEY"
@@ -82,26 +98,26 @@ model_output_pricing_per_1k = 0.0081
 # model_name = "mistral-large-latest"
 # model_output_pricing_per_1k = 0.024
 
-[chat.models.anthropic-haiku]
-api_key = "YOUR_ANTHROPIC_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.00025
-model_max_tokens = 4096
-model_name = "claude-3-haiku-20240307"
-model_output_pricing_per_1k = 0.00125
+# [chat.models.anthropic-haiku]
+# api_key = "YOUR_ANTHROPIC_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.00025
+# model_max_tokens = 4096
+# model_name = "claude-3-haiku-20240307"
+# model_output_pricing_per_1k = 0.00125
 
 [chat.models.anthropic-sonnet]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k = 0.003
 model_max_tokens = 4096
-model_name = "claude-3-sonnet-20240229"
+model_name = "claude-3-5-sonnet-20240620"
 model_output_pricing_per_1k = 0.015
 
-[chat.models.anthropic-opus]
-api_key = "YOUR_ANTHROPIC_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.015
-model_max_tokens = 4096
-model_name = "claude-3-opus-20240229"
-model_output_pricing_per_1k = 0.075
+# [chat.models.anthropic-opus]
+# api_key = "YOUR_ANTHROPIC_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.015
+# model_max_tokens = 4096
+# model_name = "claude-3-opus-20240229"
+# model_output_pricing_per_1k = 0.075
