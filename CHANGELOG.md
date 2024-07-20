@@ -1,7 +1,6 @@
 > Features:
 - [298f012] [Feature] Bump version
 - [669b1ae] [Feature] Add PDF file reading support
-- [8a1d1fe] [Feature] Adding support for web browsing (manual bump)
 
 > Improvements:
 - [5f74c92] [Improvement] Set styles and help items as constants
