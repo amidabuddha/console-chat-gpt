@@ -50,7 +50,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_name = "gpt-3.5-turbo"
 # model_output_pricing_per_1k = 0.0015
 
-# [chat.models.gpt4]
+# [chat.models.gpt4-turbo]
 # api_key = "YOUR_OPENAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.01
@@ -58,7 +58,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_name = "gpt-4-turbo"
 # model_output_pricing_per_1k = 0.03
 
-[chat.models.gpt4]
+[chat.models.gpt4-4o-mini]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k = 0.00015
@@ -66,7 +66,7 @@ model_max_tokens = 4096
 model_name = "gpt-4o-mini"
 model_output_pricing_per_1k = 0.0006
 
-# [chat.models.gpt4]
+# [chat.models.gpt4-4o]
 # api_key = "YOUR_OPENAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.005
@@ -74,7 +74,7 @@ model_output_pricing_per_1k = 0.0006
 # model_name = "gpt-4o"
 # model_output_pricing_per_1k = 0.015
 
-# [chat.models.mistral]
+# [chat.models.mistral-small]
 # api_key = "YOUR_MISTRALAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.002
@@ -82,7 +82,7 @@ model_output_pricing_per_1k = 0.0006
 # model_name = "mistral-small-latest"
 # model_output_pricing_per_1k = 0.006
 
-# [chat.models.mistral]
+# [chat.models.mistral-medium]
 # api_key = "YOUR_MISTRALAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.0027
@@ -90,7 +90,7 @@ model_output_pricing_per_1k = 0.0006
 # model_name = "mistral-medium-latest"
 # model_output_pricing_per_1k = 0.0081
 
-# [chat.models.mistral]
+# [chat.models.mistral-large]
 # api_key = "YOUR_MISTRALAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.008

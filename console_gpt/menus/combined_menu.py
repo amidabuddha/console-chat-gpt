@@ -35,7 +35,7 @@ def combined_menu() -> ChatObject | AssistantObject:
     model = model_menu()
     if model["api_key"] in ("YOUR_OPENAI_API_KEY", "YOUR_MISTRALAI_API_KEY", "YOUR_ANTHROPIC_API_KEY"):
         model = set_api_key(model)
-    assistant = assistant_menu(model) if model["model_title"] in ("gpt3", "gpt4") else None
+    assistant = assistant_menu(model) if model["model_title"].lower().startswith(("gpt3", "gpt4")) else None
     if assistant:
         return AssistantObject(
             model=model, assistant_name=assistant[0], assistant_id=assistant[1], thread_id=assistant[2]
