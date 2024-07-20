@@ -5,7 +5,6 @@
 > Improvements:
 - [5f74c92] [Improvement] Set styles and help items as constants
 - [2a484d1] [Improvement] Minor changes to error printing
-- [641b806] [Improvement] Handle empty body pages
 
 > Bug Fixes:
 - [e408039] [Bugfix] Fix nasty bug where lines are not properly wrapped and chars gone missing
