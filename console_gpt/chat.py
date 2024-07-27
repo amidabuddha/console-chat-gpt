@@ -78,21 +78,6 @@ def chat(console, data, managed_user_prompt) -> None:
                         messages=mistral_messages(conversation),
                     )
                 elif model_title.startswith("anthropic"):
-                    # headers = {
-                    #     "x-api-key": api_key,
-                    #     "anthropic-version": "2023-06-01",
-                    #     "content-type": "application/json",
-                    # }
-                    # payload = {
-                    #     "model": model_name,
-                    #     "max_tokens": model_max_tokens,
-                    #     "temperature": (float(temperature) / 2),
-                    #     "system": role,
-                    #     "messages": conversation,
-                    # }
-                    # response = requests.post(
-                    #     "https://api.anthropic.com/v1/messages", json=payload, headers=headers
-                    # ).json()
                     response = client.messages.create(
                         model=model_name,
                         max_tokens=model_max_tokens,
@@ -101,12 +86,6 @@ def chat(console, data, managed_user_prompt) -> None:
                         messages=conversation,
                     ).model_dump_json()
                 else:
-                    # response = client.chat.completions.create(
-                    #     model=model_name,
-                    #     temperature=temperature,
-                    #     messages=conversation,
-                    #     max_tokens=model_max_tokens,
-                    # )
                     response = client.chat.completions.create(
                         model=model_name,
                         temperature=temperature,
