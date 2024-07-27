@@ -5,10 +5,10 @@
 - [f12f852] [Improvement] Update instructions for AI managed mode
 
 > Others:
+- [104df4e] [Other] Bump openai version
+- [b022ea0] [Other] Bump anthropic version
 - [9ff4017] [Other] Bump mistralai version and update large model pricing
 - [ed28964] [Others] Minor restructuring
-- [b1d302f] [Others] Replace all http requests with openai client calls
-- [94975ec] [Others] Refactoring to support assistants v2
 
 
 ---
