@@ -29,7 +29,7 @@ def chat(console, data, managed_user_prompt) -> None:
     ) = data.model.values()
 
     # Initiate API
-    if model_title == "mistral":
+    if model_title.startswith("mistral"):
         client = MistralClient(api_key=api_key)
     elif model_title.startswith("anthropic"):
         client = anthropic.Anthropic(api_key=api_key)
@@ -71,7 +71,7 @@ def chat(console, data, managed_user_prompt) -> None:
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
-                if model_title == "mistral":
+                if model_title.startswith("mistral"):
                     response = client.chat(
                         model=model_name,
                         temperature=float(temperature) / 2,

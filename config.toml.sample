@@ -93,10 +93,10 @@ model_output_pricing_per_1k = 0.0006
 # [chat.models.mistral-large]
 # api_key = "YOUR_MISTRALAI_API_KEY"
 # api_usage = 0
-# model_input_pricing_per_1k = 0.008
+# model_input_pricing_per_1k = 0.003
 # model_max_tokens = 0
 # model_name = "mistral-large-latest"
-# model_output_pricing_per_1k = 0.024
+# model_output_pricing_per_1k = 0.009
 
 # [chat.models.anthropic-haiku]
 # api_key = "YOUR_ANTHROPIC_API_KEY"
