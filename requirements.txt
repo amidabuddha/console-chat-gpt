@@ -1,4 +1,4 @@
-anthropic~=0.19.1
+anthropic~=0.31.2
 mistralai~=0.4.2
 openai~=1.36.0
 pillow~=10.3.0
