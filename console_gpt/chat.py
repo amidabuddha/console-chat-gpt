@@ -10,10 +10,57 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
+from typing import List, Dict, Union
 
 
 def mistral_messages(message_dicts):
-    return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in message_dicts]
+    return [
+        ChatMessage(role=msg["role"], content=msg["content"]) for msg in message_dicts
+    ]
+
+
+def _cache_message_struct(data: str) -> Dict:
+    return {"type": "text", "text": data, "cache_control": {"type": "ephemeral"}}
+
+
+def antropic_cache_message(
+    data_to_cache: Union[List[Dict], str], is_role: bool = False
+) -> List[Dict]:
+    # Enable role caching (only if above 1024 tokens by default)
+    if is_role:
+        return [_cache_message_struct(data_to_cache)]
+
+    message = data_to_cache[0]
+    message["content"] = [_cache_message_struct(message["content"])]
+    return [message]
+
+
+def antropic_handle_beta_features(client, **model_data):
+    supported_beta_models = {"haiku", "sonnet"}
+    model = model_data.get("model", "")
+    beta_on = any(beta_model in model for beta_model in supported_beta_models)
+
+    if len(model_data["messages"]) > 1 and beta_on:
+        return client.beta.prompt_caching.messages.create(**model_data)
+
+    if beta_on:
+        # Handle system message
+        system_content = model_data.get("system", "")
+        model_data["system"] = [_cache_message_struct(system_content)]
+
+        # Handle user messages
+        messages = model_data.get("messages", [])
+        processed_messages = []
+        for message in messages:
+            if message["role"] == "user":
+                if isinstance(message["content"], str):
+                    message["content"] = [_cache_message_struct(message["content"])]
+            processed_messages.append(message)
+        model_data["messages"] = processed_messages
+
+        return client.beta.prompt_caching.messages.create(**model_data)
+
+    return client.messages.create(**model_data)
 
 
 def chat(console, data, managed_user_prompt) -> None:
@@ -33,13 +80,19 @@ def chat(console, data, managed_user_prompt) -> None:
         client = MistralClient(api_key=api_key)
     elif model_title.startswith("anthropic"):
         client = anthropic.Anthropic(api_key=api_key)
-        role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
+        role = (
+            data.conversation[0]["content"]
+            if data.conversation[0]["role"] == "system"
+            else ""
+        )
     else:
         client = openai.OpenAI(api_key=api_key)
 
     # Set defaults
     if model_title.startswith("anthropic"):
-        conversation = [message for message in data.conversation if message["role"] != "system"]
+        conversation = [
+            message for message in data.conversation if message["role"] != "system"
+        ]
     else:
         conversation = data.conversation
     temperature = data.temperature
@@ -56,7 +109,9 @@ def chat(console, data, managed_user_prompt) -> None:
         if not user_input:  # Used to catch SIGINT
             save_chat(conversation, ask=True)
         # Command Handler
-        handled_user_input = command_handler(model_title, model_name, user_input["content"], conversation)
+        handled_user_input = command_handler(
+            model_title, model_name, user_input["content"], conversation
+        )
         match handled_user_input:
             case "continue" | None:
                 continue
@@ -69,7 +124,9 @@ def chat(console, data, managed_user_prompt) -> None:
         conversation.append(user_input)
 
         # Start the loading bar until API response is returned
-        with console.status("[bold green]Generating a response...", spinner="aesthetic"):
+        with console.status(
+            "[bold green]Generating a response...", spinner="aesthetic"
+        ):
             try:
                 if model_title.startswith("mistral"):
                     response = client.chat(
@@ -78,7 +135,8 @@ def chat(console, data, managed_user_prompt) -> None:
                         messages=mistral_messages(conversation),
                     )
                 elif model_title.startswith("anthropic"):
-                    response = client.messages.create(
+                    response = antropic_handle_beta_features(
+                        client,
                         model=model_name,
                         max_tokens=model_max_tokens,
                         temperature=float(temperature) / 2,
@@ -98,8 +156,14 @@ def chat(console, data, managed_user_prompt) -> None:
                 print(e.__cause__)
             except (openai.RateLimitError, anthropic.RateLimitError) as e:
                 error_appeared = True
-                print(f"A 429 status code was received; we should back off a bit. - {e}")
-            except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
+                print(
+                    f"A 429 status code was received; we should back off a bit. - {e}"
+                )
+            except (
+                openai.APIStatusError,
+                anthropic.APIStatusError,
+                anthropic.BadRequestError,
+            ) as e:
                 error_appeared = True
                 print("Another non-200-range status code was received")
                 print(e.status_code)
