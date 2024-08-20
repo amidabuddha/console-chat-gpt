@@ -52,5 +52,5 @@ def multiline_prompt() -> Optional[str]:
     if not additional_data:
         custom_print("info", "Cancelled. Continuing normally!")
         return None, None
-    
+
     return additional_data, multiline_data

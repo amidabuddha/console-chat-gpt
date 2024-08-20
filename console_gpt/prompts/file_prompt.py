@@ -98,6 +98,6 @@ def file_prompt() -> Optional[str]:
     )
 
     if additional_data:
-        return additional_data, f'This is the content of a file:\n{content}'
+        return additional_data, f"This is the content of a file:\n{content}"
     else:
-        return "This is the content of a file.", f'This is the content of a file:\n{content}'
+        return "This is the content of a file.", f"This is the content of a file:\n{content}"
