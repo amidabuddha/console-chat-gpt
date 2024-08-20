@@ -1,3 +1,6 @@
+> Features:
+- [19bc4e0] [Feature] Add Prompt caching with Claude
+
 > Improvements:
 - [f12f852] [Improvement] Update instructions for AI managed mode
 
@@ -7,7 +10,6 @@
 - [104df4e] [Other] Bump openai version
 - [b022ea0] [Other] Bump anthropic version
 - [9ff4017] [Other] Bump mistralai version and update large model pricing
-- [ed28964] [Others] Minor restructuring
 
 
 ---

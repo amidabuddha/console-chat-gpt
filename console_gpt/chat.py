@@ -74,7 +74,7 @@ def chat(console, data, managed_user_prompt) -> None:
 
         # Add user's input to the overall conversation
         conversation.append(user_input)
-        
+
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
@@ -92,14 +92,10 @@ def chat(console, data, managed_user_prompt) -> None:
                             temperature=float(temperature) / 2,
                             system=[
                                 {
-                                    "type": "text", 
+                                    "type": "text",
                                     "text": role,
                                 },
-                                {
-                                    "type": "text", 
-                                    "text": cached,
-                                    "cache_control": {"type": "ephemeral"}
-                                }
+                                {"type": "text", "text": cached, "cache_control": {"type": "ephemeral"}},
                             ],
                             messages=conversation,
                         ).model_dump_json()
