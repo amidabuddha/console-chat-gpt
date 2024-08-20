@@ -58,7 +58,7 @@ def additional_info(content: str) -> str:
         style=style,
         qmark="❯",
     )
-    
+
     if additional_data:
         return additional_data, content
     else:
