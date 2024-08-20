@@ -26,7 +26,7 @@ def assistant(console, data) -> None:
         elif user_input.lower() in ["flush", "new"]:
             break
         # TODO implement dedicated command handler for assistants
-        handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "")
+        handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "", True)
         match handled_user_input:
             case "continue" | None:
                 continue

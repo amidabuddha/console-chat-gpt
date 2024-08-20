@@ -84,11 +84,11 @@ def file_prompt() -> Optional[str]:
     """
     file_name = browser_files("Select a file:", "File selection cancelled.", _validate_file)
     if not file_name:
-        return None
+        return None, None
     content = _read_file(file_name)
     if not content:
         custom_print("info", "The file seems to be empty. Skipping.")
-        return None
+        return None, None
 
     additional_data = custom_input(
         auto_exit=False,
@@ -96,4 +96,8 @@ def file_prompt() -> Optional[str]:
         style=style,
         qmark="❯",
     )
-    return additional_data, content
+
+    if additional_data:
+        return additional_data, content
+    else:
+        return "This is the content of a file.", content

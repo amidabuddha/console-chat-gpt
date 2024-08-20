@@ -58,7 +58,8 @@ def additional_info(content: str) -> str:
         style=style,
         qmark="❯",
     )
-    if additional_data is None:
-        custom_print("sigint", "Aborted web scraping!")
-        return "continue"
-    return additional_data, content
+    
+    if additional_data:
+        return additional_data, content
+    else:
+        return "This is the content of a webpage.", content

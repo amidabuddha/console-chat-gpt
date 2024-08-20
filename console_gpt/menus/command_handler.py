@@ -28,16 +28,22 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             custom_print("warn", "Edit last message is not yet implemented")
             return "continue"
         case "file":
+            clarification, file_data = file_prompt()
+            if not file_data:
+                return "continue"
             if cached:
-                user_input = "%s:\n%s" % file_prompt()
+                user_input = f'"{clarification}:\n{file_data}"'
             else:
-                user_input = file_prompt()
+                user_input = clarification, file_data
             return user_input
         case "format":
+            clarification, multiline_data = multiline_prompt()
+            if not multiline_data:
+                return "continue"
             if cached:
-                user_input = "%s:\n%s" % multiline_prompt()
+                user_input = f"{clarification}:\n{multiline_data}"
             else:
-                user_input = multiline_prompt()
+                user_input = clarification, multiline_data
             return user_input
         case "flush" | "new":
             # simply breaks this loop (inner) which start the outer one
@@ -52,10 +58,11 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
         case "browser":
             web_content, success = page_content(input_url())
             if success:
+                clarification, webpage_data = additional_info(web_content)
                 if cached:
-                    user_input = "%s:\n%s" % additional_info(web_content)
+                    user_input = f"{clarification}:\n{webpage_data}"
                 else:
-                    user_input = additional_info(web_content)
+                    user_input = clarification, webpage_data
                 return user_input
             return "continue"
         case "image":
@@ -71,8 +78,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                     f"Cannot upload images into Anthropic Prompt Cache",
                 )
                 return "continue"
-            user_input = upload_image(model_title)
-            return user_input
+            return upload_image(model_title)
         case "exit" | "quit" | "bye":
             save_chat(conversation, ask=True)
         case _:
