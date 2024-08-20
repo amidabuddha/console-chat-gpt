@@ -49,4 +49,4 @@ def multiline_prompt() -> Optional[str]:
         style=style,
         qmark="❯",
     )
-    return f"{additional_data}:\n{multiline_data}" if additional_data else multiline_data
+    return additional_data, multiline_data

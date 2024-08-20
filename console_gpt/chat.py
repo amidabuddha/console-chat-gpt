@@ -17,6 +17,8 @@ def mistral_messages(message_dicts):
 
 
 def chat(console, data, managed_user_prompt) -> None:
+    cached = False
+    use_beta = False
     # Assign all variables at once via the Object returned by the menu
     (
         api_key,
@@ -51,23 +53,28 @@ def chat(console, data, managed_user_prompt) -> None:
         if managed_user_prompt:
             user_input = managed_user_prompt
             managed_user_prompt = False
+            cached = True
         else:
             user_input = chat_user_prompt()
         if not user_input:  # Used to catch SIGINT
             save_chat(conversation, ask=True)
         # Command Handler
-        handled_user_input = command_handler(model_title, model_name, user_input["content"], conversation)
+        handled_user_input = command_handler(model_title, model_name, user_input["content"], conversation, cached)
         match handled_user_input:
             case "continue" | None:
                 continue
             case "break":
                 break
             case _:
-                user_input["content"] = handled_user_input
+                if model_title.startswith("anthropic") and not cached:
+                    user_input["content"], cached = handled_user_input
+                    use_beta = True
+                else:
+                    user_input["content"] = handled_user_input
 
         # Add user's input to the overall conversation
         conversation.append(user_input)
-
+        
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
@@ -78,13 +85,32 @@ def chat(console, data, managed_user_prompt) -> None:
                         messages=mistral_messages(conversation),
                     )
                 elif model_title.startswith("anthropic"):
-                    response = client.messages.create(
-                        model=model_name,
-                        max_tokens=model_max_tokens,
-                        temperature=float(temperature) / 2,
-                        system=role,
-                        messages=conversation,
-                    ).model_dump_json()
+                    if use_beta:
+                        response = client.beta.prompt_caching.messages.create(
+                            model=model_name,
+                            max_tokens=model_max_tokens,
+                            temperature=float(temperature) / 2,
+                            system=[
+                                {
+                                    "type": "text", 
+                                    "text": role,
+                                },
+                                {
+                                    "type": "text", 
+                                    "text": cached,
+                                    "cache_control": {"type": "ephemeral"}
+                                }
+                            ],
+                            messages=conversation,
+                        ).model_dump_json()
+                    else:
+                        response = client.messages.create(
+                            model=model_name,
+                            max_tokens=model_max_tokens,
+                            temperature=float(temperature) / 2,
+                            system=role,
+                            messages=conversation,
+                        ).model_dump_json()
                 else:
                     response = client.chat.completions.create(
                         model=model_name,

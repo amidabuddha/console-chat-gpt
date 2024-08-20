@@ -61,6 +61,4 @@ def additional_info(content: str) -> str:
     if additional_data is None:
         custom_print("sigint", "Aborted web scraping!")
         return "continue"
-    if additional_data:
-        content = additional_data + ":\n" + content
-    return content
+    return additional_data, content

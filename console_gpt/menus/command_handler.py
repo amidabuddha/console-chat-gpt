@@ -11,7 +11,7 @@ from console_gpt.prompts.url_prompt import additional_info, input_url
 from console_gpt.scrape_page import page_content
 
 
-def command_handler(model_title, model_name, user_input, conversation) -> Optional[str]:
+def command_handler(model_title, model_name, user_input, conversation, cached) -> Optional[str]:
     """
     Handled specific keywords as features if entered by the user
     :return: None or modified user input string or hint for the caller function loop or exits the application
@@ -28,10 +28,16 @@ def command_handler(model_title, model_name, user_input, conversation) -> Option
             custom_print("warn", "Edit last message is not yet implemented")
             return "continue"
         case "file":
-            user_input = file_prompt()
+            if cached:
+                user_input = "%s:\n%s" % file_prompt()
+            else:
+                user_input = file_prompt()
             return user_input
         case "format":
-            user_input = multiline_prompt()
+            if cached:
+                user_input = "%s:\n%s" % multiline_prompt()
+            else:
+                user_input = multiline_prompt()
             return user_input
         case "flush" | "new":
             # simply breaks this loop (inner) which start the outer one
@@ -46,9 +52,12 @@ def command_handler(model_title, model_name, user_input, conversation) -> Option
         case "browser":
             web_content, success = page_content(input_url())
             if success:
-                return additional_info(web_content)
+                if cached:
+                    user_input = "%s:\n%s" % additional_info(web_content)
+                else:
+                    user_input = additional_info(web_content)
+                return user_input
             return "continue"
-
         case "image":
             if not model_title.lower().startswith(("gpt4", "anthropic")):
                 custom_print(
@@ -56,9 +65,18 @@ def command_handler(model_title, model_name, user_input, conversation) -> Option
                     f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
                 )
                 return "continue"
+            if model_title.lower().startswith("anthropic") and not cached:
+                custom_print(
+                    "error",
+                    f"Cannot upload images into Anthropic Prompt Cache",
+                )
+                return "continue"
             user_input = upload_image(model_title)
             return user_input
         case "exit" | "quit" | "bye":
             save_chat(conversation, ask=True)
         case _:
-            return user_input
+            if cached:
+                return user_input
+            else:
+                return user_input, str(cached)

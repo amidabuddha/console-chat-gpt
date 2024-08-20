@@ -115,7 +115,7 @@ def command_catcher(assistant):
             continue
         # Command Handler
         handled_prompt = command_handler(
-            assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt
+            assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt, True
         )
         match handled_prompt:
             case "continue" | None:

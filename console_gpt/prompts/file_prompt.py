@@ -96,6 +96,4 @@ def file_prompt() -> Optional[str]:
         style=style,
         qmark="❯",
     )
-    if additional_data:
-        content = additional_data + ":\n" + content
-    return content
+    return additional_data, content
