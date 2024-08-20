@@ -2,6 +2,7 @@
 - [19bc4e0] [Feature] Add Prompt caching with Claude
 
 > Improvements:
+- [bfd9680] [Improvement] Upgrade requests to cover CVE-2024-35195
 - [f12f852] [Improvement] Update instructions for AI managed mode
 
 > Others:
