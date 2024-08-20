@@ -60,6 +60,6 @@ def additional_info(content: str) -> str:
     )
 
     if additional_data:
-        return additional_data, content
+        return additional_data, f'This is the content of a webpage:\n{content}'
     else:
-        return "This is the content of a webpage.", content
+        return "This is the content of a webpage.", f'This is the content of a webpage:\n{content}'

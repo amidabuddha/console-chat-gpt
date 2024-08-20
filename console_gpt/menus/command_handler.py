@@ -32,7 +32,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             if not file_data:
                 return "continue"
             if cached:
-                user_input = f'"{clarification}:\n{file_data}"'
+                user_input = f"{clarification}:\n{file_data}"
             else:
                 user_input = clarification, file_data
             return user_input

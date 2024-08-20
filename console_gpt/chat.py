@@ -17,7 +17,7 @@ def mistral_messages(message_dicts):
 
 
 def chat(console, data, managed_user_prompt) -> None:
-    cached = False
+    cached = True
     use_beta = False
     # Assign all variables at once via the Object returned by the menu
     (
@@ -36,6 +36,7 @@ def chat(console, data, managed_user_prompt) -> None:
     elif model_title.startswith("anthropic"):
         client = anthropic.Anthropic(api_key=api_key)
         role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
+        cached = False
     else:
         client = openai.OpenAI(api_key=api_key)
 
@@ -53,7 +54,6 @@ def chat(console, data, managed_user_prompt) -> None:
         if managed_user_prompt:
             user_input = managed_user_prompt
             managed_user_prompt = False
-            cached = True
         else:
             user_input = chat_user_prompt()
         if not user_input:  # Used to catch SIGINT

@@ -45,11 +45,12 @@ def multiline_prompt() -> Optional[str]:
 
     additional_data = custom_input(
         auto_exit=False,
-        message="Additional clarifications? (Press 'ENTER' to skip):",
+        message="Additional clarifications? (Press 'ENTER' to cancel):",
         style=style,
         qmark="❯",
     )
-    if additional_data:
-        return additional_data, multiline_data
-    else:
-        return "", multiline_data
+    if not additional_data:
+        custom_print("info", "Cancelled. Continuing normally!")
+        return None, None
+    
+    return additional_data, multiline_data
