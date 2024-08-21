@@ -2,6 +2,7 @@
 - [19bc4e0] [Feature] Add Prompt caching with Claude
 
 > Improvements:
+- [3210ad7] [Improvement] Fix multiline empty additional prompt
 - [442d73b] [Improvement] some validations
 - [862f16d] [Improvement] Catch interrupts
 - [bfd9680] [Improvement] Upgrade requests to cover CVE-2024-35195
