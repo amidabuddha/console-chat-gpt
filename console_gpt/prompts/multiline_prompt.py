@@ -52,4 +52,4 @@ def multiline_prompt() -> Optional[str]:
     if additional_data:
         return additional_data, f"This is a multiline input:\n{multiline_data}"
     else:
-        return "Please review the multiline input.", f"This is a multiline input:\n{multiline_data}"
+        return None, f"This is a multiline input:\n{multiline_data}"

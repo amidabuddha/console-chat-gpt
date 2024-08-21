@@ -31,19 +31,31 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             clarification, file_data = file_prompt()
             if not file_data:
                 return "continue"
-            if cached:
-                user_input = f"{clarification}:\n{file_data}"
+            if not clarification:
+                if cached:
+                    user_input = file_data
+                else:
+                    user_input = "This is the content of a file.", file_data
             else:
-                user_input = clarification, file_data
+                if cached:
+                    user_input = f"{clarification}:\n{file_data}"
+                else:
+                    user_input = clarification, file_data
             return user_input
         case "format":
             clarification, multiline_data = multiline_prompt()
             if not multiline_data:
                 return "continue"
-            if cached:
-                user_input = f"{clarification}:\n{multiline_data}"
+            if not clarification:
+                if cached:
+                    user_input = multiline_data
+                else:
+                    user_input = "Please review the multiline input.", multiline_data
             else:
-                user_input = clarification, multiline_data
+                if cached:
+                    user_input = f"{clarification}:\n{multiline_data}"
+                else:
+                    user_input = clarification, multiline_data
             return user_input
         case "flush" | "new":
             # simply breaks this loop (inner) which start the outer one
@@ -59,10 +71,16 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             web_content, success = page_content(input_url())
             if success:
                 clarification, webpage_data = additional_info(web_content)
-                if cached:
-                    user_input = f"{clarification}:\n{webpage_data}"
+                if not clarification:
+                    if cached:
+                        user_input = webpage_data
+                    else:
+                        user_input = "This is the content of a webpage.", webpage_data
                 else:
-                    user_input = clarification, webpage_data
+                    if cached:
+                        user_input = f"{clarification}:\n{webpage_data}"
+                    else:
+                        user_input = clarification, webpage_data
                 return user_input
             return "continue"
         case "image":
