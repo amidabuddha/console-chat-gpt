@@ -49,8 +49,7 @@ def multiline_prompt() -> Optional[str]:
         style=style,
         qmark="❯",
     )
-    if not additional_data:
-        custom_print("info", "Cancelled. Continuing normally!")
-        return None, None
-
-    return additional_data, multiline_data
+    if additional_data:
+        return additional_data, f"This is a multiline input:\n{multiline_data}"
+    else:
+        return "Please review the multiline input.", f"This is a multiline input:\n{multiline_data}"
