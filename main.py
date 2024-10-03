@@ -19,7 +19,8 @@ def console_gpt() -> None:
     # Outer loop
     while True:
         managed_user_prompt = False
-        if fetch_variable("features", "ai_managed"):
+        # Covering o1 models beta limitations. More infor here: https://platform.openai.com/docs/guides/reasoning/beta-limitations
+        if fetch_variable("features", "ai_managed") and fetch_variable("defaults", "model") != "o1":
             managed = custom_input(
                 message="Would you like to continue in AI managed mode? (Y/N):",
                 validate=_validate_confirmation,
