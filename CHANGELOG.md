@@ -9,8 +9,5 @@
 - [862f16d] [Improvement] Catch interrupts
 - [bfd9680] [Improvement] Upgrade requests to cover CVE-2024-35195
 
-> Others:
-- [5f522dc] [Other] Add 'browser' command into the autocompletion and help menu
-
 
 ---
