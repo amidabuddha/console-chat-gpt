@@ -44,10 +44,15 @@ def combined_menu() -> ChatObject | AssistantObject:
         continue_chat = select_chat_menu()
         # Ask for role only if we're not continuing any chat
         if not continue_chat:
-            _, role = role_menu()
-            temperature = temperature_prompt()
-            # Generate a base conversation if we're not continuing any chat
-            conversation = [{"role": "system", "content": role}]
+            # Covering o1 models beta limitations. More infor here: https://platform.openai.com/docs/guides/reasoning/beta-limitations
+            if model["model_title"].lower().startswith("o1"):
+                temperature = 1
+                conversation = []
+            else:
+                _, role = role_menu()
+                temperature = temperature_prompt()
+                # Generate a base conversation if we're not continuing any chat
+                conversation = [{"role": "system", "content": role}]
             return ChatObject(model=model, conversation=conversation, temperature=temperature)
         else:
             temperature = temperature_prompt()
