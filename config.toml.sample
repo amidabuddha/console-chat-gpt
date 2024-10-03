@@ -66,7 +66,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_name = "gpt-4o"
 # model_output_pricing_per_1k = 0.01
 
-# [chat.models.gpt4-o1-mini]
+# [chat.models.o1-mini]
 # api_key = "YOUR_OPENAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.003
@@ -74,7 +74,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_name = "o1-mini"
 # model_output_pricing_per_1k = 0.012
 
-# [chat.models.gpt4-o1]
+# [chat.models.o1]
 # api_key = "YOUR_OPENAI_API_KEY"
 # api_usage = 0
 # model_input_pricing_per_1k = 0.015
