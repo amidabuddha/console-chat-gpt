@@ -119,7 +119,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # api_usage = 0
 # model_input_pricing_per_1k = 0.003
 # model_max_tokens = 4096
-# model_name = "claude-3-5-sonnet-20240620"
+# model_name = "claude-3-5-sonnet-20241022"
 # model_output_pricing_per_1k = 0.015
 
 # [chat.models.anthropic-opus]
