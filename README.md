@@ -8,7 +8,7 @@ console-chat-gpt v4
 
 **Your Ultimate CLI Companion for Chatting with AI Models**
 
-_Enjoy seamless interactions with **ChatGPT**, **MistralAI**, and **Claude by Anthropic** directly from your command line. </br>Elevate your chat experience with efficiency and ease._
+_Enjoy seamless interactions with **ChatGPT**, **MistralAI**, **Claude by Anthropic** and **Grok by xAI** directly from your command line. </br>Elevate your chat experience with efficiency and ease._
 
 <h3>
 
@@ -41,8 +41,8 @@ _Enjoy seamless interactions with **ChatGPT**, **MistralAI**, and **Claude by An
 ---
 
 **DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, Anthropic or their subsidiaries in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI or any other related parties. There is no affiliation
+or relationship with OpenAI, MistralAI, Anthropic, xAI or their subsidiaries in any form.
 
 ---
 
