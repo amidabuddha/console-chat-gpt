@@ -109,7 +109,7 @@ def chat(console, data, managed_user_prompt) -> None:
                             system=role,
                             messages=conversation,
                         ).model_dump_json()
-                else: # OpenAI + Grok
+                else:  # OpenAI + Grok
                     response = client.chat.completions.create(
                         model=model_name,
                         temperature=float(temperature),

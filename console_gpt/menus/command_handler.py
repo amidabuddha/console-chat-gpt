@@ -11,9 +11,7 @@ from console_gpt.prompts.url_prompt import additional_info, input_url
 from console_gpt.scrape_page import page_content
 
 
-def command_handler(
-    model_title, model_name, user_input, conversation, cached
-) -> Optional[str]:
+def command_handler(model_title, model_name, user_input, conversation, cached) -> Optional[str]:
     """
     Handled specific keywords as features if entered by the user
     :return: None or modified user input string or hint for the caller function loop or exits the application
