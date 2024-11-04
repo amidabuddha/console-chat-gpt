@@ -3,7 +3,9 @@
 
 > Improvements:
 - [25f4951] [Improvement] Differentiate o1 models from gpt4 models
-- [817f2a0] [Improvement] Avoid sending duplicate mesage lines
+
+> Others:
+- [8112f74] [Other] Update README.md to highlight the new model - Grok
 
 
 ---
