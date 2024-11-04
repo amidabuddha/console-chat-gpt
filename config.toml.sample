@@ -129,3 +129,11 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_max_tokens = 4096
 # model_name = "claude-3-opus-20240229"
 # model_output_pricing_per_1k = 0.075
+
+# [chat.models.grok-beta]
+# api_key = "YOUR_GROK_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.015 # Not Available Yet
+# model_max_tokens = 4096
+# model_name = "grok-beta"
+# model_output_pricing_per_1k = 0.075 # Not Available Yet

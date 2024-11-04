@@ -37,6 +37,8 @@ def chat(console, data, managed_user_prompt) -> None:
         client = anthropic.Anthropic(api_key=api_key)
         role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
         cached = False
+    elif model_title.startswith("grok"):
+        client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
     else:
         client = openai.OpenAI(api_key=api_key)
 
@@ -107,10 +109,10 @@ def chat(console, data, managed_user_prompt) -> None:
                             system=role,
                             messages=conversation,
                         ).model_dump_json()
-                else:
+                else: # OpenAI + Grok
                     response = client.chat.completions.create(
                         model=model_name,
-                        temperature=temperature,
+                        temperature=float(temperature),
                         messages=conversation,
                     )
             # TODO: Handle mistralai.exceptions.MistralAPIException
