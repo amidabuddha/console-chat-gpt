@@ -5,6 +5,7 @@
 - [25f4951] [Improvement] Differentiate o1 models from gpt4 models
 
 > Others:
+- [33283f5] [Other] Update API versions
 - [c120789] [Other] Update pricing
 - [8112f74] [Other] Update README.md to highlight the new model - Grok
 
