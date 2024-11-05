@@ -1,6 +1,6 @@
-anthropic~=0.34.1
+anthropic~=0.39.0
 mistralai~=0.4.2
-openai~=1.41.1
+openai~=1.54.0
 pillow~=10.3.0
 questionary~=2.0.1
 rich~=13.7.0
