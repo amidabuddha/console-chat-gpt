@@ -48,7 +48,7 @@ def chat(console, data, managed_user_prompt) -> None:
             "temperature": float(data.temperature),
         }
         client = genai.GenerativeModel(
-            model_name=model_name, generation_config=generation_config, system_instruction=role
+            model_name=model_name, generation_config=generation_config, system_instruction=role,tools='code_execution'
         )
     else:
         client = openai.OpenAI(api_key=api_key)
