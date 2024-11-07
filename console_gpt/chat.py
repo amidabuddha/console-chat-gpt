@@ -1,10 +1,10 @@
 import json
 
 import anthropic
+import google.generativeai as genai
 import openai
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-import google.generativeai as genai
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
@@ -47,7 +47,9 @@ def chat(console, data, managed_user_prompt) -> None:
         generation_config = {
             "temperature": float(data.temperature),
         }
-        client = genai.GenerativeModel(model_name=model_name, generation_config=generation_config, system_instruction=role)
+        client = genai.GenerativeModel(
+            model_name=model_name, generation_config=generation_config, system_instruction=role
+        )
     else:
         client = openai.OpenAI(api_key=api_key)
 
@@ -57,7 +59,7 @@ def chat(console, data, managed_user_prompt) -> None:
     else:
         conversation = data.conversation
     temperature = data.temperature
-    
+
     # Inner Loop
     while True:
         response = ""  # Adding this to satisfy the IDE
@@ -123,7 +125,7 @@ def chat(console, data, managed_user_prompt) -> None:
                     for item in conversation:
                         if item["role"] == "assistant":
                             item["role"] = "model"
-                        new_item = {'role': item['role'], 'parts': [item['content']]}
+                        new_item = {"role": item["role"], "parts": [item["content"]]}
                         output_list.append(new_item)
                     chat_session = client.start_chat(history=output_list.pop(-1))
                     response = chat_session.send_message(handled_user_input)

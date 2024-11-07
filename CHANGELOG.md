@@ -1,4 +1,5 @@
 > Features:
+- [8bdb27a] [Feature] Add Gemini API - text only
 - [483b7ad] [Feature] Add support for Grok (grok-beta)
 
 > Others:
