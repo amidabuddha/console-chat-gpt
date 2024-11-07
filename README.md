@@ -8,7 +8,7 @@ console-chat-gpt v4
 
 **Your Ultimate CLI Companion for Chatting with AI Models**
 
-_Enjoy seamless interactions with **ChatGPT**, **MistralAI**, **Claude by Anthropic** and **Grok by xAI** directly from your command line. </br>Elevate your chat experience with efficiency and ease._
+_Enjoy seamless interactions with **ChatGPT**, **MistralAI**, **Claude by Anthropic**, **Grok by xAI** and **Gemini by Google** directly from your command line. </br>Elevate your chat experience with efficiency and ease._
 
 <h3>
 
@@ -41,8 +41,8 @@ _Enjoy seamless interactions with **ChatGPT**, **MistralAI**, **Claude by Anthro
 ---
 
 **DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, Anthropic, xAI or their subsidiaries in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI, Google AI or any other related parties. There is no affiliation
+or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidiaries in any form.
 
 ---
 
@@ -92,7 +92,7 @@ personalization, control, and convenience.
    python3 -m pip install -r requirements.txt
    ```
 
-4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/)) depending on your selected LLM.
+4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/)), [Google AI Studio](https://aistudio.google.com/apikey) depending on your selected LLM.
 
 5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the `settings` in-app menu as per your needs.
 

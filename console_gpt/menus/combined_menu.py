@@ -38,6 +38,7 @@ def combined_menu() -> ChatObject | AssistantObject:
         "YOUR_MISTRALAI_API_KEY",
         "YOUR_ANTHROPIC_API_KEY",
         "YOUR_GROK_API_KEY",
+        "YOUR_GEMINI_API_KEY",
     ):
         model = set_api_key(model)
     assistant = assistant_menu(model) if model["model_title"].lower().startswith(("gpt3", "gpt4")) else None

@@ -137,3 +137,19 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_max_tokens = 131072
 # model_name = "grok-beta"
 # model_output_pricing_per_1k = 0.015
+
+# [chat.models.gemini-flash]
+# api_key = "YOUR_GEMINI_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.00
+# model_max_tokens = 8192
+# model_name = "gemini-1.5-flash"
+# model_output_pricing_per_1k = 0.00
+
+# [chat.models.gemini-pro]
+# api_key = "YOUR_GEMINI_API_KEY"
+# api_usage = 0
+# model_input_pricing_per_1k = 0.00
+# model_max_tokens = 8192
+# model_name = "gemini-1.5-pro"
+# model_output_pricing_per_1k = 0.00

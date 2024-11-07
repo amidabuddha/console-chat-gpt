@@ -4,6 +4,7 @@ import anthropic
 import openai
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
+import google.generativeai as genai
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
@@ -30,25 +31,33 @@ def chat(console, data, managed_user_prompt) -> None:
         model_title,
     ) = data.model.values()
 
+    # Extract the system instructions from the conversation
+    if model_title.startswith("anthropic") or model_title.startswith("gemini"):
+        role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
     # Initiate API
     if model_title.startswith("mistral"):
         client = MistralClient(api_key=api_key)
     elif model_title.startswith("anthropic"):
         client = anthropic.Anthropic(api_key=api_key)
-        role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
         cached = False
     elif model_title.startswith("grok"):
         client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+    elif model_title.startswith("gemini"):
+        genai.configure(api_key=api_key)
+        generation_config = {
+            "temperature": float(data.temperature),
+        }
+        client = genai.GenerativeModel(model_name=model_name, generation_config=generation_config, system_instruction=role)
     else:
         client = openai.OpenAI(api_key=api_key)
 
     # Set defaults
-    if model_title.startswith("anthropic"):
+    if model_title.startswith("anthropic") or model_title.startswith("gemini"):
         conversation = [message for message in data.conversation if message["role"] != "system"]
     else:
         conversation = data.conversation
     temperature = data.temperature
-
+    
     # Inner Loop
     while True:
         response = ""  # Adding this to satisfy the IDE
@@ -109,6 +118,15 @@ def chat(console, data, managed_user_prompt) -> None:
                             system=role,
                             messages=conversation,
                         ).model_dump_json()
+                elif model_title.startswith("gemini"):
+                    output_list = []
+                    for item in conversation:
+                        if item["role"] == "assistant":
+                            item["role"] = "model"
+                        new_item = {'role': item['role'], 'parts': [item['content']]}
+                        output_list.append(new_item)
+                    chat_session = client.start_chat(history=output_list.pop(-1))
+                    response = chat_session.send_message(handled_user_input)
                 else:  # OpenAI + Grok
                     response = client.chat.completions.create(
                         model=model_name,
@@ -148,6 +166,8 @@ def chat(console, data, managed_user_prompt) -> None:
         if model_title.startswith("anthropic"):
             response = json.loads(response)
             response = response["content"][0]["text"]
+        elif model_title.startswith("gemini"):
+            response = response.text
         else:
             response = response.choices[0].message.content
         assistant_response = dict(role="assistant", content=response)
