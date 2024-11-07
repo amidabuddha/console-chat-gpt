@@ -2,6 +2,9 @@
 - [8bdb27a] [Feature] Add Gemini API - text only
 - [483b7ad] [Feature] Add support for Grok (grok-beta)
 
+> Improvements:
+- [b16edea] [Improvement] Add code execution tool to Gemini chats
+
 > Others:
 - [33283f5] [Other] Update API versions
 - [c120789] [Other] Update pricing
