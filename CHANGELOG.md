@@ -7,6 +7,7 @@
 - [b16edea] [Improvement] Add code execution tool to Gemini chats
 
 > Others:
+- [efea0f4] [Other] Update msitral small info
 - [33283f5] [Other] Update API versions
 - [c120789] [Other] Update pricing
 - [8112f74] [Other] Update README.md to highlight the new model - Grok
