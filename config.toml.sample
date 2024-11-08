@@ -85,10 +85,10 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # [chat.models.mistral-small]
 # api_key = "YOUR_MISTRALAI_API_KEY"
 # api_usage = 0
-# model_input_pricing_per_1k = 0.002
-# model_max_tokens = 0
+# model_input_pricing_per_1k = 0.0002
+# model_max_tokens = 32000
 # model_name = "mistral-small-latest"
-# model_output_pricing_per_1k = 0.006
+# model_output_pricing_per_1k = 0.0006
 
 # [chat.models.mistral-large]
 # api_key = "YOUR_MISTRALAI_API_KEY"
