@@ -1,5 +1,5 @@
 anthropic~=0.39.0
-mistralai~=0.4.2
+mistralai~=1.2.0
 openai~=1.54.0
 google-generativeai~=0.8.3
 pillow~=10.3.0

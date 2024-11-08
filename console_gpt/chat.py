@@ -3,18 +3,13 @@ import json
 import anthropic
 import google.generativeai as genai
 import openai
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+from mistralai import Mistral
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
-
-
-def mistral_messages(message_dicts):
-    return [ChatMessage(role=msg["role"], content=msg["content"]) for msg in message_dicts]
 
 
 def chat(console, data, managed_user_prompt) -> None:
@@ -36,7 +31,7 @@ def chat(console, data, managed_user_prompt) -> None:
         role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
     # Initiate API
     if model_title.startswith("mistral"):
-        client = MistralClient(api_key=api_key)
+        client = Mistral(api_key=api_key)
     elif model_title.startswith("anthropic"):
         client = anthropic.Anthropic(api_key=api_key)
         cached = False
@@ -92,10 +87,10 @@ def chat(console, data, managed_user_prompt) -> None:
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
                 if model_title.startswith("mistral"):
-                    response = client.chat(
+                    response = client.chat.complete(
                         model=model_name,
                         temperature=float(temperature) / 2,
-                        messages=mistral_messages(conversation),
+                        messages=conversation,
                     )
                 elif model_title.startswith("anthropic"):
                     if use_beta:

@@ -90,21 +90,13 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # model_name = "mistral-small-latest"
 # model_output_pricing_per_1k = 0.006
 
-# [chat.models.mistral-medium]
-# api_key = "YOUR_MISTRALAI_API_KEY"
-# api_usage = 0
-# model_input_pricing_per_1k = 0.0027
-# model_max_tokens = 0
-# model_name = "mistral-medium-latest"
-# model_output_pricing_per_1k = 0.0081
-
 # [chat.models.mistral-large]
 # api_key = "YOUR_MISTRALAI_API_KEY"
 # api_usage = 0
-# model_input_pricing_per_1k = 0.003
-# model_max_tokens = 0
+# model_input_pricing_per_1k = 0.002
+# model_max_tokens = 128000
 # model_name = "mistral-large-latest"
-# model_output_pricing_per_1k = 0.009
+# model_output_pricing_per_1k = 0.006
 
 # [chat.models.anthropic-haiku]
 # api_key = "YOUR_ANTHROPIC_API_KEY"
