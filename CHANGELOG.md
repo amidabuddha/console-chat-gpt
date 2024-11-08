@@ -3,6 +3,7 @@
 - [483b7ad] [Feature] Add support for Grok (grok-beta)
 
 > Improvements:
+- [4eafa6b] [Improvement] Bump Mistral API version to latest
 - [b16edea] [Improvement] Add code execution tool to Gemini chats
 
 > Others:
