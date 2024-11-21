@@ -48,7 +48,8 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidia
 
 ## Features
 
-- :new: **AI Managed mode** :new:: Based on the complexity of the task, automatically determines which model to use.
+- :new: Unified chat completion function separated as independent library under /lib folder. Enjoy adding it to your application for seamless cross-provider API experience :new:
+- **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
   how the app works. Also supported in-app via the `settings` command.
