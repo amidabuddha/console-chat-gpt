@@ -1,6 +1,7 @@
 import json
-import toml
 from pathlib import Path
+
+import toml
 
 # Get the script's directory and construct path to config file
 script_dir = Path(__file__).parent
