@@ -42,8 +42,6 @@ def main():
                 conversation=conversation,
                 temperature=float(temperature),
                 model_max_tokens=int(model_max_tokens),
-                use_beta=False,  # Set to True if testing beta features
-                cached=True,  # Adjust as needed
             )
 
             # Add the assistant's response to the conversation

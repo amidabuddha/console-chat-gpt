@@ -7,8 +7,6 @@ from lib.unified_chat_api import get_chat_completion
 
 
 def chat(console, data, managed_user_prompt) -> None:
-    cached = True
-    use_beta = False
     # Assign all variables at once via the Object returned by the menu
     (
         api_key,
@@ -22,6 +20,8 @@ def chat(console, data, managed_user_prompt) -> None:
 
     conversation = data.conversation
     temperature = data.temperature
+    cached = not model_title.startswith("anthropic")
+    use_beta = False
 
     # Inner Loop
     while True:

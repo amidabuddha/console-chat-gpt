@@ -1,19 +1,19 @@
 import json
+from typing import List, Dict, Union     
 
 import anthropic
 import google.generativeai as genai
 import openai
 from mistralai import Mistral
 
+from lib.models import MODELS_CONFIG
+
 # In case you need to use a custom model, please add it to the relevant list
-anthropic_models = ["claude-3-5-haiku-latest", "claude-3-5-sonnet-latest", "claude-3-opus-latest"]
-mistral_models = [
-    "mistral-small-latest",
-    "mistral-large-latest",
-]
-openai_models = ["gpt-3.5-turbo", "gpt-4o-mini", "gpt-4o", "o1-mini", "o1-preview"]
-grok_models = ["grok-beta"]
-gemini_models = ["gemini-1.5-flash", "gemini-1.5-pro"]
+anthropic_models = MODELS_CONFIG["anthropic_models"]
+mistral_models = MODELS_CONFIG["mistral_models"]
+openai_models = MODELS_CONFIG["openai_models"]
+grok_models = MODELS_CONFIG["grok_models"]
+gemini_models = MODELS_CONFIG["gemini_models"]
 
 
 def set_defaults(
@@ -21,7 +21,6 @@ def set_defaults(
     model_name,
     conversation,
     temperature,
-    cached=True,
 ):
     # Extract the system instructions from the conversation
     if model_name in anthropic_models or gemini_models:
@@ -31,7 +30,6 @@ def set_defaults(
         client = Mistral(api_key=api_key)
     elif model_name in anthropic_models:
         client = anthropic.Anthropic(api_key=api_key)
-        cached = False
     elif model_name in grok_models:
         client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
     elif model_name in gemini_models:
@@ -49,24 +47,43 @@ def set_defaults(
     if model_name in anthropic_models or gemini_models:
         conversation = [message for message in conversation if message["role"] != "system"]
 
-    return client, conversation, role, cached
+    return client, conversation, role
 
 
-def get_chat_completion(
-    api_key,
-    model_name,
-    conversation,
-    temperature,
-    model_max_tokens,
-    use_beta=False,
-    cached=True,
-):
-    client, conversation, role, cached = set_defaults(
+def get_chat_completion(                                                                                                                                        
+    api_key: str,                                                                                                                                               
+    model_name: str,                                                                                                                                            
+    conversation: List[Dict[str, str]],                                                                                                                         
+    temperature: float,                                                                                                                                         
+    model_max_tokens: int,                                                                                                                                      
+    use_beta: bool = False,                                                                                                                                     
+    cached: Union[bool, str] = True,                                                                                                                           
+) -> str:
+    """                                                                                                                                                         
+    Get chat completion from various AI models.                                                                                                                 
+                                                                                                                                                                
+    Args:                                                                                                                                                       
+        api_key (str): The API key for authentication                                                                                                           
+        model_name (str): Name of the model to use                                                                                                              
+        conversation (List[Dict]): List of conversation messages                                                                                                
+        temperature (float): Temperature for response generation                                                                                                
+        model_max_tokens (int): Maximum tokens for response                                                                                                     
+        use_beta (bool): Whether to use beta features                                                                                                           
+        cached (Union[bool, str]): Caching configuration (Anthropic only)                                                                                                    
+                                                                                                                                                                
+    Returns:                                                                                                                                                    
+        str: The generated response                                                                                                                             
+                                                                                                                                                                
+    Raises:                                                                                                                                                     
+        ConnectionError: If unable to reach the server                                                                                                          
+        RuntimeError: If rate limit exceeded or API status error                                                                                                
+        Exception: For unexpected errors                                                                                                                        
+    """  
+    client, conversation, role = set_defaults(
         api_key,
         model_name,
         conversation,
         temperature,
-        cached,
     )
     try:
         if model_name in mistral_models:
