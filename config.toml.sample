@@ -150,6 +150,6 @@ model_output_pricing_per_1k = 0.00
 api_key = "YOUR_TEST_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k =0.00
-model_max_tokens = 0000
+model_max_tokens = 1111
 model_name = "test-helpers"
 model_output_pricing_per_1k = 0.00
