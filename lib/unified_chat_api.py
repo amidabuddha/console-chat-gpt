@@ -15,9 +15,11 @@ openai_models = MODELS_LIST["openai_models"]
 grok_models = MODELS_LIST["grok_models"]
 gemini_models = MODELS_LIST["gemini_models"]
 
+def set_api_key(api_key):                                                   
+    global _api_key                                                         
+    _api_key = api_key
 
 def set_defaults(
-    api_key,
     model_name,
     conversation,
     temperature,
@@ -27,13 +29,13 @@ def set_defaults(
         role = conversation[0]["content"] if conversation[0]["role"] == "system" else ""
     # Initiate API
     if model_name in mistral_models:
-        client = Mistral(api_key=api_key)
+        client = Mistral(api_key=_api_key)
     elif model_name in anthropic_models:
-        client = anthropic.Anthropic(api_key=api_key)
+        client = anthropic.Anthropic(api_key=_api_key)
     elif model_name in grok_models:
-        client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+        client = openai.OpenAI(api_key=_api_key, base_url="https://api.x.ai/v1")
     elif model_name in gemini_models:
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=_api_key)
         generation_config = {
             "temperature": float(temperature),
         }
@@ -41,7 +43,7 @@ def set_defaults(
             model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
         )
     else:
-        client = openai.OpenAI(api_key=api_key)
+        client = openai.OpenAI(api_key=_api_key)
 
     # Set defaults
     if model_name in anthropic_models or gemini_models:
@@ -51,7 +53,6 @@ def set_defaults(
 
 
 def get_chat_completion(
-    api_key: str,
     model_name: str,
     messages: List[Dict[str, str]],
     temperature: float,
@@ -62,7 +63,6 @@ def get_chat_completion(
     Get chat completion from various AI models.
 
     Args:
-        api_key (str): The API key for authentication
         model_name (str): Name of the model to use
         messages (List[Dict]): List of conversation messages
         temperature (float): Temperature for response generation
@@ -78,7 +78,6 @@ def get_chat_completion(
         Exception: For unexpected errors
     """
     client, messages, role = set_defaults(
-        api_key,
         model_name,
         messages,
         temperature,

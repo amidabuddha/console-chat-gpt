@@ -3,7 +3,7 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
-from lib.unified_chat_api import get_chat_completion
+from lib.unified_chat_api import get_chat_completion, set_api_key
 
 
 def chat(console, data, managed_user_prompt) -> None:
@@ -18,6 +18,7 @@ def chat(console, data, managed_user_prompt) -> None:
         model_title,
     ) = data.model.values()
 
+    set_api_key(api_key)
     conversation = data.conversation
     temperature = data.temperature
     cached = not model_title.startswith("anthropic")
@@ -55,7 +56,6 @@ def chat(console, data, managed_user_prompt) -> None:
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
                 response = get_chat_completion(
-                    api_key=api_key,
                     model_name=model_name,
                     messages=conversation,
                     temperature=temperature,
