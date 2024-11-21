@@ -2,6 +2,7 @@
 - [8bdb27a] [Feature] Add Gemini API - text only
 
 > Improvements:
+- [89cd147] [Improvement] Add validations to sample chat
 - [96da259] [Improvement] Move chat completion to an unified library
 - [4eafa6b] [Improvement] Bump Mistral API version to latest
 - [b16edea] [Improvement] Add code execution tool to Gemini chats

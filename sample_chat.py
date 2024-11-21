@@ -1,16 +1,18 @@
 import sys
 from typing import Dict
 
-from lib.unified_chat_api import get_chat_completion
 from lib.models import MODELS_CONFIG
+from lib.unified_chat_api import get_chat_completion
 
-def validate_inputs(api_key: str, model_name: str, temperature: float) -> None:                                                                                 
-    if not api_key:                                                                                                                                             
+
+def validate_inputs(api_key: str, model_name: str, temperature: float) -> None:
+    if not api_key:
         raise ValueError("API key cannot be empty")
-    if not (model_name in models_list for models_list in MODELS_CONFIG.values()):                                                                                                          
-        raise ValueError(f"Unsupported model: {model_name}")                                                                                                          
-    if int(temperature) < 0 or int(temperature) > 1:                                                                                                                      
-        raise ValueError("Temperature must be between 0 and 1")                                                                                                 
+    if not (model_name in models_list for models_list in MODELS_CONFIG.values()):
+        raise ValueError(f"Unsupported model: {model_name}")
+    if int(temperature) < 0 or int(temperature) > 1:
+        raise ValueError("Temperature must be between 0 and 1")
+
 
 def main():
     # Prompt the user for necessary inputs
