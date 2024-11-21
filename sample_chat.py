@@ -1,11 +1,18 @@
 import sys
+from typing import Dict
 
 from lib.unified_chat_api import get_chat_completion
+from lib.models import MODELS_CONFIG
 
+def validate_inputs(api_key: str, model_name: str, temperature: float) -> None:                                                                                 
+    if not api_key:                                                                                                                                             
+        raise ValueError("API key cannot be empty")
+    if not (model_name in models_list for models_list in MODELS_CONFIG.values()):                                                                                                          
+        raise ValueError(f"Unsupported model: {model_name}")                                                                                                          
+    if int(temperature) < 0 or int(temperature) > 1:                                                                                                                      
+        raise ValueError("Temperature must be between 0 and 1")                                                                                                 
 
 def main():
-    print("Welcome to the Unified Chat API Tester!")
-
     # Prompt the user for necessary inputs
     api_key = input("Enter your API key: ").strip()
     model_name = input("Enter the model name (e.g., 'gpt-3.5-turbo'): ").strip()
@@ -15,6 +22,14 @@ def main():
     model_max_tokens = input("Enter the maximum tokens (e.g., 512) or leave blank for default (4096): ").strip()
     if not model_max_tokens:
         model_max_tokens = "4096"
+
+    try:
+        validate_inputs(api_key, model_name, temperature)
+    except Exception as e:
+        print(e)
+        print("Please try again with correct values!")
+        sys.exit()
+
     # Set the system role or instructions if needed
     role = input("Enter system instructions or leave blank for default:").strip()
     if not role:
