@@ -28,7 +28,7 @@ def main():
         print("Please try again with correct values!")
         sys.exit()
 
-    # Set the API key after validation 
+    # Set the API key after validation
     set_api_key(api_key)
 
     # Set the system role or instructions if needed

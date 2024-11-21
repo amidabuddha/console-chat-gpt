@@ -15,9 +15,11 @@ openai_models = MODELS_LIST["openai_models"]
 grok_models = MODELS_LIST["grok_models"]
 gemini_models = MODELS_LIST["gemini_models"]
 
-def set_api_key(api_key):                                                   
-    global _api_key                                                         
+
+def set_api_key(api_key):
+    global _api_key
     _api_key = api_key
+
 
 def set_defaults(
     model_name,

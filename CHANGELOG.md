@@ -1,4 +1,5 @@
 > Improvements:
+- [f93b6ef] [Improvement] Introduce a Module-Level Variable for the API Key
 - [63a1e8c] [Improvement] Handle model_max_token internally
 - [89cd147] [Improvement] Add validations to sample chat
 - [96da259] [Improvement] Move chat completion to an unified library
