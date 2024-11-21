@@ -1,15 +1,13 @@
-# Run this file from within the /helpers directory
-# Make sure the config.toml.sample exists, modify the path if necessary
-
 import json
-
 import toml
+from pathlib import Path
 
-# Sample TOML content
-toml_content = "../config.toml.sample"
+# Get the script's directory and construct path to config file
+script_dir = Path(__file__).parent
+config_path = script_dir.parent / "config.toml.sample"
 
 # Parse the TOML data
-data = toml.load(toml_content)
+data = toml.load(config_path)
 
 # Initialize the structures
 MODELS_LIST = {
