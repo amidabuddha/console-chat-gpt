@@ -19,4 +19,5 @@ MODELS_MAX_TOKEN = {
     "grok-beta": "131072",
     "gemini-1.5-flash": "8192",
     "gemini-1.5-pro": "8192",
+    "test-helpers": "1111",
 }

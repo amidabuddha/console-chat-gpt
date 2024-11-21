@@ -8,8 +8,6 @@
 - [c0cd54e] [Other] Allow get_models to be executed from everywhere
 - [29ccac7] [Others] Update README
 - [968800f] [Others] Remove unneded if
-- [636d75d] [Others] Bump providers client version
-- [61dc93c] [Others] Add lib specific requirements separately, remove redundancies
 
 
 ---
