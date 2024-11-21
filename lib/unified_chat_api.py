@@ -1,5 +1,5 @@
 import json
-from typing import List, Dict, Union     
+from typing import Dict, List, Union
 
 import anthropic
 import google.generativeai as genai
@@ -50,35 +50,35 @@ def set_defaults(
     return client, conversation, role
 
 
-def get_chat_completion(                                                                                                                                        
-    api_key: str,                                                                                                                                               
-    model_name: str,                                                                                                                                            
-    conversation: List[Dict[str, str]],                                                                                                                         
-    temperature: float,                                                                                                                                         
-    model_max_tokens: int,                                                                                                                                      
-    use_beta: bool = False,                                                                                                                                     
-    cached: Union[bool, str] = True,                                                                                                                           
+def get_chat_completion(
+    api_key: str,
+    model_name: str,
+    conversation: List[Dict[str, str]],
+    temperature: float,
+    model_max_tokens: int,
+    use_beta: bool = False,
+    cached: Union[bool, str] = True,
 ) -> str:
-    """                                                                                                                                                         
-    Get chat completion from various AI models.                                                                                                                 
-                                                                                                                                                                
-    Args:                                                                                                                                                       
-        api_key (str): The API key for authentication                                                                                                           
-        model_name (str): Name of the model to use                                                                                                              
-        conversation (List[Dict]): List of conversation messages                                                                                                
-        temperature (float): Temperature for response generation                                                                                                
-        model_max_tokens (int): Maximum tokens for response                                                                                                     
-        use_beta (bool): Whether to use beta features                                                                                                           
-        cached (Union[bool, str]): Caching configuration (Anthropic only)                                                                                                    
-                                                                                                                                                                
-    Returns:                                                                                                                                                    
-        str: The generated response                                                                                                                             
-                                                                                                                                                                
-    Raises:                                                                                                                                                     
-        ConnectionError: If unable to reach the server                                                                                                          
-        RuntimeError: If rate limit exceeded or API status error                                                                                                
-        Exception: For unexpected errors                                                                                                                        
-    """  
+    """
+    Get chat completion from various AI models.
+
+    Args:
+        api_key (str): The API key for authentication
+        model_name (str): Name of the model to use
+        conversation (List[Dict]): List of conversation messages
+        temperature (float): Temperature for response generation
+        model_max_tokens (int): Maximum tokens for response
+        use_beta (bool): Whether to use beta features
+        cached (Union[bool, str]): Caching configuration (Anthropic only)
+
+    Returns:
+        str: The generated response
+
+    Raises:
+        ConnectionError: If unable to reach the server
+        RuntimeError: If rate limit exceeded or API status error
+        Exception: For unexpected errors
+    """
     client, conversation, role = set_defaults(
         api_key,
         model_name,
