@@ -54,17 +54,17 @@ def chat(console, data, managed_user_prompt) -> None:
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
-                response = get_chat_completion(                                
-                    api_key=api_key,                                                   
-                    model_name=model_name,                                             
-                    conversation=conversation,                                         
-                    temperature=temperature,                                           
-                    model_max_tokens=model_max_tokens,                                                      
-                    use_beta=use_beta,                                                 
-                    cached=cached,                             
-                )                                                                      
-            except Exception as e:                                                     
-                error_appeared = True                                                  
+                response = get_chat_completion(
+                    api_key=api_key,
+                    model_name=model_name,
+                    conversation=conversation,
+                    temperature=temperature,
+                    model_max_tokens=model_max_tokens,
+                    use_beta=use_beta,
+                    cached=cached,
+                )
+            except Exception as e:
+                error_appeared = True
                 print(f"An error occurred: {e}")
             except KeyboardInterrupt:
                 # Notifying the user about the interrupt but continues normally.

@@ -1,8 +1,8 @@
 > Features:
 - [8bdb27a] [Feature] Add Gemini API - text only
-- [483b7ad] [Feature] Add support for Grok (grok-beta)
 
 > Improvements:
+- [96da259] [Improvement] Move chat completion to an unified library
 - [4eafa6b] [Improvement] Bump Mistral API version to latest
 - [b16edea] [Improvement] Add code execution tool to Gemini chats
 
