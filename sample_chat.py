@@ -1,5 +1,4 @@
 import sys
-from typing import Dict
 
 from lib.models import MODELS_CONFIG
 from lib.unified_chat_api import get_chat_completion
