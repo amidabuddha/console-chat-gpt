@@ -1,7 +1,6 @@
 > Improvements:
 - [89cd147] [Improvement] Add validations to sample chat
 - [96da259] [Improvement] Move chat completion to an unified library
-- [4eafa6b] [Improvement] Bump Mistral API version to latest
 
 > Others:
 - [29ccac7] [Others] Update README
