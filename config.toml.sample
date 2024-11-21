@@ -103,7 +103,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # api_usage = 0
 # model_input_pricing_per_1k = 0.001
 # model_max_tokens = 8192
-# model_name = "claude-3-5-haiku-20241022"
+# model_name = "claude-3-5-haiku-latest"
 # model_output_pricing_per_1k = 0.005
 
 # [chat.models.anthropic-sonnet]
@@ -111,7 +111,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # api_usage = 0
 # model_input_pricing_per_1k = 0.003
 # model_max_tokens = 8192
-# model_name = "claude-3-5-sonnet-20241022"
+# model_name = "claude-3-5-sonnet-latest"
 # model_output_pricing_per_1k = 0.015
 
 # [chat.models.anthropic-opus]
@@ -119,7 +119,7 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # api_usage = 0
 # model_input_pricing_per_1k = 0.015
 # model_max_tokens = 4096
-# model_name = "claude-3-opus-20240229"
+# model_name = "claude-3-opus-latest"
 # model_output_pricing_per_1k = 0.075
 
 # [chat.models.grok-beta]

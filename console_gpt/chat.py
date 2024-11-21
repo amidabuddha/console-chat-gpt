@@ -1,15 +1,9 @@
-import json
-
-import anthropic
-import google.generativeai as genai
-import openai
-from mistralai import Mistral
-
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
+from lib.unified_chat_api import get_chat_completion
 
 
 def chat(console, data, managed_user_prompt) -> None:
@@ -26,33 +20,7 @@ def chat(console, data, managed_user_prompt) -> None:
         model_title,
     ) = data.model.values()
 
-    # Extract the system instructions from the conversation
-    if model_title.startswith("anthropic") or model_title.startswith("gemini"):
-        role = data.conversation[0]["content"] if data.conversation[0]["role"] == "system" else ""
-    # Initiate API
-    if model_title.startswith("mistral"):
-        client = Mistral(api_key=api_key)
-    elif model_title.startswith("anthropic"):
-        client = anthropic.Anthropic(api_key=api_key)
-        cached = False
-    elif model_title.startswith("grok"):
-        client = openai.OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
-    elif model_title.startswith("gemini"):
-        genai.configure(api_key=api_key)
-        generation_config = {
-            "temperature": float(data.temperature),
-        }
-        client = genai.GenerativeModel(
-            model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
-        )
-    else:
-        client = openai.OpenAI(api_key=api_key)
-
-    # Set defaults
-    if model_title.startswith("anthropic") or model_title.startswith("gemini"):
-        conversation = [message for message in data.conversation if message["role"] != "system"]
-    else:
-        conversation = data.conversation
+    conversation = data.conversation
     temperature = data.temperature
 
     # Inner Loop
@@ -86,67 +54,18 @@ def chat(console, data, managed_user_prompt) -> None:
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
-                if model_title.startswith("mistral"):
-                    response = client.chat.complete(
-                        model=model_name,
-                        temperature=float(temperature) / 2,
-                        messages=conversation,
-                    )
-                elif model_title.startswith("anthropic"):
-                    if use_beta:
-                        response = client.beta.prompt_caching.messages.create(
-                            model=model_name,
-                            max_tokens=model_max_tokens,
-                            temperature=float(temperature) / 2,
-                            system=[
-                                {
-                                    "type": "text",
-                                    "text": role,
-                                },
-                                {"type": "text", "text": cached, "cache_control": {"type": "ephemeral"}},
-                            ],
-                            messages=conversation,
-                        ).model_dump_json()
-                    else:
-                        response = client.messages.create(
-                            model=model_name,
-                            max_tokens=model_max_tokens,
-                            temperature=float(temperature) / 2,
-                            system=role,
-                            messages=conversation,
-                        ).model_dump_json()
-                elif model_title.startswith("gemini"):
-                    output_list = []
-                    for item in conversation:
-                        if item["role"] == "assistant":
-                            item["role"] = "model"
-                        new_item = {"role": item["role"], "parts": [item["content"]]}
-                        output_list.append(new_item)
-                    chat_session = client.start_chat(history=output_list.pop(-1))
-                    response = chat_session.send_message(handled_user_input)
-                else:  # OpenAI + Grok
-                    response = client.chat.completions.create(
-                        model=model_name,
-                        temperature=float(temperature),
-                        messages=conversation,
-                    )
-            # TODO: Handle mistralai.exceptions.MistralAPIException
-            except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
-                error_appeared = True
-                print("The server could not be reached")
-                print(e.__cause__)
-            except (openai.RateLimitError, anthropic.RateLimitError) as e:
-                error_appeared = True
-                print(f"A 429 status code was received; we should back off a bit. - {e}")
-            except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
-                error_appeared = True
-                print("Another non-200-range status code was received")
-                print(e.status_code)
-                print(e.response)
-                print(e.message)
-            except Exception as e:
-                error_appeared = True
-                print(f"Unexpected error: {e}")
+                response = get_chat_completion(                                
+                    api_key=api_key,                                                   
+                    model_name=model_name,                                             
+                    conversation=conversation,                                         
+                    temperature=temperature,                                           
+                    model_max_tokens=model_max_tokens,                                                      
+                    use_beta=use_beta,                                                 
+                    cached=cached,                             
+                )                                                                      
+            except Exception as e:                                                     
+                error_appeared = True                                                  
+                print(f"An error occurred: {e}")
             except KeyboardInterrupt:
                 # Notifying the user about the interrupt but continues normally.
                 custom_print("info", "Interrupted the request. Continue normally.")
@@ -160,13 +79,6 @@ def chat(console, data, managed_user_prompt) -> None:
             # Removes the last user input in order to avoid issues if the conversation continues
             conversation.pop(-1)
             continue
-        if model_title.startswith("anthropic"):
-            response = json.loads(response)
-            response = response["content"][0]["text"]
-        elif model_title.startswith("gemini"):
-            response = response.text
-        else:
-            response = response.choices[0].message.content
         assistant_response = dict(role="assistant", content=response)
         conversation.append(assistant_response)
         assistance_reply(response, model_name)
