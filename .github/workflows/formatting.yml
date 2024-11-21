@@ -24,7 +24,16 @@ jobs:
           python-version: 3.11
 
       - name: Install dependencies
-        run: pip install black isort
+        run: pip install black isort toml
+
+      - name: Check for config.toml.sample changes
+        id: check_config
+        run: |
+          git diff --name-only HEAD HEAD~1 | grep -q "config.toml.sample" && echo "config_changed=true" >> $GITHUB_OUTPUT || echo "config_changed=false" >> $GITHUB_OUTPUT
+
+      - name: Run get_models.py if config changed
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: python3 helpers/get_models.py > lib/models.py
 
       - name: Formatting
         run: |
@@ -48,7 +57,7 @@ jobs:
         run: |
           cd app-data
           bash bump-version.sh
-          cd - 
+          cd -
 
       - name: Commit changes
         run: |
