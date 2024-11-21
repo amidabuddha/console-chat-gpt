@@ -89,7 +89,7 @@ personalization, control, and convenience.
 3. Install the necessary dependencies:
 
    ```shell
-   python3 -m pip install -r requirements.txt
+   python3 -m pip install -r requirements.txt -r lib/requirements.txt 
    ```
 
 4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey) depending on your selected LLM.
