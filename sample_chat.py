@@ -1,13 +1,13 @@
 import sys
 
-from lib.models import MODELS_CONFIG
+from lib.models import MODELS_LIST
 from lib.unified_chat_api import get_chat_completion
 
 
 def validate_inputs(api_key: str, model_name: str, temperature: float) -> None:
     if not api_key:
         raise ValueError("API key cannot be empty")
-    if not (model_name in models_list for models_list in MODELS_CONFIG.values()):
+    if not (model_name in models_list for models_list in MODELS_LIST.values()):
         raise ValueError(f"Unsupported model: {model_name}")
     if int(temperature) < 0 or int(temperature) > 1:
         raise ValueError("Temperature must be between 0 and 1")
@@ -20,9 +20,6 @@ def main():
     temperature = input("Enter the temperature (e.g., 0.7) or leave blank for default (1): ").strip()
     if not temperature:
         temperature = "1"
-    model_max_tokens = input("Enter the maximum tokens (e.g., 512) or leave blank for default (4096): ").strip()
-    if not model_max_tokens:
-        model_max_tokens = "4096"
 
     try:
         validate_inputs(api_key, model_name, temperature)
@@ -42,6 +39,8 @@ def main():
     while True:
         # Prompt the user for a message
         user_message = input("\nYou: ").strip()
+        if not user_message:
+            continue
         if user_message.lower() in {"exit", "quit"}:
             print("Exiting the chat.")
             sys.exit()
@@ -54,9 +53,8 @@ def main():
             assistant_response = get_chat_completion(
                 api_key=api_key,
                 model_name=model_name,
-                conversation=conversation,
+                messages=conversation,
                 temperature=float(temperature),
-                model_max_tokens=int(model_max_tokens),
             )
 
             # Add the assistant's response to the conversation

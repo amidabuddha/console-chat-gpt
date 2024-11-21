@@ -6,14 +6,14 @@ import google.generativeai as genai
 import openai
 from mistralai import Mistral
 
-from lib.models import MODELS_CONFIG
+from lib.models import MODELS_LIST, MODELS_MAX_TOKEN
 
 # In case you need to use a custom model, please add it to the relevant list
-anthropic_models = MODELS_CONFIG["anthropic_models"]
-mistral_models = MODELS_CONFIG["mistral_models"]
-openai_models = MODELS_CONFIG["openai_models"]
-grok_models = MODELS_CONFIG["grok_models"]
-gemini_models = MODELS_CONFIG["gemini_models"]
+anthropic_models = MODELS_LIST["anthropic_models"]
+mistral_models = MODELS_LIST["mistral_models"]
+openai_models = MODELS_LIST["openai_models"]
+grok_models = MODELS_LIST["grok_models"]
+gemini_models = MODELS_LIST["gemini_models"]
 
 
 def set_defaults(
@@ -53,9 +53,8 @@ def set_defaults(
 def get_chat_completion(
     api_key: str,
     model_name: str,
-    conversation: List[Dict[str, str]],
+    messages: List[Dict[str, str]],
     temperature: float,
-    model_max_tokens: int,
     use_beta: bool = False,
     cached: Union[bool, str] = True,
 ) -> str:
@@ -65,9 +64,8 @@ def get_chat_completion(
     Args:
         api_key (str): The API key for authentication
         model_name (str): Name of the model to use
-        conversation (List[Dict]): List of conversation messages
+        messages (List[Dict]): List of conversation messages
         temperature (float): Temperature for response generation
-        model_max_tokens (int): Maximum tokens for response
         use_beta (bool): Whether to use beta features
         cached (Union[bool, str]): Caching configuration (Anthropic only)
 
@@ -79,10 +77,10 @@ def get_chat_completion(
         RuntimeError: If rate limit exceeded or API status error
         Exception: For unexpected errors
     """
-    client, conversation, role = set_defaults(
+    client, messages, role = set_defaults(
         api_key,
         model_name,
-        conversation,
+        messages,
         temperature,
     )
     try:
@@ -90,7 +88,7 @@ def get_chat_completion(
             response = client.chat.complete(
                 model=model_name,
                 temperature=float(temperature) / 2,
-                messages=conversation,
+                messages=messages,
             )
             response = response.choices[0].message.content
 
@@ -98,40 +96,40 @@ def get_chat_completion(
             if use_beta:
                 response = client.beta.prompt_caching.messages.create(
                     model=model_name,
-                    max_tokens=model_max_tokens,
+                    max_tokens=int(MODELS_MAX_TOKEN.get(model_name)),
                     temperature=float(temperature) / 2,
                     system=[
                         {"type": "text", "text": role},
                         {"type": "text", "text": cached, "cache_control": {"type": "ephemeral"}},
                     ],
-                    messages=conversation,
+                    messages=messages,
                 ).model_dump_json()
             else:
                 response = client.messages.create(
                     model=model_name,
-                    max_tokens=model_max_tokens,
+                    max_tokens=int(MODELS_MAX_TOKEN.get(model_name)),
                     temperature=float(temperature) / 2,
                     system=role,
-                    messages=conversation,
+                    messages=messages,
                 ).model_dump_json()
             response = json.loads(response)
             response_content = response["content"][0]["text"]
 
         elif model_name in gemini_models:
             output_list = []
-            for item in conversation:
+            for item in messages:
                 new_role = "model" if item["role"] == "assistant" else item["role"]
                 new_item = {"role": new_role, "parts": [item["content"]]}
                 output_list.append(new_item)
             chat_session = client.start_chat(history=output_list[:-1])
-            response = chat_session.send_message(conversation[-1]["content"])
+            response = chat_session.send_message(messages[-1]["content"])
             response_content = response.text
 
         elif model_name in grok_models:
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=float(temperature),
-                messages=conversation,
+                messages=messages,
             )
             response_content = response.choices[0].message.content
 
@@ -139,7 +137,7 @@ def get_chat_completion(
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=float(temperature),
-                messages=conversation,
+                messages=messages,
             )
             response_content = response.choices[0].message.content
 

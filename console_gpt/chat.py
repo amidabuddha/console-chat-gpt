@@ -57,9 +57,8 @@ def chat(console, data, managed_user_prompt) -> None:
                 response = get_chat_completion(
                     api_key=api_key,
                     model_name=model_name,
-                    conversation=conversation,
+                    messages=conversation,
                     temperature=temperature,
-                    model_max_tokens=model_max_tokens,
                     use_beta=use_beta,
                     cached=cached,
                 )
