@@ -2,9 +2,9 @@
 - [89cd147] [Improvement] Add validations to sample chat
 - [96da259] [Improvement] Move chat completion to an unified library
 - [4eafa6b] [Improvement] Bump Mistral API version to latest
-- [b16edea] [Improvement] Add code execution tool to Gemini chats
 
 > Others:
+- [29ccac7] [Others] Update README
 - [968800f] [Others] Remove unneded if
 - [636d75d] [Others] Bump providers client version
 - [61dc93c] [Others] Add lib specific requirements separately, remove redundancies
