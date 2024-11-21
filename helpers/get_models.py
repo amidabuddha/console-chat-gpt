@@ -1,5 +1,5 @@
 # Run this file from within the /helpers directory
-# make sure the config.toml.cample exists
+# Make sure the config.toml.sample exists, modify the path if necessary
 
 import json
 
