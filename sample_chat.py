@@ -38,8 +38,7 @@ def main():
         role = "You are a helpful assistant."
     # Initialize the conversation with the system role if provided
     conversation = []
-    if role:
-        conversation.append({"role": "system", "content": role})
+    conversation.append({"role": "system", "content": role})
 
     while True:
         # Prompt the user for a message
