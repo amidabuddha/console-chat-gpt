@@ -145,3 +145,11 @@ model_input_pricing_per_1k =0.00
 model_max_tokens = 8192
 model_name = "gemini-1.5-pro"
 model_output_pricing_per_1k = 0.00
+
+[chat.models.test]
+api_key = "YOUR_TEST_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k =0.00
+model_max_tokens = 0000
+model_name = "test-helpers"
+model_output_pricing_per_1k = 0.00
