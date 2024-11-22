@@ -70,7 +70,7 @@ def set_defaults(
 def get_chat_completion(
     model_name: str,
     messages: List[Dict[str, str]],
-    temperature: str,
+    temperature: str = "1",
     use_beta: bool = False,
     cached: Union[bool, str] = True,
 ) -> str:
@@ -97,6 +97,7 @@ def get_chat_completion(
         messages,
         temperature,
     )
+    print(temperature)
     try:
         if model_name in mistral_models:
             response = client.chat.complete(
