@@ -15,11 +15,42 @@ openai_models = MODELS_LIST["openai_models"]
 grok_models = MODELS_LIST["grok_models"]
 gemini_models = MODELS_LIST["gemini_models"]
 
+DEFAULT_MAX_TOKENS = 4096
 
 def set_api_key(api_key):
     global _api_key
     _api_key = api_key
 
+def get_max_tokens(model_name):                                                
+   return int(MODELS_MAX_TOKEN.get(model_name,DEFAULT_MAX_TOKENS))
+
+_api_clients = {}                                                           
+                                                                        
+def get_client(model_name, temperature, role=""):                           
+    if model_name in _api_clients:                                          
+        return _api_clients[model_name]                                     
+                                                                            
+    if model_name in mistral_models:                                        
+        client = Mistral(api_key=_api_key)                                  
+    elif model_name in anthropic_models:                                    
+        client = anthropic.Anthropic(api_key=_api_key)                      
+    elif model_name in grok_models:                                         
+        client = openai.OpenAI(api_key=_api_key,                            
+    base_url="https://api.x.ai/v1")                                             
+    elif model_name in gemini_models:                                       
+        genai.configure(api_key=_api_key)                                   
+        generation_config = {                                               
+            "temperature": float(temperature),                              
+        }                                                                   
+        client = genai.GenerativeModel(                                     
+            model_name=model_name, generation_config=generation_config,     
+    system_instruction=role, tools="code_execution"                             
+        )                                                                   
+    else:                                                                   
+        client = openai.OpenAI(api_key=_api_key)                            
+                                                                            
+    _api_clients[model_name] = client                                       
+    return client 
 
 def set_defaults(
     model_name,
@@ -29,35 +60,15 @@ def set_defaults(
     # Extract the system instructions from the conversation
     if model_name in anthropic_models or gemini_models:
         role = conversation[0]["content"] if conversation[0]["role"] == "system" else ""
-    # Initiate API
-    if model_name in mistral_models:
-        client = Mistral(api_key=_api_key)
-    elif model_name in anthropic_models:
-        client = anthropic.Anthropic(api_key=_api_key)
-    elif model_name in grok_models:
-        client = openai.OpenAI(api_key=_api_key, base_url="https://api.x.ai/v1")
-    elif model_name in gemini_models:
-        genai.configure(api_key=_api_key)
-        generation_config = {
-            "temperature": float(temperature),
-        }
-        client = genai.GenerativeModel(
-            model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
-        )
-    else:
-        client = openai.OpenAI(api_key=_api_key)
-
-    # Set defaults
-    if model_name in anthropic_models or gemini_models:
         conversation = [message for message in conversation if message["role"] != "system"]
-
+    client = get_client(model_name, temperature, role)
     return client, conversation, role
 
 
 def get_chat_completion(
     model_name: str,
     messages: List[Dict[str, str]],
-    temperature: float,
+    temperature: str,
     use_beta: bool = False,
     cached: Union[bool, str] = True,
 ) -> str:
@@ -88,17 +99,18 @@ def get_chat_completion(
         if model_name in mistral_models:
             response = client.chat.complete(
                 model=model_name,
-                temperature=float(temperature) / 2,
+                temperature=float(temperature),
                 messages=messages,
             )
             response = response.choices[0].message.content
 
         elif model_name in anthropic_models:
+            temperature = 1 if float(temperature) > 1 else temperature
             if use_beta:
                 response = client.beta.prompt_caching.messages.create(
                     model=model_name,
-                    max_tokens=int(MODELS_MAX_TOKEN.get(model_name)),
-                    temperature=float(temperature) / 2,
+                    max_tokens=get_max_tokens(model_name),
+                    temperature=float(temperature),
                     system=[
                         {"type": "text", "text": role},
                         {"type": "text", "text": cached, "cache_control": {"type": "ephemeral"}},
@@ -108,8 +120,8 @@ def get_chat_completion(
             else:
                 response = client.messages.create(
                     model=model_name,
-                    max_tokens=int(MODELS_MAX_TOKEN.get(model_name)),
-                    temperature=float(temperature) / 2,
+                    max_tokens=get_max_tokens(model_name),
+                    temperature=float(temperature),
                     system=role,
                     messages=messages,
                 ).model_dump_json()
@@ -117,13 +129,12 @@ def get_chat_completion(
             response_content = response["content"][0]["text"]
 
         elif model_name in gemini_models:
-            output_list = []
-            for item in messages:
-                new_role = "model" if item["role"] == "assistant" else item["role"]
-                new_item = {"role": new_role, "parts": [item["content"]]}
-                output_list.append(new_item)
-            chat_session = client.start_chat(history=output_list[:-1])
-            response = chat_session.send_message(messages[-1]["content"])
+            formatted_messages = [                                                 
+                {"role": "model" if item["role"] == "assistant" else item["role"], "parts": [item["content"]]}
+                for item in messages                                               
+            ]
+            chat_session = client.start_chat(history=formatted_messages[:-1])
+            response = chat_session.send_message(formatted_messages[-1]["parts"][0])
             response_content = response.text
 
         elif model_name in grok_models:
