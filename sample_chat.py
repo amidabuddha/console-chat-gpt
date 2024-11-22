@@ -16,7 +16,6 @@ def main():
     api_key = input("Enter your API key: ").strip()
     model_name = input("Enter the model name (e.g., 'gpt-4o-mini'): ").strip()
 
-
     try:
         validate_inputs(api_key, model_name)
     except Exception as e:
