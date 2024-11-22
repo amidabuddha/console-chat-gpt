@@ -97,7 +97,6 @@ def get_chat_completion(
         messages,
         temperature,
     )
-    print(temperature)
     try:
         if model_name in mistral_models:
             response = client.chat.complete(
