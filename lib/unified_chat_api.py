@@ -79,9 +79,9 @@ def get_chat_completion(
     Args:
         model_name: Name of the model to use
         messages: List of conversation messages
-        temperature: Controls the randomness of the model's output. Higher values (e.g., 1.5)                                                                                                                                            
-             make the output more random, while lower values (e.g., 0.2) make it more deterministic.                                                                                                                                      
-             Should be between 0 and 2.    
+        temperature: Controls the randomness of the model's output. Higher values (e.g., 1.5)
+             make the output more random, while lower values (e.g., 0.2) make it more deterministic.
+             Should be between 0 and 2.
         cached (Union[bool, str]): Caching configuration (Anthropic only)
 
     Returns:
