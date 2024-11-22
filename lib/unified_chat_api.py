@@ -27,32 +27,34 @@ def get_max_tokens(model_name):
     return int(MODELS_MAX_TOKEN.get(model_name, DEFAULT_MAX_TOKENS))
 
 
-_api_clients = {}
-
-
 def get_client(model_name, temperature, role=""):
-    if model_name in _api_clients:
-        return _api_clients[model_name]
+    if not hasattr(get_client, "_api_client"):
+        int = 0
+        if int == 0:
+            print("I got here")
+            int = int + 1
+        else:
+            print("I was here before")
+        if model_name in mistral_models:
+            client = Mistral(api_key=_api_key)
+        elif model_name in anthropic_models:
+            client = anthropic.Anthropic(api_key=_api_key)
+        elif model_name in grok_models:
+            client = openai.OpenAI(api_key=_api_key, base_url="https://api.x.ai/v1")
+        elif model_name in gemini_models:
+            genai.configure(api_key=_api_key)
+            generation_config = {
+                "temperature": float(temperature),
+            }
+            client = genai.GenerativeModel(
+                model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
+            )
+        else:
+            client = openai.OpenAI(api_key=_api_key)
 
-    if model_name in mistral_models:
-        client = Mistral(api_key=_api_key)
-    elif model_name in anthropic_models:
-        client = anthropic.Anthropic(api_key=_api_key)
-    elif model_name in grok_models:
-        client = openai.OpenAI(api_key=_api_key, base_url="https://api.x.ai/v1")
-    elif model_name in gemini_models:
-        genai.configure(api_key=_api_key)
-        generation_config = {
-            "temperature": float(temperature),
-        }
-        client = genai.GenerativeModel(
-            model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
-        )
-    else:
-        client = openai.OpenAI(api_key=_api_key)
+        get_client._api_client = client
 
-    _api_clients[model_name] = client
-    return client
+    return get_client._api_client
 
 
 def set_defaults(
