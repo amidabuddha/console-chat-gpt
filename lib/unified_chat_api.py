@@ -17,40 +17,43 @@ gemini_models = MODELS_LIST["gemini_models"]
 
 DEFAULT_MAX_TOKENS = 4096
 
+
 def set_api_key(api_key):
     global _api_key
     _api_key = api_key
 
-def get_max_tokens(model_name):                                                
-   return int(MODELS_MAX_TOKEN.get(model_name,DEFAULT_MAX_TOKENS))
 
-_api_clients = {}                                                           
-                                                                        
-def get_client(model_name, temperature, role=""):                           
-    if model_name in _api_clients:                                          
-        return _api_clients[model_name]                                     
-                                                                            
-    if model_name in mistral_models:                                        
-        client = Mistral(api_key=_api_key)                                  
-    elif model_name in anthropic_models:                                    
-        client = anthropic.Anthropic(api_key=_api_key)                      
-    elif model_name in grok_models:                                         
-        client = openai.OpenAI(api_key=_api_key,                            
-    base_url="https://api.x.ai/v1")                                             
-    elif model_name in gemini_models:                                       
-        genai.configure(api_key=_api_key)                                   
-        generation_config = {                                               
-            "temperature": float(temperature),                              
-        }                                                                   
-        client = genai.GenerativeModel(                                     
-            model_name=model_name, generation_config=generation_config,     
-    system_instruction=role, tools="code_execution"                             
-        )                                                                   
-    else:                                                                   
-        client = openai.OpenAI(api_key=_api_key)                            
-                                                                            
-    _api_clients[model_name] = client                                       
-    return client 
+def get_max_tokens(model_name):
+    return int(MODELS_MAX_TOKEN.get(model_name, DEFAULT_MAX_TOKENS))
+
+
+_api_clients = {}
+
+
+def get_client(model_name, temperature, role=""):
+    if model_name in _api_clients:
+        return _api_clients[model_name]
+
+    if model_name in mistral_models:
+        client = Mistral(api_key=_api_key)
+    elif model_name in anthropic_models:
+        client = anthropic.Anthropic(api_key=_api_key)
+    elif model_name in grok_models:
+        client = openai.OpenAI(api_key=_api_key, base_url="https://api.x.ai/v1")
+    elif model_name in gemini_models:
+        genai.configure(api_key=_api_key)
+        generation_config = {
+            "temperature": float(temperature),
+        }
+        client = genai.GenerativeModel(
+            model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
+        )
+    else:
+        client = openai.OpenAI(api_key=_api_key)
+
+    _api_clients[model_name] = client
+    return client
+
 
 def set_defaults(
     model_name,
@@ -129,9 +132,9 @@ def get_chat_completion(
             response_content = response["content"][0]["text"]
 
         elif model_name in gemini_models:
-            formatted_messages = [                                                 
+            formatted_messages = [
                 {"role": "model" if item["role"] == "assistant" else item["role"], "parts": [item["content"]]}
-                for item in messages                                               
+                for item in messages
             ]
             chat_session = client.start_chat(history=formatted_messages[:-1])
             response = chat_session.send_message(formatted_messages[-1]["parts"][0])

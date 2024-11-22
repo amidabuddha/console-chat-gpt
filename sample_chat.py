@@ -9,11 +9,11 @@ def validate_inputs(api_key: str, model_name: str, temperature: str) -> None:
         raise ValueError("API key cannot be empty")
     if not any(model_name in models_list for models_list in MODELS_LIST.values()):
         raise ValueError(f"Unsupported model: {model_name}")
-    try:                                                                                                            
-        if not 0 <= float(temperature) <= 2:                                             
-            raise ValueError("Temperature must be between 0 and 2")          
-    except ValueError:                                                     
-        raise ValueError("Temperature must be a numeric value between 0 and 2") 
+    try:
+        if not 0 <= float(temperature) <= 2:
+            raise ValueError("Temperature must be between 0 and 2")
+    except ValueError:
+        raise ValueError("Temperature must be a numeric value between 0 and 2")
 
 
 def main():
