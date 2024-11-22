@@ -47,7 +47,10 @@ def get_client(model_name, temperature, role=""):
                 "temperature": float(temperature),
             }
             client = genai.GenerativeModel(
-                model_name=model_name, generation_config=generation_config, system_instruction=role, tools="code_execution"
+                model_name=model_name,
+                generation_config=generation_config,
+                system_instruction=role,
+                tools="code_execution",
             )
         else:
             client = openai.OpenAI(api_key=_api_key)
