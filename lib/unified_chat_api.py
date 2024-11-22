@@ -29,12 +29,6 @@ def get_max_tokens(model_name):
 
 def get_client(model_name, temperature, role=""):
     if not hasattr(get_client, "_api_client"):
-        int = 0
-        if int == 0:
-            print("I got here")
-            int = int + 1
-        else:
-            print("I was here before")
         if model_name in mistral_models:
             client = Mistral(api_key=_api_key)
         elif model_name in anthropic_models:
