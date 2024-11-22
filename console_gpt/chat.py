@@ -22,7 +22,6 @@ def chat(console, data, managed_user_prompt) -> None:
     conversation = data.conversation
     temperature = data.temperature
     cached = not model_title.startswith("anthropic")
-    use_beta = False
 
     # Inner Loop
     while True:
@@ -45,7 +44,6 @@ def chat(console, data, managed_user_prompt) -> None:
             case _:
                 if model_title.startswith("anthropic") and not cached:
                     user_input["content"], cached = handled_user_input
-                    use_beta = True
                 else:
                     user_input["content"] = handled_user_input
 
@@ -59,7 +57,6 @@ def chat(console, data, managed_user_prompt) -> None:
                     model_name=model_name,
                     messages=conversation,
                     temperature=temperature,
-                    use_beta=use_beta,
                     cached=cached,
                 )
             except Exception as e:

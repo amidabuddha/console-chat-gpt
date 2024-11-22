@@ -70,18 +70,18 @@ def set_defaults(
 def get_chat_completion(
     model_name: str,
     messages: List[Dict[str, str]],
-    temperature: str = "1",
-    use_beta: bool = False,
+    temperature: str = "1.0",
     cached: Union[bool, str] = True,
 ) -> str:
     """
     Get chat completion from various AI models.
 
     Args:
-        model_name (str): Name of the model to use
-        messages (List[Dict]): List of conversation messages
-        temperature (float): Temperature for response generation
-        use_beta (bool): Whether to use beta features
+        model_name: Name of the model to use
+        messages: List of conversation messages
+        temperature: Controls the randomness of the model's output. Higher values (e.g., 1.5)                                                                                                                                            
+             make the output more random, while lower values (e.g., 0.2) make it more deterministic.                                                                                                                                      
+             Should be between 0 and 2.    
         cached (Union[bool, str]): Caching configuration (Anthropic only)
 
     Returns:
@@ -108,7 +108,15 @@ def get_chat_completion(
 
         elif model_name in anthropic_models:
             temperature = 1 if float(temperature) > 1 else temperature
-            if use_beta:
+            if cached is True:
+                response = client.messages.create(
+                    model=model_name,
+                    max_tokens=get_max_tokens(model_name),
+                    temperature=float(temperature),
+                    system=role,
+                    messages=messages,
+                ).model_dump_json()
+            else:
                 response = client.beta.prompt_caching.messages.create(
                     model=model_name,
                     max_tokens=get_max_tokens(model_name),
@@ -119,14 +127,7 @@ def get_chat_completion(
                     ],
                     messages=messages,
                 ).model_dump_json()
-            else:
-                response = client.messages.create(
-                    model=model_name,
-                    max_tokens=get_max_tokens(model_name),
-                    temperature=float(temperature),
-                    system=role,
-                    messages=messages,
-                ).model_dump_json()
+
             response = json.loads(response)
             response_content = response["content"][0]["text"]
 
