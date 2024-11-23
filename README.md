@@ -48,7 +48,7 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidia
 
 ## Features
 
-- :new: Unified chat completion function separated as independent library under /lib folder. Enjoy adding it to your application for seamless cross-provider API experience :new:
+- :new: Unified chat completion function separated as independent library. Use `pip install llm-unichat` to add it to your application for seamless cross-provider API experience. [Source code](https://github.com/amidabuddha/llm-unichat) still opepublic n on GitHub :new:
 - **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
@@ -90,7 +90,7 @@ personalization, control, and convenience.
 3. Install the necessary dependencies:
 
    ```shell
-   python3 -m pip install -r requirements.txt -r lib/requirements.txt 
+   python3 -m pip install -r requirements.txt
    ```
 
 4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey) depending on your selected LLM.

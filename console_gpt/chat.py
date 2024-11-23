@@ -3,7 +3,7 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
-from lib.unified_chat_api import get_chat_completion, set_api_key
+from unichat.unified_chat_api import get_chat_completion, set_api_key
 
 
 def chat(console, data, managed_user_prompt) -> None:
