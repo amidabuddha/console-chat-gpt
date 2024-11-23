@@ -1,4 +1,4 @@
-from unichat.unified_chat_api import get_chat_completion, set_api_key
+from unichat import UnifiedChatApi
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
@@ -19,7 +19,7 @@ def chat(console, data, managed_user_prompt) -> None:
         model_title,
     ) = data.model.values()
 
-    set_api_key(api_key)
+    client = UnifiedChatApi(api_key=api_key)
     conversation = data.conversation
     temperature = data.temperature
     cached = not model_title.startswith("anthropic")
@@ -54,7 +54,7 @@ def chat(console, data, managed_user_prompt) -> None:
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
-                response = get_chat_completion(
+                response = client.chat.completions.create(
                     model_name=model_name,
                     messages=conversation,
                     temperature=temperature,

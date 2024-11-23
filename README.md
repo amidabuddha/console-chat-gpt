@@ -48,7 +48,7 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidia
 
 ## Features
 
-- :new: Unified chat completion function separated as independent library. Use `pip install llm-unichat` to add it to your application for seamless cross-provider API experience. The [Source code](https://github.com/amidabuddha/llm-unichat) is public on GitHub :new:
+- :new: Unified chat completion function separated as independent library. Use `pip install llm-unichat` to add it to your application for seamless cross-provider API experience. The [Source code](https://github.com/amidabuddha/unichat) is public on GitHub :new:
 - **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
