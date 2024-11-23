@@ -3,8 +3,8 @@
 - [2f9325f] [Feature] Unified chat library as pip package
 
 > Improvements:
+- [f3b0172] [Improvements] Use optimized unichat module
 - [7ab23ed] [Improvement] Remove not needed bool
-- [83b5856] [Improvement] Set temperature as optional parameter
 
 
 ---
