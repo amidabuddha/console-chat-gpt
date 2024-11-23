@@ -31,28 +31,27 @@ jobs:
         run: |
           git diff --name-only HEAD HEAD~1 | grep -q "config.toml.sample" && echo "config_changed=true" >> $GITHUB_OUTPUT || echo "config_changed=false" >> $GITHUB_OUTPUT
 
-      - name: Checkout target repository
-        if: steps.check_config.outputs.config_changed == 'true'
-        uses: actions/checkout@v4
-        with:
-          repository: 'amidabuddha/llm-unichat'
-          path: 'llm-unichat'      
-          token: ${{ secrets.UNICHAT_REPO_PAT }}
-                        
-      - name: Generate and Copy models.py
-        if: steps.check_config.outputs.config_changed == 'true'
-        run: |                       
-            python3 helpers/get_models.py > llm-unichat/unichat/models.py
-            
-      - name: Commit and Push Changes
-        if: steps.check_config.outputs.config_changed == 'true'
-        working-directory: llm-unichat
-        run: |                                                
-            git config user.name github-actions                 
-            git config user.email github-actions@github.com     
-            git add unichat/models.py                           
-            git commit -m "Update models.py from source repository"                                                   
-            git push origin main 
+      - name: Clone target repository to /tmp                                                      
+        if: steps.check_config.outputs.config_changed == 'true'                                    
+        env:                                                                                       
+          UNICHAT_REPO_PAT: ${{ secrets.UNICHAT_REPO_PAT }}                                        
+        run: |                                                                                     
+          git clone https://amidabuddha:${UNICHAT_REPO_PAT}@github.com/amidabuddha/llm-unichat.git /tmp/llm-unichat                                                                             
+                                                                                                  
+      - name: Generate and Copy models.py                                                          
+        if: steps.check_config.outputs.config_changed == 'true'                                    
+        run: |                                                                                     
+          python3 helpers/get_models.py > /tmp/llm-unichat/unichat/models.py                       
+                                                                                                    
+      - name: Commit and Push Changes                                                              
+        if: steps.check_config.outputs.config_changed == 'true'                                    
+        working-directory: /tmp/llm-unichat                                                        
+        run: |                                                                                     
+          git config user.name github-actions                                                      
+          git config user.email github-actions@github.com                                          
+          git add unichat/models.py                                                                
+          git commit -m "Update models.py from source repository"                                  
+          git push origin main      
 
       - name: Formatting
         run: |
