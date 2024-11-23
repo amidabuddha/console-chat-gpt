@@ -1,7 +1,6 @@
 > Features:
 - [05ae4b5] [Feature] Upadet models in the new repo
 - [2f9325f] [Feature] Unified chat library as pip package
-- [8ad6173] [Feature] Add gemini latest experimental model
 
 > Improvements:
 - [7ab23ed] [Improvement] Remove not needed bool
