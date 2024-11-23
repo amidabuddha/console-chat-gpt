@@ -1,4 +1,5 @@
 > Features:
+- [2f9325f] [Feature] Unified chat library as pip package
 - [8ad6173] [Feature] Add gemini latest experimental model
 
 > Improvements:
