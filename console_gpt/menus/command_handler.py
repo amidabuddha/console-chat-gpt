@@ -32,12 +32,12 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             if not file_data:
                 return "continue"
             if not clarification:
-                if cached:
+                if cached is not True:
                     user_input = file_data
                 else:
                     user_input = "This is the content of a file.", file_data
             else:
-                if cached:
+                if cached is not True:
                     user_input = f"{clarification}:\n{file_data}"
                 else:
                     user_input = clarification, file_data
@@ -47,7 +47,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             if not multiline_data:
                 return "continue"
             if not clarification:
-                if cached:
+                if cached is not True:
                     user_input = multiline_data
                 else:
                     user_input = (
@@ -55,7 +55,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                         multiline_data,
                     )
             else:
-                if cached:
+                if cached is not True:
                     user_input = f"{clarification}:\n{multiline_data}"
                 else:
                     user_input = clarification, multiline_data
@@ -75,12 +75,12 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             if success:
                 clarification, webpage_data = additional_info(web_content)
                 if not clarification:
-                    if cached:
+                    if cached is not True:
                         user_input = webpage_data
                     else:
                         user_input = "This is the content of a webpage.", webpage_data
                 else:
-                    if cached:
+                    if cached is not True:
                         user_input = f"{clarification}:\n{webpage_data}"
                     else:
                         user_input = clarification, webpage_data
@@ -93,7 +93,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                     f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
                 )
                 return "continue"
-            if model_title.lower().startswith("anthropic") and not cached:
+            if model_title.lower().startswith("anthropic") and cached is True:
                 custom_print(
                     "error",
                     f"Cannot upload images into Anthropic Prompt Cache",
@@ -103,7 +103,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
         case "exit" | "quit" | "bye":
             save_chat(conversation, ask=True)
         case _:
-            if cached:
+            if cached is not True:
                 return user_input
             else:
                 return user_input, str(cached)

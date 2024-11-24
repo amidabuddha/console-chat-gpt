@@ -22,7 +22,7 @@ def chat(console, data, managed_user_prompt) -> None:
     client = UnifiedChatApi(api_key=api_key)
     conversation = data.conversation
     temperature = data.temperature
-    cached = not model_title.startswith("anthropic")
+    cached = model_title.startswith("anthropic")
 
     # Inner Loop
     while True:
@@ -43,7 +43,7 @@ def chat(console, data, managed_user_prompt) -> None:
             case "break":
                 break
             case _:
-                if model_title.startswith("anthropic") and not cached:
+                if model_title.startswith("anthropic") and cached is True:
                     user_input["content"], cached = handled_user_input
                 else:
                     user_input["content"] = handled_user_input
