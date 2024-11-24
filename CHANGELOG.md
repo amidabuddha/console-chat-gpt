@@ -4,7 +4,6 @@
 
 > Improvements:
 - [f3b0172] [Improvements] Use optimized unichat module
-- [7ab23ed] [Improvement] Remove not needed bool
 
 
 ---
