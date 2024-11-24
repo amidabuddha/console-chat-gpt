@@ -49,8 +49,9 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidia
 ## Features
 
 - :new: Unified chat completion function separated as independent library. Use `pip install unichat` to add it to your application for seamless cross-provider API experience. The [Source code](https://github.com/amidabuddha/unichat) is public on GitHub :new:
-- **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
+- :star: [**Anthropic Prompt caching (beta)**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) supported :star:
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
+- **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
   how the app works. Also supported in-app via the `settings` command.
 - **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
