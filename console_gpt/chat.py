@@ -1,7 +1,7 @@
 from unichat import UnifiedChatApi
 
 from console_gpt.config_manager import fetch_variable
-from console_gpt.custom_stdout import custom_print
+from console_gpt.custom_stdout import custom_print, markdown_stream
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.save_chat_prompt import save_chat
@@ -54,19 +54,17 @@ def chat(console, data, managed_user_prompt) -> None:
         conversation.append(user_input)
 
         # Get chat completion
-        if streaming:
-            response = ""
-            assistance_reply("", model_name)
+        # Start the loading bar until API response is returned
+        with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             try:
 
-                for chunk in client.chat.completions.create(
+                response = client.chat.completions.create(
                     model_name=model_name,
                     messages=conversation,
                     temperature=temperature,
                     cached=cached,
-                ):
-                    response += chunk
-                    print(chunk, end="")
+                    stream=streaming
+                )
 
             except Exception as e:
                 error_appeared = True
@@ -76,26 +74,6 @@ def chat(console, data, managed_user_prompt) -> None:
                 custom_print("info", "Interrupted the request. Continue normally.")
                 conversation.pop(-1)
                 continue
-            print()
-        else:
-            # Start the loading bar until API response is returned
-            with console.status("[bold green]Generating a response...", spinner="aesthetic"):
-                try:
-                    response = client.chat.completions.create(
-                        model_name=model_name,
-                        messages=conversation,
-                        temperature=temperature,
-                        cached=cached,
-                        stream=False,
-                    )
-                except Exception as e:
-                    error_appeared = True
-                    print(f"An error occurred: {e}")
-                except KeyboardInterrupt:
-                    # Notifying the user about the interrupt but continues normally.
-                    custom_print("info", "Interrupted the request. Continue normally.")
-                    conversation.pop(-1)
-                    continue
         if error_appeared:
             custom_print(
                 "warn",
@@ -104,7 +82,11 @@ def chat(console, data, managed_user_prompt) -> None:
             # Removes the last user input in order to avoid issues if the conversation continues
             conversation.pop(-1)
             continue
+        if streaming:
+            assistance_reply("", model_name)
+            response = markdown_stream(response)
+        else:
+            assistance_reply(response, model_name)
+
         assistant_response = dict(role="assistant", content=response)
         conversation.append(assistant_response)
-        if not streaming:
-            assistance_reply(response, model_name)
