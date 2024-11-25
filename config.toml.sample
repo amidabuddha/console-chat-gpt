@@ -29,7 +29,6 @@ disable_intro_help_message = false
 assistant_mode = true
 ai_managed = true
 streaming = false
-dummy_feature = false
 
 [chat.roles]
 ai_expert = "Simplify AI principles, Machine Learning, and Neural Networks for all understanding levels."
@@ -152,6 +151,6 @@ model_output_pricing_per_1k = 0.00
 api_key = "YOUR_GEMINI_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k =0.00
-model_max_tokens = 8192
+model_max_tokens = 8195
 model_name = "gemini-exp-1121"
 model_output_pricing_per_1k = 0.00
