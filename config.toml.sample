@@ -67,6 +67,14 @@ model_max_tokens = 16384
 model_name = "gpt-4o"
 model_output_pricing_per_1k = 0.01
 
+[chat.models.gpt4-4o-latest]
+api_key = "YOUR_OPENAI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k =0.0025
+model_max_tokens = 16384
+model_name = "gpt-4o-2024-11-20"
+model_output_pricing_per_1k = 0.01
+
 [chat.models.o1-mini]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
