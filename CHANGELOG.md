@@ -3,6 +3,7 @@
 - [eea7ab6] [Feature] Streaming with all supported models
 
 > Improvements:
+- [8f6e77d] [Improvement] Fix markdown formatting with streaming
 - [d6409e3] [Improvement] Update cached parameter boolean logic
 
 > Others:

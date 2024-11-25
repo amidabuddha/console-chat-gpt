@@ -63,7 +63,7 @@ def chat(console, data, managed_user_prompt) -> None:
                     messages=conversation,
                     temperature=temperature,
                     cached=cached,
-                    stream=streaming
+                    stream=streaming,
                 )
 
             except Exception as e:

@@ -1,8 +1,8 @@
 from typing import Literal, Optional
 
 from rich.console import Console
-from rich.markdown import Markdown
 from rich.live import Live
+from rich.markdown import Markdown
 from rich.text import Text
 from termcolor import colored
 
@@ -23,6 +23,7 @@ def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] =
 
     # Print the Markdown content with word wrapping handled by Console
     console.print(markdown, width=console.width)
+
 
 def markdown_stream(chunks):
     console = Console()
