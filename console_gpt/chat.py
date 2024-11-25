@@ -24,7 +24,7 @@ def chat(console, data, managed_user_prompt) -> None:
     conversation = data.conversation
     temperature = data.temperature
     cached = model_title.startswith("anthropic")
-    streaming = fetch_variable("features","streaming")
+    streaming = fetch_variable("features", "streaming")
 
     # Inner Loop
     while True:
@@ -66,7 +66,7 @@ def chat(console, data, managed_user_prompt) -> None:
                     cached=cached,
                 ):
                     response += chunk
-                    print(chunk,end="")
+                    print(chunk, end="")
 
             except Exception as e:
                 error_appeared = True
