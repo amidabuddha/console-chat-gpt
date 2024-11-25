@@ -50,7 +50,7 @@ jobs:
           echo "to_push=$(git -C /tmp/llm-unichat status --porcelain | grep -q . && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
       - name: Commit and Push Changes
-        if: steps.check_config.outputs.config_changed == 'true' and steps.check_git_status.outputs.to_push == 'true'
+        if: steps.check_config.outputs.config_changed == 'true' && steps.check_git_status.outputs.to_push == 'true'
         working-directory: /tmp/llm-unichat
         run: |
           git config user.name github-actions                                                      
