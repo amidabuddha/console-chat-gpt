@@ -81,14 +81,14 @@ def chat(console, data, managed_user_prompt) -> None:
             else:
                 assistance_reply(response, model_name)
         except Exception as e:
-                error_appeared = True
-                print(f"An error occurred: {e}")
+            error_appeared = True
+            print(f"An error occurred: {e}")
         except KeyboardInterrupt:
-                # Notifying the user about the interrupt but continues normally.
-                custom_print("info", "Interrupted the request. Continue normally.")
-                conversation.pop(-1)
-                continue
-            
+            # Notifying the user about the interrupt but continues normally.
+            custom_print("info", "Interrupted the request. Continue normally.")
+            conversation.pop(-1)
+            continue
+
         if error_appeared:
             custom_print(
                 "warn",
