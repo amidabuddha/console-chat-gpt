@@ -28,7 +28,7 @@ def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] =
 def markdown_stream(chunks):
     console = Console()
     response = ""
-    with Live(console=console, refresh_per_second=10) as live:
+    with Live(console=console, refresh_per_second=10, vertical_overflow="ellipsis") as live:
         for chunk in chunks:
             response += chunk
             md = Markdown(response, code_theme="dracula")
