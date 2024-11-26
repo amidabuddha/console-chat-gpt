@@ -68,6 +68,7 @@ def chat(console, data, managed_user_prompt) -> None:
             )
 
         if response not in ["interrupted", "error_appeared"] and streaming:
+            assistance_reply("", model_name)
             response = handle_with_exceptions(lambda: (markdown_stream(response)))
 
         if response not in ["interrupted", "error_appeared"] and not streaming:
