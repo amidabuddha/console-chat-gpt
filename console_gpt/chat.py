@@ -25,7 +25,6 @@ def chat(console, data, managed_user_prompt) -> None:
     conversation = data.conversation
     temperature = data.temperature
     cached = model_title.startswith("anthropic")
-    streaming = fetch_variable("features", "streaming")
 
     # Inner Loop
     while True:
@@ -55,6 +54,7 @@ def chat(console, data, managed_user_prompt) -> None:
         conversation.append(user_input)
 
         # Get chat completion
+        streaming = fetch_variable("features", "streaming")
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             response = handle_with_exceptions(
