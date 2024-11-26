@@ -1,4 +1,4 @@
-import openai
+from unichat.unichat import openai
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize
@@ -26,7 +26,7 @@ def assistant(console, data) -> None:
         elif user_input.lower() in ["flush", "new"]:
             break
         # TODO implement dedicated command handler for assistants
-        handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "", True)
+        handled_user_input = command_handler(data.model["model_title"], data.model["model_name"], user_input, "", False)
         match handled_user_input:
             case "continue" | None:
                 continue

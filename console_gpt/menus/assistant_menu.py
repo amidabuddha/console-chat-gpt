@@ -6,7 +6,7 @@ import textwrap
 import time
 from typing import List, Optional, Tuple
 
-import openai
+from unichat.unichat import openai
 
 from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
                                         write_to_config)
@@ -24,7 +24,6 @@ TIMEOUT = 300
 
 # Internal Functions
 ## Menus
-
 
 def assistant_menu(model) -> Optional[Tuple]:
     """

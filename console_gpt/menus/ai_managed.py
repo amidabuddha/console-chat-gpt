@@ -1,8 +1,7 @@
 import json
 from typing import Tuple
 
-import anthropic
-import openai
+from unichat.unichat import openai, anthropic
 from rich.console import Console
 
 from console_gpt.catch_errors import sigint_wrapper
