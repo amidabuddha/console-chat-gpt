@@ -59,7 +59,7 @@ def chat(console, data, managed_user_prompt) -> None:
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             response = handle_with_exceptions(
                 lambda: client.chat.completions.create(
-                    model_name=model_name,
+                    model=model_name,
                     messages=conversation,
                     temperature=temperature,
                     cached=cached,

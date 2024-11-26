@@ -59,7 +59,7 @@ def send_request(client, assistant, conversation):
     role = {"role": "system", "content": assistant["role"]}
     conversation.insert(0, role)
     return client.chat.completions.create(
-        model_name=assistant["model_name"],
+        model=assistant["model_name"],
         messages=conversation,
         stream=False,
     )
