@@ -25,6 +25,7 @@ TIMEOUT = 300
 # Internal Functions
 ## Menus
 
+
 def assistant_menu(model) -> Optional[Tuple]:
     """
     If assitant mode is enabled collect the necessary data to create a new one.
