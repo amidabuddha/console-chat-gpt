@@ -39,3 +39,14 @@ def eof_wrapper(func):
         custom_print("error", "Maximum retries exceeded. Exiting function.", 1)
 
     return inner
+
+def handle_with_exceptions(action):
+    try:
+        response = action()
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "error_appeared"
+    except KeyboardInterrupt:
+        custom_print("info", "Interrupted the request. Continue normally.")
+        return "interrupted"

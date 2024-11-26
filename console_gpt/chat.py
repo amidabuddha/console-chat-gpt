@@ -1,5 +1,6 @@
 from unichat import UnifiedChatApi
 
+from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print, markdown_stream
 from console_gpt.menus.command_handler import command_handler
@@ -56,38 +57,25 @@ def chat(console, data, managed_user_prompt) -> None:
         # Get chat completion
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
-            try:
+            response = handle_with_exceptions(lambda: client.chat.completions.create(
+                model_name=model_name,
+                messages=conversation,
+                temperature=temperature,
+                cached=cached,
+                stream=streaming
+            ))
 
-                response = client.chat.completions.create(
-                    model_name=model_name,
-                    messages=conversation,
-                    temperature=temperature,
-                    cached=cached,
-                    stream=streaming,
+        if response not in ["interrupted", "error_appeared"] and streaming:
+                response = handle_with_exceptions(lambda: (markdown_stream(response))
                 )
 
-            except Exception as e:
-                error_appeared = True
-                print(f"An error occurred: {e}")
-            except KeyboardInterrupt:
-                # Notifying the user about the interrupt but continues normally.
-                custom_print("info", "Interrupted the request. Continue normally.")
-                conversation.pop(-1)
-                continue
-        try:
-            if streaming:
-                assistance_reply("", model_name)
-                response = markdown_stream(response)
-            else:
+        if response not in ["interrupted", "error_appeared"] and not streaming:
                 assistance_reply(response, model_name)
-        except Exception as e:
-            error_appeared = True
-            print(f"An error occurred: {e}")
-        except KeyboardInterrupt:
-            # Notifying the user about the interrupt but continues normally.
-            custom_print("info", "Interrupted the request. Continue normally.")
+        elif response == "interrupted":
             conversation.pop(-1)
             continue
+        elif response == "error_appeared":
+             error_appeared = True
 
         if error_appeared:
             custom_print(
