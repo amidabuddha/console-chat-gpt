@@ -57,25 +57,26 @@ def chat(console, data, managed_user_prompt) -> None:
         # Get chat completion
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
-            response = handle_with_exceptions(lambda: client.chat.completions.create(
-                model_name=model_name,
-                messages=conversation,
-                temperature=temperature,
-                cached=cached,
-                stream=streaming
-            ))
+            response = handle_with_exceptions(
+                lambda: client.chat.completions.create(
+                    model_name=model_name,
+                    messages=conversation,
+                    temperature=temperature,
+                    cached=cached,
+                    stream=streaming,
+                )
+            )
 
         if response not in ["interrupted", "error_appeared"] and streaming:
-                response = handle_with_exceptions(lambda: (markdown_stream(response))
-                )
+            response = handle_with_exceptions(lambda: (markdown_stream(response)))
 
         if response not in ["interrupted", "error_appeared"] and not streaming:
-                assistance_reply(response, model_name)
+            assistance_reply(response, model_name)
         elif response == "interrupted":
             conversation.pop(-1)
             continue
         elif response == "error_appeared":
-             error_appeared = True
+            error_appeared = True
 
         if error_appeared:
             custom_print(

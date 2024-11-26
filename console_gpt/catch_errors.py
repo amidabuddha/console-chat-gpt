@@ -40,6 +40,7 @@ def eof_wrapper(func):
 
     return inner
 
+
 def handle_with_exceptions(action):
     try:
         response = action()
