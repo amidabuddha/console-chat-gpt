@@ -1,12 +1,12 @@
 from typing import Dict, List, NamedTuple
 
+from console_gpt.constants import api_key_placeholders
 from console_gpt.menus.assistant_menu import assistant_menu
 from console_gpt.menus.key_menu import set_api_key
 from console_gpt.menus.model_menu import model_menu
 from console_gpt.menus.role_menu import role_menu
 from console_gpt.menus.select_chat_menu import select_chat_menu
 from console_gpt.prompts.temperature_prompt import temperature_prompt
-from console_gpt.constants import api_key_placeholders
 
 """
 All menus at once for simplicity
