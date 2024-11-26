@@ -6,6 +6,7 @@ from console_gpt.menus.model_menu import model_menu
 from console_gpt.menus.role_menu import role_menu
 from console_gpt.menus.select_chat_menu import select_chat_menu
 from console_gpt.prompts.temperature_prompt import temperature_prompt
+from console_gpt.constants import api_key_placeholders
 
 """
 All menus at once for simplicity
@@ -33,13 +34,7 @@ def combined_menu() -> ChatObject | AssistantObject:
     """
 
     model = model_menu()
-    if model["api_key"] in (
-        "YOUR_OPENAI_API_KEY",
-        "YOUR_MISTRALAI_API_KEY",
-        "YOUR_ANTHROPIC_API_KEY",
-        "YOUR_GROK_API_KEY",
-        "YOUR_GEMINI_API_KEY",
-    ):
+    if model["api_key"] in api_key_placeholders:
         model = set_api_key(model)
     assistant = assistant_menu(model) if model["model_title"].lower().startswith(("gpt3", "gpt4")) else None
     if assistant:

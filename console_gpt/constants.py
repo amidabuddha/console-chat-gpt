@@ -29,3 +29,11 @@ custom_style = Style(
         ("selected", "fg:#ffffff bg:#000000 bold"),  # selected text color
     ]
 )
+
+api_key_placeholders = {
+    "YOUR_OPENAI_API_KEY",
+    "YOUR_MISTRALAI_API_KEY",
+    "YOUR_ANTHROPIC_API_KEY",
+    "YOUR_GROK_API_KEY",
+    "YOUR_GEMINI_API_KEY",
+}

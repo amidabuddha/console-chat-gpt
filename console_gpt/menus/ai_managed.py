@@ -2,7 +2,7 @@ import json
 from typing import Tuple
 
 from rich.console import Console
-from unichat.unichat import anthropic, openai
+from unichat import UnifiedChatApi
 
 from console_gpt.catch_errors import sigint_wrapper
 from console_gpt.config_manager import fetch_variable
@@ -12,6 +12,7 @@ from console_gpt.menus.command_handler import command_handler
 from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
+from console_gpt.constants import api_key_placeholders
 
 
 def managed_prompt() -> Tuple[ChatObject, str]:
@@ -40,13 +41,7 @@ def configure_assistant():
 
 
 def update_api_key_if_placeholder(model_data):
-    if model_data["api_key"] in (
-        "YOUR_OPENAI_API_KEY",
-        "YOUR_MISTRALAI_API_KEY",
-        "YOUR_ANTHROPIC_API_KEY",
-        "YOUR_GROK_API_KEY",
-        "YOUR_GEMINI_API_KEY",
-    ):
+    if model_data["api_key"] in api_key_placeholders:
         return set_api_key(model_data)
     return model_data
 
@@ -56,43 +51,24 @@ def get_client(assistant):
     Get the default model based on the config
     :param assistant: Data from the config
     """
-    if assistant["model_title"].startswith("gpt"):
-        return openai.OpenAI(api_key=assistant["api_key"])
-    elif assistant["model_title"].startswith("anthropic"):
-        return anthropic.Anthropic(api_key=assistant["api_key"])
+    return UnifiedChatApi(api_key=assistant["api_key"])
 
 
 @sigint_wrapper
 def send_request(client, assistant, conversation):
-    if assistant["model_title"].startswith("anthropic"):
-        return client.messages.create(
-            model=assistant["model_name"],
-            max_tokens=assistant["model_max_tokens"],
-            temperature=0,
-            system=assistant["role"],
-            messages=conversation,
-        ).model_dump_json()
-    else:
-        role = {"role": "system", "content": assistant["role"]}
-        conversation.insert(0, role)
-        return client.chat.completions.create(
-            model=assistant["model_name"],
-            temperature=0,
-            messages=conversation,
-        )
+    role = {"role": "system", "content": assistant["role"]}
+    conversation.insert(0, role)
+    return client.chat.completions.create(
+        model_name=assistant["model_name"],
+        messages=conversation,
+        stream=False,
+    )
 
 
 def handle_error(*args):
     for error in args:
         print(error)
     custom_print("error", "Exception was raised. Please check the error above for more information.", exit_code=1)
-
-
-def parse_response(response, assistant):
-    if assistant["model_title"].startswith("anthropic"):
-        response = json.loads(response)
-        return response["content"][0]["text"]
-    return response.choices[0].message.content
 
 
 def self_correction(last_reply):
@@ -141,17 +117,7 @@ def get_model_and_prompts_based_on_conversation(assistant):
     max_retries = 3
     while max_retries > 0:
         with console.status("[bold cyan]Choosing the best model for you...", spinner="aesthetic"):
-            try:
-                response = send_request(client, assistant, conversation)
-            except (openai.APIConnectionError, anthropic.APIConnectionError) as e:
-                handle_error("The server could not be reached", e.__cause__)
-            except (openai.RateLimitError, anthropic.RateLimitError) as e:
-                handle_error(f"A 429 status code was received; we should back off a bit. - {e}")
-            except (openai.APIStatusError, anthropic.APIStatusError, anthropic.BadRequestError) as e:
-                handle_error("Another non-200-range status code was received", e.status_code, e.response, e.message)
-            except Exception as e:
-                handle_error(f"Unexpected error: {e}")
-            response = parse_response(response, assistant)
+            response = send_request(client, assistant, conversation)
             try:
                 response = json.loads(response)
                 break
