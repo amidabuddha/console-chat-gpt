@@ -24,7 +24,7 @@ jobs:
           python-version: 3.11
 
       - name: Install dependencies
-        run: pip install black isort toml poetry
+        run: pip install black isort toml
 
       - name: Check for config.toml.sample changes
         id: check_config
@@ -53,7 +53,12 @@ jobs:
         if: steps.check_config.outputs.config_changed == 'true' && steps.check_git_status.outputs.to_push == 'true'
         working-directory: /tmp/unichat
         run: |
-          poetry version patch
+          CURRENT_VERSION=$(grep '^version' pyproject.toml | awk -F '"' '{print $2}')
+          echo "Current version: $CURRENT_VERSION"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/"pyproject.toml
 
       - name: Commit and Push Changes
         if: steps.check_config.outputs.config_changed == 'true' && steps.check_git_status.outputs.to_push == 'true'
