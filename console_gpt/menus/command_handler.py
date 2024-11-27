@@ -87,6 +87,12 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                 return user_input
             return "continue"
         case "image":
+            if model_title.lower().startswith(("mistral")):
+                custom_print(
+                    "error",
+                    f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
+                )
+                return "continue"
             if model_title.lower().startswith("anthropic") and cached is True:
                 custom_print(
                     "error",
