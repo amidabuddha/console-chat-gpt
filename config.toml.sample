@@ -155,14 +155,6 @@ model_max_tokens = 8192
 model_name = "gemini-1.5-pro"
 model_output_pricing_per_1k = 0.00
 
-[chat.models.gemini-pro-latest]
-api_key = "YOUR_GEMINI_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k =0.00
-model_max_tokens = 8192
-model_name = "gemini-1.5-pro-latest"
-model_output_pricing_per_1k = 0.00
-
 [chat.models.gemini-exp]
 api_key = "YOUR_GEMINI_API_KEY"
 api_usage = 0

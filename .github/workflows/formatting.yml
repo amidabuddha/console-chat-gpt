@@ -57,7 +57,7 @@ jobs:
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
           PATCH=$((PATCH + 1))
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/"pyproject.toml
+          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
 
       - name: Commit and Push Changes
         if: steps.check_config.outputs.config_changed == 'true' && steps.check_git_status.outputs.to_push == 'true'
