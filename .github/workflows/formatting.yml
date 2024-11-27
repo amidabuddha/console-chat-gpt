@@ -24,7 +24,7 @@ jobs:
           python-version: 3.11
 
       - name: Install dependencies
-        run: pip install black isort toml
+        run: pip install black isort toml poetry
 
       - name: Check for config.toml.sample changes
         id: check_config
@@ -36,27 +36,33 @@ jobs:
         env:
           UNICHAT_REPO_PAT: ${{ secrets.UNICHAT_REPO_PAT }}
         run: |
-          git clone https://amidabuddha:${UNICHAT_REPO_PAT}@github.com/amidabuddha/llm-unichat.git /tmp/llm-unichat
+          git clone https://amidabuddha:${UNICHAT_REPO_PAT}@github.com/amidabuddha/unichat.git /tmp/unichat
 
       - name: Generate and Copy models.py
         if: steps.check_config.outputs.config_changed == 'true'
         run: |
-          python3 helpers/get_models.py > /tmp/llm-unichat/unichat/models.py
+          python3 helpers/get_models.py > /tmp/unichat/unichat/models.py
 
       - name: Check if there are changes to be pushed
         id: check_git_status
         if: steps.check_config.outputs.config_changed == 'true'
         run: |
-          echo "to_push=$(git -C /tmp/llm-unichat status --porcelain | grep -q . && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "to_push=$(git -C /tmp/unichat status --porcelain | grep -q . && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+      - name: Increment unichat patch version
+        if: steps.check_config.outputs.config_changed == 'true' && steps.check_git_status.outputs.to_push == 'true'
+        working-directory: /tmp/unichat
+        run: |
+          poetry version patch
 
       - name: Commit and Push Changes
         if: steps.check_config.outputs.config_changed == 'true' && steps.check_git_status.outputs.to_push == 'true'
-        working-directory: /tmp/llm-unichat
+        working-directory: /tmp/unichat
         run: |
-          git config user.name github-actions                                                      
-          git config user.email github-actions@github.com                                          
-          git add unichat/models.py                                                                
-          git commit -m "Update models.py from source repository"                                  
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add unichat/models.py pyproject.toml
+          git commit -m "Update models.py from source repository"
           git push origin main
 
       - name: Formatting
