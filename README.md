@@ -48,7 +48,7 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidia
 
 ## Features
 
-- :new: Unified chat completion function separated as independent library. Use `pip install unichat` to add it to your application for seamless cross-provider API experience. The [Source code](https://github.com/amidabuddha/unichat) is public on GitHub :new:
+- :new: Unified chat completion function separated as independent library to be used in any application for seamless cross-provider API experience. The Source code is available on GitHub in [Python](https://github.com/amidabuddha/unichat) and [TypeScript](https://github.com/amidabuddha/unichat-ts) :new:
 - :new: Streaming with all supported models, disabled by default, may be enabled in 'settings' menu :new:
 - :star: [**Anthropic Prompt caching (beta)**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) supported :star:
 - :star: [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported :star:
