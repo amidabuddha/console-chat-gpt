@@ -44,6 +44,10 @@ for model, model_data in models_data.items():
     elif "gemini" in model:
         MODELS_LIST["gemini_models"].append(model_name)
 
-# Print the results
-print("MODELS_LIST = ", json.dumps(MODELS_LIST, indent=4))
-print("MODELS_MAX_TOKEN = ", json.dumps(MODELS_MAX_TOKEN, indent=4))
+# --- Output JSON strings with delimiter ---
+print("###MODELS_LIST_START###")
+print(json.dumps(MODELS_LIST))
+print("###MODELS_LIST_END###")
+print("###MODELS_MAX_TOKEN_START###")
+print(json.dumps(MODELS_MAX_TOKEN))
+print("###MODELS_MAX_TOKEN_END###")
