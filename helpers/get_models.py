@@ -46,8 +46,8 @@ for model, model_data in models_data.items():
 
 # --- Output JSON strings with delimiter ---
 print("###MODELS_LIST_START###")
-print(MODELS_LIST)
+print(json.dumps(MODELS_LIST))
 print("###MODELS_LIST_END###")
 print("###MODELS_MAX_TOKEN_START###")
-print(MODELS_MAX_TOKEN)
+print(json.dumps(MODELS_MAX_TOKEN))
 print("###MODELS_MAX_TOKEN_END###")
