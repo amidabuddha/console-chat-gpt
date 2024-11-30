@@ -2,6 +2,7 @@ from pathlib import Path
 
 import toml
 
+
 def get_models():
     # Get the script's directory and construct path to config file
     script_dir = Path(__file__).parent
