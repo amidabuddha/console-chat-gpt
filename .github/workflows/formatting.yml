@@ -84,7 +84,7 @@ jobs:
       - name: Generate and Copy models.ts
         if: steps.check_config.outputs.config_changed == 'true'
         run: |
-          python3 helpers/get_models_ts.py > /tmp/unichat-ts/src/models.py
+          python3 helpers/get_models_ts.py > /tmp/unichat-ts/src/models.ts
 
       - name: Check if there are changes to be pushed to unichat-ts
         id: check_unichat_ts_git_status
