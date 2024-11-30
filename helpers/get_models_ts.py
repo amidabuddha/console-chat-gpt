@@ -30,7 +30,7 @@ for model, model_data in models_data.items():
     max_tokens = model_data["model_max_tokens"]
 
     # Fill MODELS_MAX_TOKEN
-    MODELS_MAX_TOKEN[model_name] = str(max_tokens)
+    MODELS_MAX_TOKEN[model_name] = int(max_tokens)
 
     # Fill MODELS_LIST
     if "anthropic" in model:
