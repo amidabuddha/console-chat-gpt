@@ -45,5 +45,5 @@ for model, model_data in models_data.items():
         MODELS_LIST["gemini_models"].append(model_name)
 
 # --- Output JSON strings with delimiter ---
-print("MODELS_LIST = ", json.dumps(MODELS_LIST, indent=4))
-print("MODELS_MAX_TOKEN = ", json.dumps(MODELS_MAX_TOKEN, indent=4))
+print("export const MODELS_LIST = ", json.dumps(MODELS_LIST, indent=4))
+print("export const MODELS_MAX_TOKEN: Record<string, string> = ", json.dumps(MODELS_MAX_TOKEN, indent=4))
