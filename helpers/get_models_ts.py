@@ -46,4 +46,4 @@ for model, model_data in models_data.items():
 
 # --- Output JSON strings with delimiter ---
 print("export const MODELS_LIST = ", json.dumps(MODELS_LIST, indent=4))
-print("export const MODELS_MAX_TOKEN: Record<string, string> = ", json.dumps(MODELS_MAX_TOKEN, indent=4))
+print("export const MODELS_MAX_TOKEN: Record<string, number> = ", json.dumps(MODELS_MAX_TOKEN, indent=4))
