@@ -68,8 +68,8 @@ jobs:
       - name: Update models.py in unichat
         if: steps.check_config.outputs.config_changed == 'true'
         run: |
-          # echo "${{ env.MODELS_PY_CONTENT }}" > /tmp/unichat/unichat/models.py
-          echo "${{ env.MODELS_PY_CONTENT }}"
+          echo ${{ env.MODELS_PY_CONTENT }} > /tmp/unichat/unichat/models.py
+
 
       - name: Check if there are changes to be pushed to unichat
         id: check_unichat_git_status
@@ -105,8 +105,7 @@ jobs:
       - name: Update src/models.ts in unichat-ts
         if: steps.check_config.outputs.config_changed == 'true'
         run: |
-          # echo "${{ env.MODELS_TS_CONTENT }}" > /tmp/unichat-ts/src/models.ts
-          echo "${{ env.MODELS_TS_CONTENT }}"
+          echo ${{ env.MODELS_TS_CONTENT }} > /tmp/unichat-ts/src/models.ts
 
       - name: Check if there are changes to be pushed to unichat-ts
         id: check_unichat_ts_git_status
