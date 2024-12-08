@@ -5,5 +5,8 @@
 > Bug Fixes:
 - [d08ecd7] [BugFix] Proper imports
 
+> Others:
+- [d1cf894] [Other] Update gemini-exp
+
 
 ---
