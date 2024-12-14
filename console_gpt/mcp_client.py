@@ -3,7 +3,6 @@
 import asyncio
 import json
 import os
-import platform
 import shutil
 import subprocess
 from functools import wraps
@@ -82,18 +81,7 @@ def get_executable_path(command: str) -> str:
 
     def check_common_paths(cmd: str) -> Optional[str]:
         common_paths = []
-        if platform.system() == "Windows":
-            program_files = os.environ.get("ProgramFiles", "C:\\Program Files")
-            program_files_x86 = os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)")
-            common_paths.extend(
-                [
-                    os.path.join(program_files, "nodejs", cmd),
-                    os.path.join(program_files_x86, "nodejs", cmd),
-                    os.path.join(os.environ.get("APPDATA", ""), "npm", cmd),
-                ]
-            )
-        else:  # Unix-like systems
-            common_paths.extend(
+        common_paths.extend(
                 [
                     f"/usr/local/bin/{cmd}",
                     f"/usr/bin/{cmd}",
@@ -109,29 +97,22 @@ def get_executable_path(command: str) -> str:
                 return path
         return None
 
-    # 1. First check if it's a full path
     if os.path.sep in command:
         if os.path.isfile(command):
             return command
 
-    # 2. Try to find in PATH using shutil.which
     path = shutil.which(command)
     if path:
         return path
 
-    # 3. Check common installation paths
     path = check_common_paths(command)
     if path:
         return path
 
-    # 4. For node-related commands, try using 'npm bin' to locate them
     if command in ["node", "npm", "npx", "uv", "uvx"]:
         try:
             # Try to get the path from npm
-            if platform.system() == "Windows":
-                npm_cmd = "npm.cmd"
-            else:
-                npm_cmd = "npm"
+            npm_cmd = "npm"
 
             npm_path = shutil.which(npm_cmd)
             if npm_path:

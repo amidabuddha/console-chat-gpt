@@ -28,7 +28,8 @@ def chat(console, data, managed_user_prompt) -> None:
     conversation = data.conversation
     temperature = data.temperature
     cached = model_title.startswith("anthropic")
-    tools = initialize_tools()
+    tools = initialize_tools() if fetch_variable("features", "mcp_client") else []
+
 
     # Inner Loop
     while True:

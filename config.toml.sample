@@ -29,6 +29,7 @@ disable_intro_help_message = false
 assistant_mode = true
 ai_managed = true
 streaming = false
+mcp_client = true
 
 [chat.roles]
 ai_expert = "Simplify AI principles, Machine Learning, and Neural Networks for all understanding levels."
