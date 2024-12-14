@@ -82,15 +82,15 @@ def get_executable_path(command: str) -> str:
     def check_common_paths(cmd: str) -> Optional[str]:
         common_paths = []
         common_paths.extend(
-                [
-                    f"/usr/local/bin/{cmd}",
-                    f"/usr/bin/{cmd}",
-                    f"/opt/homebrew/bin/{cmd}",  # Common on macOS with Homebrew
-                    os.path.expanduser(f"~/.nvm/current/bin/{cmd}"),  # NVM installation
-                    os.path.expanduser(f"~/.npm-global/bin/{cmd}"),  # NPM global installation
-                    os.path.expanduser(f"~/.local/bin/{cmd}"),  # User local installation
-                ]
-            )
+            [
+                f"/usr/local/bin/{cmd}",
+                f"/usr/bin/{cmd}",
+                f"/opt/homebrew/bin/{cmd}",  # Common on macOS with Homebrew
+                os.path.expanduser(f"~/.nvm/current/bin/{cmd}"),  # NVM installation
+                os.path.expanduser(f"~/.npm-global/bin/{cmd}"),  # NPM global installation
+                os.path.expanduser(f"~/.local/bin/{cmd}"),  # User local installation
+            ]
+        )
 
         for path in common_paths:
             if os.path.isfile(path):

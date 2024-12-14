@@ -1,4 +1,5 @@
 > Features:
+- [edaef5f] [Feature] Enable/disable MCP in settings
 - [f5c9061] [Feature] List all active tools
 - [4aa86db] [Feature] Model Context Protocol support
 

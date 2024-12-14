@@ -30,7 +30,6 @@ def chat(console, data, managed_user_prompt) -> None:
     cached = model_title.startswith("anthropic")
     tools = initialize_tools() if fetch_variable("features", "mcp_client") else []
 
-
     # Inner Loop
     while True:
         response = ""  # Adding this to satisfy the IDE
