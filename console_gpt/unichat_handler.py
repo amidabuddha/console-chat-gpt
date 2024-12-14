@@ -64,22 +64,15 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 # Process tool calls
                 if current_assistant_message.get('tool_calls'):
                     for tool_call in current_assistant_message['tool_calls']:
-                        if tool_call['function']['name'] == "calculator":
-                            try:
-                                result = get_calculation(tool_call)
-                                conversation.append(result)
-                            except Exception as e:
-                                raise
-                        else:
-                            try:
-                                result = {
-                                    "role": "tool",
-                                    "content": str(call_tool(tool_call['function']['name'], json.loads(tool_call['function']['arguments']))),
-                                    "tool_call_id": tool_call['id']
-                                }
-                                conversation.append(result)
-                            except Exception as e:
-                                raise
+                        try:
+                            result = {
+                                "role": "tool",
+                                "content": str(call_tool(tool_call['function']['name'], json.loads(tool_call['function']['arguments']))),
+                                "tool_call_id": tool_call['id']
+                            }
+                            conversation.append(result)
+                        except Exception as e:
+                            raise
 
         return conversation
 
@@ -130,52 +123,14 @@ def handle_non_streaming_response(model_name, response, conversation):
     # Process tool calls if they exist
     if tool_calls:
         for tool in assistant_response.get('tool_calls'):
-            if tool_call['function']['name'] == "calculator":
-                try:
-                    result = get_calculation(tool_call)
-                    conversation.append(result)
-                except Exception as e:
-                    raise
-            else:
-                try:
-                    result = {
-                        "role": "tool",
-                        "content": str(call_tool(tool['function']['name'], json.loads(tool['function']['arguments']))),
-                        "tool_call_id": tool_call['id']
-                    }
-                    conversation.append(result)
-                except Exception as e:
-                    raise
+            try:
+                result = {
+                    "role": "tool",
+                    "content": str(call_tool(tool['function']['name'], json.loads(tool['function']['arguments']))),
+                    "tool_call_id": tool['id']
+                }
+                conversation.append(result)
+            except Exception as e:
+                raise
 
     return conversation
-
-def get_calculation(tool_call):
-    """Process calculator tool calls."""
-    args_str = tool_call['function']['arguments']
-    args = json.loads(args_str)
-
-    def calculate(operation, operand1, operand2):
-        if operation == "add":
-            return operand1 + operand2
-        elif operation == "subtract":
-            return operand1 - operand2
-        elif operation == "multiply":
-            return operand1 * operand2
-        elif operation == "divide":
-            if operand2 == 0:
-                raise ValueError("Cannot divide by zero.")
-            return operand1 / operand2
-        else:
-            raise ValueError(f"Unsupported operation: {operation}")
-
-    result = calculate(
-        args['operation'],
-        float(args['operand1']),
-        float(args['operand2'])
-    )
-
-    return {
-        "role": "tool",
-        "content": str(result),
-        "tool_call_id": tool_call['id']
-    }

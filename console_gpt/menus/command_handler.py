@@ -2,7 +2,7 @@ from typing import Optional
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import help_message
-from console_gpt.mcp_client import shutdown
+from console_gpt.mcp_client import get_available_tools, shutdown
 from console_gpt.menus.settings_menu import settings_menu
 from console_gpt.prompts.file_prompt import file_prompt
 from console_gpt.prompts.image_prompt import upload_image
@@ -27,6 +27,11 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             return "continue"
         case "edit":
             custom_print("warn", "Edit last message is not yet implemented")
+            return "continue"
+        case "tools":
+            for tool in get_available_tools():
+                custom_print("info", tool["name"])
+                print(tool["description"],"\n")
             return "continue"
         case "file":
             clarification, file_data = file_prompt()

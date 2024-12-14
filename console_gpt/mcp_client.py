@@ -60,6 +60,15 @@ def tool_to_dict(tool: Tool) -> Dict[str, Any]:
         }
     }
 
+def list_tools_to_dict(tool: Tool) -> Dict[str, str]:
+    """
+    Convert a Tool object to a dictionary with the specified schema.
+    """
+    return {
+        'name': tool.name,
+        'description': tool.description,
+    }
+
 def get_executable_path(command: str) -> str:
     """Get the full path of an executable, considering the OS."""
     def check_common_paths(cmd: str) -> Optional[str]:
@@ -290,10 +299,9 @@ def call_tool(tool_name: str, arguments: Dict[str, Any]) -> Any:
 @_ensure_initialized
 def get_available_tools() -> Dict[str, Dict[str, Any]]:
     """Return all available tools across all servers."""
-    all_tools = {}
+    all_tools = []
     for server in _state.servers.values():
-        for name, tool in server.tools.items():
-            all_tools[name] = tool_to_dict(tool)
+        all_tools.extend(list_tools_to_dict(tool) for tool in server.tools.values())
     return all_tools
 
 async def cleanup():
