@@ -1,4 +1,4 @@
-from unichat.unichat import openai
+from unichat.api_helper import openai
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize

@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from markdownify import markdownify as md
 from rich.console import Console
 
-from console_gpt.custom_stdout import custom_print
 from console_gpt.prompts.system_prompt import system_reply
 
 

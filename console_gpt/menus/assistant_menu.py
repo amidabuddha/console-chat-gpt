@@ -6,7 +6,7 @@ import textwrap
 import time
 from typing import List, Optional, Tuple
 
-from unichat.unichat import openai
+from unichat.api_helper import openai
 
 from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
                                         write_to_config)

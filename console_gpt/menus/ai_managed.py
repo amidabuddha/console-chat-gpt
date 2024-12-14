@@ -58,11 +58,12 @@ def get_client(assistant):
 def send_request(client, assistant, conversation):
     role = {"role": "system", "content": assistant["role"]}
     conversation.insert(0, role)
-    return client.chat.completions.create(
+    response = client.chat.completions.create(
         model=assistant["model_name"],
         messages=conversation,
         stream=False,
     )
+    return response.choices[0].message.content
 
 
 def handle_error(*args):

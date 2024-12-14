@@ -2,6 +2,7 @@ from typing import Optional
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import help_message
+from console_gpt.mcp_client import shutdown
 from console_gpt.menus.settings_menu import settings_menu
 from console_gpt.prompts.file_prompt import file_prompt
 from console_gpt.prompts.image_prompt import upload_image
@@ -101,6 +102,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                 return "continue"
             return upload_image(model_title)
         case "exit" | "quit" | "bye":
+            shutdown()
             save_chat(conversation, ask=True)
         case _:
             if cached is True:
