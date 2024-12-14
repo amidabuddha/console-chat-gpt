@@ -94,8 +94,8 @@ def handle_non_streaming_response(model_name, response, conversation):
 
     message = response.choices[0].message
     # Count tool occurances to not repeat the assistance_reply
-    has_previous_tool_calls = any('tool_calls' in item for item in conversation)
-    
+    has_previous_tool_calls = any("tool_calls" in item for item in conversation)
+
     # Safely get tool_calls
     tool_calls = getattr(message, "tool_calls", None)
 
@@ -108,7 +108,6 @@ def handle_non_streaming_response(model_name, response, conversation):
             assistance_reply(content, model_name)
         else:
             markdown_print(content)
-    
 
     # Handle tool calls if they exist
     if tool_calls:
