@@ -1,15 +1,16 @@
 # More about Model Context Protocol (MCP) and how to create custom MCP servers at https://modelcontextprotocol.io/introduction
 
+import asyncio
 import json
 import os
-from mcp import ClientSession, StdioServerParameters, Tool
-from mcp.client.stdio import stdio_client
-from typing import List, Dict, Any, Optional
-import asyncio
-from functools import wraps
 import platform
 import shutil
 import subprocess
+from functools import wraps
+from typing import Any, Dict, List, Optional
+
+from mcp import ClientSession, StdioServerParameters, Tool
+from mcp.client.stdio import stdio_client
 
 from console_gpt.config_manager import _join_and_check
 
@@ -20,6 +21,7 @@ MCP_PATH = _join_and_check(
     error_message='"mcp_config.json" is either missing or renamed, please check.',
 )
 
+
 class MCPServer:
     def __init__(self, name: str, config: Dict[str, Any]):
         self.name = name
@@ -28,16 +30,21 @@ class MCPServer:
         self.client = None
         self.tools = {}
 
+
 # Global state management class
 class GlobalState:
     servers: Dict[str, MCPServer] = {}
     loop: Optional[asyncio.AbstractEventLoop] = None
 
+
 _state = GlobalState()
+
 
 class MCPToolError(Exception):
     """Custom exception for MCP tool initialization errors"""
+
     pass
+
 
 def get_event_loop() -> asyncio.AbstractEventLoop:
     """Get or create an event loop."""
@@ -46,50 +53,56 @@ def get_event_loop() -> asyncio.AbstractEventLoop:
         asyncio.set_event_loop(_state.loop)
     return _state.loop
 
+
 def tool_to_dict(tool: Tool) -> Dict[str, Any]:
     """
     Convert a Tool object to a dictionary with the specified schema.
     """
     return {
-        'name': tool.name,
-        'description': tool.description,
-        'inputSchema': tool.inputSchema if hasattr(tool, 'inputSchema') else {
-            'type': 'object',
-            'properties': {},
-            'required': []
-        }
+        "name": tool.name,
+        "description": tool.description,
+        "inputSchema": (
+            tool.inputSchema if hasattr(tool, "inputSchema") else {"type": "object", "properties": {}, "required": []}
+        ),
     }
+
 
 def list_tools_to_dict(tool: Tool) -> Dict[str, str]:
     """
     Convert a Tool object to a dictionary with the specified schema.
     """
     return {
-        'name': tool.name,
-        'description': tool.description,
+        "name": tool.name,
+        "description": tool.description,
     }
+
 
 def get_executable_path(command: str) -> str:
     """Get the full path of an executable, considering the OS."""
+
     def check_common_paths(cmd: str) -> Optional[str]:
         common_paths = []
         if platform.system() == "Windows":
             program_files = os.environ.get("ProgramFiles", "C:\\Program Files")
             program_files_x86 = os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)")
-            common_paths.extend([
-                os.path.join(program_files, "nodejs", cmd),
-                os.path.join(program_files_x86, "nodejs", cmd),
-                os.path.join(os.environ.get("APPDATA", ""), "npm", cmd),
-            ])
+            common_paths.extend(
+                [
+                    os.path.join(program_files, "nodejs", cmd),
+                    os.path.join(program_files_x86, "nodejs", cmd),
+                    os.path.join(os.environ.get("APPDATA", ""), "npm", cmd),
+                ]
+            )
         else:  # Unix-like systems
-            common_paths.extend([
-                f"/usr/local/bin/{cmd}",
-                f"/usr/bin/{cmd}",
-                f"/opt/homebrew/bin/{cmd}",  # Common on macOS with Homebrew
-                os.path.expanduser(f"~/.nvm/current/bin/{cmd}"),  # NVM installation
-                os.path.expanduser(f"~/.npm-global/bin/{cmd}"),  # NPM global installation
-                os.path.expanduser(f"~/.local/bin/{cmd}")  # User local installation
-            ])
+            common_paths.extend(
+                [
+                    f"/usr/local/bin/{cmd}",
+                    f"/usr/bin/{cmd}",
+                    f"/opt/homebrew/bin/{cmd}",  # Common on macOS with Homebrew
+                    os.path.expanduser(f"~/.nvm/current/bin/{cmd}"),  # NVM installation
+                    os.path.expanduser(f"~/.npm-global/bin/{cmd}"),  # NPM global installation
+                    os.path.expanduser(f"~/.local/bin/{cmd}"),  # User local installation
+                ]
+            )
 
         for path in common_paths:
             if os.path.isfile(path):
@@ -112,7 +125,7 @@ def get_executable_path(command: str) -> str:
         return path
 
     # 4. For node-related commands, try using 'npm bin' to locate them
-    if command in ['node', 'npm', 'npx', 'uv', 'uvx']:
+    if command in ["node", "npm", "npx", "uv", "uvx"]:
         try:
             # Try to get the path from npm
             if platform.system() == "Windows":
@@ -123,12 +136,7 @@ def get_executable_path(command: str) -> str:
             npm_path = shutil.which(npm_cmd)
             if npm_path:
                 try:
-                    result = subprocess.run(
-                        [npm_path, "bin", "-g"],
-                        capture_output=True,
-                        text=True,
-                        check=True
-                    )
+                    result = subprocess.run([npm_path, "bin", "-g"], capture_output=True, text=True, check=True)
                     global_bin = result.stdout.strip()
                     potential_path = os.path.join(global_bin, command)
                     if os.path.isfile(potential_path):
@@ -145,12 +153,13 @@ def get_executable_path(command: str) -> str:
         f"Current PATH directories:\n{json.dumps(available_paths, indent=2)}"
     )
 
+
 def load_config() -> Dict[str, Dict[str, Any]]:
     """Load and parse the MCP configuration file."""
     try:
-        with open(MCP_PATH, 'r') as f:
+        with open(MCP_PATH, "r") as f:
             config = json.load(f)
-            return config.get('mcpServers', {})
+            return config.get("mcpServers", {})
     except json.JSONDecodeError as e:
         raise MCPToolError(f"Invalid JSON in config file: {str(e)}")
     except FileNotFoundError:
@@ -158,28 +167,25 @@ def load_config() -> Dict[str, Dict[str, Any]]:
     except Exception as e:
         raise MCPToolError(f"Error reading config file: {str(e)}")
 
+
 async def _init_server(server_name: str, server_config: Dict[str, Any]) -> MCPServer:
     """Initialize a single MCP server."""
     server = MCPServer(server_name, server_config)
 
     # Get the full path of the command
     try:
-        command_path = get_executable_path(server_config['command'])
+        command_path = get_executable_path(server_config["command"])
     except MCPToolError as e:
         print(f"Error initializing server {server_name}: {str(e)}")
         raise
 
     # Prepare environment variables
     env = os.environ.copy()  # Start with current environment
-    if 'env' in server_config:
-        env.update(server_config['env'])  # Add config-specific environment variables
+    if "env" in server_config:
+        env.update(server_config["env"])  # Add config-specific environment variables
 
     # Prepare server parameters
-    server_params = StdioServerParameters(
-        command=command_path,
-        args=server_config.get('args', []),
-        env=env
-    )
+    server_params = StdioServerParameters(command=command_path, args=server_config.get("args", []), env=env)
 
     try:
         server.client = stdio_client(server_params)
@@ -210,6 +216,7 @@ async def _init_server(server_name: str, server_config: Dict[str, Any]) -> MCPSe
             await server.client.__aexit__(type(e), e, e.__traceback__)
         raise MCPToolError(f"Failed to initialize server {server_name}: {str(e)}")
 
+
 async def _init_all_servers(config: Dict[str, Dict[str, Any]]) -> Dict[str, MCPServer]:
     """Initialize all MCP servers in parallel."""
     servers = {}
@@ -228,6 +235,7 @@ async def _init_all_servers(config: Dict[str, Dict[str, Any]]) -> Dict[str, MCPS
             continue
 
     return servers
+
 
 def initialize_tools() -> List[Dict[str, Any]]:
     """
@@ -265,14 +273,18 @@ def initialize_tools() -> List[Dict[str, Any]]:
         _state.servers = {}
         raise MCPToolError(f"Failed to initialize tools: {str(e)}")
 
+
 def _ensure_initialized(func):
     """Decorator to ensure session is initialized before calling methods."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not _state.servers:
             raise MCPToolError("MCP servers not initialized. Call initialize_tools() first.")
         return func(*args, **kwargs)
+
     return wrapper
+
 
 @_ensure_initialized
 def call_tool(tool_name: str, arguments: Dict[str, Any]) -> Any:
@@ -296,6 +308,7 @@ def call_tool(tool_name: str, arguments: Dict[str, Any]) -> Any:
     loop = get_event_loop()
     return loop.run_until_complete(_call())
 
+
 @_ensure_initialized
 def get_available_tools() -> Dict[str, Dict[str, Any]]:
     """Return all available tools across all servers."""
@@ -303,6 +316,7 @@ def get_available_tools() -> Dict[str, Dict[str, Any]]:
     for server in _state.servers.values():
         all_tools.extend(list_tools_to_dict(tool) for tool in server.tools.values())
     return all_tools
+
 
 async def cleanup():
     """Cleanup all MCP sessions and connections."""
@@ -320,6 +334,7 @@ async def cleanup():
                     pass
 
     _state.servers = {}
+
 
 def shutdown():
     """Clean up and close the event loop."""

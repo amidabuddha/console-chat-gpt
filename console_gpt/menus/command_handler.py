@@ -31,7 +31,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
         case "tools":
             for tool in get_available_tools():
                 custom_print("info", tool["name"])
-                print(tool["description"],"\n")
+                print(tool["description"], "\n")
             return "continue"
         case "file":
             clarification, file_data = file_prompt()
