@@ -2,7 +2,7 @@
 
 <h1>
 
-console-chat-gpt v4
+console-chat-gpt v6
 
 </h1>
 

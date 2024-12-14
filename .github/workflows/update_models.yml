@@ -1,0 +1,108 @@
+name: Update Models
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "helpers/set_models_py.py"
+      - "helpers/set_models_ts.py"
+      - "config.toml.sample"
+  workflow_dispatch:
+
+jobs:
+  update_models:
+    runs-on: ubuntu-latest
+    env:
+      UNICHAT_REPO_PAT: ${{ secrets.UNICHAT_REPO_PAT }}
+      UNICHAT_TS_REPO_PAT: ${{ secrets.UNICHAT_REPO_PAT }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install toml jq
+
+      - name: Check for config.toml.sample changes
+        id: check_config
+        run: |
+          git diff --name-only HEAD HEAD~1 | grep -q "config.toml.sample" && echo "config_changed=true" >> $GITHUB_OUTPUT || echo "config_changed=false" >> $GITHUB_OUTPUT
+
+      - name: Clone unichat repository to /tmp/unichat
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: |
+          git clone https://amidabuddha:${{ env.UNICHAT_REPO_PAT }}@github.com/amidabuddha/unichat.git /tmp/unichat
+
+      - name: Generate and copy models.py
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: |
+          python3 helpers/set_models_py.py > /tmp/unichat/unichat/models.py
+
+      - name: Check if there are changes to be pushed to unichat
+        id: check_unichat_git_status
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: |
+          echo "to_push=$(git -C /tmp/unichat status --porcelain | grep -q . && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+      - name: Increment unichat patch version
+        if: steps.check_config.outputs.config_changed == 'true' && steps.check_unichat_git_status.outputs.to_push == 'true'
+        working-directory: /tmp/unichat
+        run: |
+          CURRENT_VERSION=$(grep '^version' pyproject.toml | awk -F '"' '{print $2}')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          sed -i "s/version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+
+      - name: Commit and Push Changes to unichat
+        if: steps.check_config.outputs.config_changed == 'true' && steps.check_unichat_git_status.outputs.to_push == 'true'
+        working-directory: /tmp/unichat
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add unichat/models.py pyproject.toml
+          git commit -m "Update models.py from source repository"
+          git push origin main
+
+      - name: Clone unichat-ts repository to /tmp/unichat-ts
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: |
+          git clone https://amidabuddha:${{ env.UNICHAT_TS_REPO_PAT }}@github.com/amidabuddha/unichat-ts.git /tmp/unichat-ts
+
+      - name: Generate and copy models.ts
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: |
+          python3 helpers/set_models_ts.py > /tmp/unichat-ts/src/models.ts
+
+      - name: Check if there are changes to be pushed to unichat-ts
+        id: check_unichat_ts_git_status
+        if: steps.check_config.outputs.config_changed == 'true'
+        run: |
+          echo "to_push=$(git -C /tmp/unichat-ts status --porcelain | grep -q . && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+      - name: Increment unichat-ts patch version
+        if: steps.check_config.outputs.config_changed == 'true' && steps.check_unichat_ts_git_status.outputs.to_push == 'true'
+        working-directory: /tmp/unichat-ts
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' package.json)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          jq --arg version "$NEW_VERSION" '.version = $version' package.json > temp.json && mv temp.json package.json
+
+      - name: Commit and Push Changes to unichat-ts
+        if: steps.check_config.outputs.config_changed == 'true' && steps.check_unichat_ts_git_status.outputs.to_push == 'true'
+        working-directory: /tmp/unichat-ts
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add src/models.ts package.json
+          git commit -m "Update models.ts from source repository"
+          git push origin main
