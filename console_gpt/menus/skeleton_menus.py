@@ -107,6 +107,7 @@ def base_checkbox_menu(data: List, menu_title: str) -> List:
     flush_lines(1)
     return selection
 
+
 def preview_multiselect_menu(
     items: List[Dict[str, str]],
     menu_title: str,
@@ -158,7 +159,7 @@ def preview_multiselect_menu(
         show_search_hint=show_search,
         preselected_entries=preselected,
         multi_select_empty_ok=True,
-        multi_select_select_on_accept=False
+        multi_select_select_on_accept=False,
     )
     selected_indices = terminal_menu.show()
 

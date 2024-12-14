@@ -1,4 +1,5 @@
 > Features:
+- [f2aa2c0] [Feature] Select tools in-chat
 - [edaef5f] [Feature] Enable/disable MCP in settings
 - [f5c9061] [Feature] List all active tools
 - [4aa86db] [Feature] Model Context Protocol support
