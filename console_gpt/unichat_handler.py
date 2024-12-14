@@ -3,9 +3,8 @@ import json
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
-
-from console_gpt.custom_stdout import markdown_stream
 from console_gpt.mcp_client import call_tool
+from console_gpt.custom_stdout import markdown_print
 from console_gpt.prompts.assistant_prompt import assistance_reply
 
 
@@ -83,7 +82,6 @@ def handle_streaming_response(model_name, response_stream, conversation):
                             conversation.append(result)
                         except Exception as e:
                             raise
-
         return conversation
 
 
@@ -95,7 +93,9 @@ def handle_non_streaming_response(model_name, response, conversation):
     }
 
     message = response.choices[0].message
-
+    # Count tool occurances to not repeat the assistance_reply
+    has_previous_tool_calls = any('tool_calls' in item for item in conversation)
+    
     # Safely get tool_calls
     tool_calls = getattr(message, "tool_calls", None)
 
@@ -103,7 +103,12 @@ def handle_non_streaming_response(model_name, response, conversation):
     content = getattr(message, "content", None)
     if content:
         assistant_response["content"] = content
-        assistance_reply(content, model_name)
+        # Use the boolean flag directly instead of counting
+        if not has_previous_tool_calls:
+            assistance_reply(content, model_name)
+        else:
+            markdown_print(content)
+    
 
     # Handle tool calls if they exist
     if tool_calls:
@@ -129,6 +134,7 @@ def handle_non_streaming_response(model_name, response, conversation):
     # Process tool calls if they exist
     if tool_calls:
         for tool in assistant_response.get("tool_calls"):
+            markdown_print(f"> Triggered: `{tool["function"]["name"]}`.")
             try:
                 result = {
                     "role": "tool",
