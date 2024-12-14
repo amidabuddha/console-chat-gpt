@@ -7,7 +7,7 @@ import shutil
 import subprocess
 from functools import wraps
 from typing import Any, Dict, List, Optional
-
+from console_gpt.custom_stdout import custom_print
 from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
 
@@ -162,6 +162,7 @@ async def _init_server(server_name: str, server_config: Dict[str, Any]) -> MCPSe
 
     # Prepare environment variables
     env = os.environ.copy()  # Start with current environment
+    env["NODE_NO_WARNINGS"] = "1"
     if "env" in server_config:
         env.update(server_config["env"])  # Add config-specific environment variables
 
@@ -233,7 +234,7 @@ def initialize_tools() -> List[Dict[str, Any]]:
         for server in _state.servers.values():
             all_tools.extend(tool_to_dict(tool) for tool in server.tools.values())
 
-        print(f"\nTotal tools initialized: {len(all_tools)}")
+        custom_print("info", f"Total tools initialized: {len(all_tools)}", start="\n")
         return all_tools
 
     except Exception as e:
