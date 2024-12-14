@@ -7,11 +7,12 @@ import shutil
 import subprocess
 from functools import wraps
 from typing import Any, Dict, List, Optional
-from console_gpt.custom_stdout import custom_print
+
 from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
 
 from console_gpt.config_manager import _join_and_check
+from console_gpt.custom_stdout import custom_print
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
 MCP_PATH = _join_and_check(
