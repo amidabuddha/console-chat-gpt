@@ -3,8 +3,9 @@ import json
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
-from console_gpt.mcp_client import call_tool
+
 from console_gpt.custom_stdout import markdown_print
+from console_gpt.mcp_client import call_tool
 from console_gpt.prompts.assistant_prompt import assistance_reply
 
 

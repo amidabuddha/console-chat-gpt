@@ -5,10 +5,7 @@
 - [4aa86db] [Feature] Model Context Protocol support
 
 > Improvements:
-- [f25c25f] [Improvement] Unify models helpers
-
-> Bug Fixes:
-- [d08ecd7] [BugFix] Proper imports
+- [05e3a2c] [Improvement] Notify when using tools + fix repeating assistant prompt
 
 > Others:
 - [7e1e7c9] [Other] Suppress Node warnings.
