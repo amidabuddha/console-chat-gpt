@@ -11,7 +11,7 @@ from console_gpt.prompts.assistant_prompt import assistance_reply
 
 def handle_streaming_response(model_name, response_stream, conversation):
     """Handle streaming response and tool calls."""
-    if getattr(conversation[-1], 'role', conversation[-1].get('role', None)) != 'tool':
+    if getattr(conversation[-1], "role", conversation[-1].get("role", None)) != "tool":
         assistance_reply("", model_name)
 
     console = Console()
@@ -71,7 +71,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 if current_assistant_message.get("tool_calls"):
                     for tool_call in current_assistant_message["tool_calls"]:
                         tool_name = tool_call["function"]["name"]
-                        markdown_print(f'> Triggered: `{tool_name}`.')
+                        markdown_print(f"> Triggered: `{tool_name}`.")
                         try:
                             result = {
                                 "role": "tool",
@@ -137,7 +137,7 @@ def handle_non_streaming_response(model_name, response, conversation):
     if tool_calls:
         for tool in assistant_response.get("tool_calls"):
             tool_name = tool["function"]["name"]
-            markdown_print(f'> Triggered: `{tool_name}`.')
+            markdown_print(f"> Triggered: `{tool_name}`.")
             try:
                 result = {
                     "role": "tool",

@@ -11,7 +11,6 @@
 - [7e1e7c9] [Other] Suppress Node warnings.
 - [1671154] [Other] Fix pipeline + bump project version
 - [8b57492] [Other] Add missing package to requirements.txt
-- [d1cf894] [Other] Update gemini-exp
 
 
 ---
