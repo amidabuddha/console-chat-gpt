@@ -35,7 +35,7 @@ def chat(console, data, managed_user_prompt) -> None:
         response = ""  # Adding this to satisfy the IDE
         error_appeared = False  # Used when the API returns an exception
         # Check if we're not in the middle of a tool call
-        if not conversation or getattr(conversation[-1], "role", conversation[-1].get("role", None)) != "tool":
+        if not conversation or (isinstance(conversation[-1], str) or getattr(conversation[-1], "role", None if isinstance(conversation[-1], str) else conversation[-1].get("role", None))) != "tool":
             if managed_user_prompt:
                 user_input = managed_user_prompt
                 managed_user_prompt = False
