@@ -3,7 +3,7 @@
 *.txt
 !requirements.txt
 config.toml
-mcp_config.json
+mcp_config*
 __pycache__
 chats
 test*

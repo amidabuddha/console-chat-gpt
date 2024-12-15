@@ -35,7 +35,7 @@ def chat(console, data, managed_user_prompt) -> None:
         response = ""  # Adding this to satisfy the IDE
         error_appeared = False  # Used when the API returns an exception
         # Check if we're not in the middle of a tool call
-        if not conversation or conversation[-1]["role"] != "tool":
+        if not conversation or getattr(conversation[-1], 'role', conversation[-1].get('role', None)) != 'tool':
             if managed_user_prompt:
                 user_input = managed_user_prompt
                 managed_user_prompt = False
@@ -84,6 +84,7 @@ def chat(console, data, managed_user_prompt) -> None:
         if response not in ["interrupted", "error_appeared"] and not streaming:
             conversation = handle_non_streaming_response(model_name, response, conversation)
         elif response == "interrupted":
+            # TODO improve conversation handling when interrupted with tools
             conversation.pop(-1)
             continue
         elif response == "error_appeared":
