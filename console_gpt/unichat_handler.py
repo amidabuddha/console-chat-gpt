@@ -19,7 +19,6 @@ def handle_streaming_response(model_name, response_stream, conversation):
     ) != "tool":
         assistance_reply("", model_name)
 
-    console = Console()
     current_content = ""
     current_assistant_message = {
         "role": "assistant",
@@ -27,7 +26,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
     }
 
     last_tool_call_index = -1
-    with Live(console=console, refresh_per_second=10, vertical_overflow="ellipsis") as live:
+    with Live(refresh_per_second=10) as live:
         for chunk in response_stream:
             delta = chunk.choices[0].delta
             finish_reason = chunk.choices[0].finish_reason
@@ -72,25 +71,25 @@ def handle_streaming_response(model_name, response_stream, conversation):
             if finish_reason:
                 conversation.append(current_assistant_message)
 
-                # Process tool calls
-                if current_assistant_message.get("tool_calls"):
-                    for tool_call in current_assistant_message["tool_calls"]:
-                        tool_name = tool_call["function"]["name"]
-                        markdown_print(f"> Triggered: `{tool_name}`.")
-                        try:
-                            result = {
-                                "role": "tool",
-                                "content": str(
-                                    call_tool(
-                                        tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"])
-                                    )
-                                ),
-                                "tool_call_id": tool_call["id"],
-                            }
-                            conversation.append(result)
-                        except Exception as e:
-                            raise
-        return conversation
+    # Process tool calls
+    if current_assistant_message.get("tool_calls"):
+        for tool_call in current_assistant_message["tool_calls"]:
+            tool_name = tool_call["function"]["name"]
+            markdown_print(f"> Triggered: `{tool_name}`.")
+            try:
+                result = {
+                    "role": "tool",
+                    "content": str(
+                        call_tool(
+                            tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"])
+                        )
+                    ),
+                    "tool_call_id": tool_call["id"],
+                }
+                conversation.append(result)
+            except Exception as e:
+                raise
+    return conversation
 
 
 def handle_non_streaming_response(model_name, response, conversation):
