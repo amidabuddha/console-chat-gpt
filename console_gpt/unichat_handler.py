@@ -80,9 +80,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 result = {
                     "role": "tool",
                     "content": str(
-                        call_tool(
-                            tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"])
-                        )
+                        call_tool(tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"]))
                     ),
                     "tool_call_id": tool_call["id"],
                 }
