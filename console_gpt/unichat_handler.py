@@ -11,7 +11,12 @@ from console_gpt.prompts.assistant_prompt import assistance_reply
 
 def handle_streaming_response(model_name, response_stream, conversation):
     """Handle streaming response and tool calls."""
-    if (isinstance(conversation[-1], str) or getattr(conversation[-1], "role", None if isinstance(conversation[-1], str) else conversation[-1].get("role", None))) != "tool":
+    if (
+        isinstance(conversation[-1], str)
+        or getattr(
+            conversation[-1], "role", None if isinstance(conversation[-1], str) else conversation[-1].get("role", None)
+        )
+    ) != "tool":
         assistance_reply("", model_name)
 
     console = Console()

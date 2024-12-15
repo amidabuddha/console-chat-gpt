@@ -7,6 +7,9 @@
 > Improvements:
 - [05e3a2c] [Improvement] Notify when using tools + fix repeating assistant prompt
 
+> Bug Fixes:
+- [b20f7f4] [Bugfix] Handle unexpected tool responses
+
 > Others:
 - [7e1e7c9] [Other] Suppress Node warnings.
 - [1671154] [Other] Fix pipeline + bump project version
