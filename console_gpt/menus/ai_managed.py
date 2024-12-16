@@ -14,41 +14,44 @@ from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
 
-tools = [{
-    "name": "managed_prompt",
-    "description": "Selects optimal AI model and generates appropriate system instructions based on user query analysis",
-    "inputSchema": {
-        "type": "object",
-        "properties": {
-            "model": {
-                "type": "string",
-                "enum": ["gpt-4o-latest", "gpt-4o-mini", "o1", "o1-mini"],
-                "description": "The selected AI model based on query analysis"
-            },
-            "messages": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "role": {
-                            "type": "string",
-                            "enum": ["system"],
-                            "description": "The role of the message, only system messages are allowed"
-                        },
-                        "content": {
-                            "type": "string",
-                            "description": "The system instruction for the selected AI model"
-                        }
-                    },
-                    "required": ["role", "content"]
+tools = [
+    {
+        "name": "managed_prompt",
+        "description": "Selects optimal AI model and generates appropriate system instructions based on user query analysis",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "model": {
+                    "type": "string",
+                    "enum": ["gpt-4o-latest", "gpt-4o-mini", "o1", "o1-mini"],
+                    "description": "The selected AI model based on query analysis",
                 },
-                "minItems": 1,
-                "maxItems": 1
-            }
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "role": {
+                                "type": "string",
+                                "enum": ["system"],
+                                "description": "The role of the message, only system messages are allowed",
+                            },
+                            "content": {
+                                "type": "string",
+                                "description": "The system instruction for the selected AI model",
+                            },
+                        },
+                        "required": ["role", "content"],
+                    },
+                    "minItems": 1,
+                    "maxItems": 1,
+                },
+            },
+            "required": ["model", "messages"],
         },
-        "required": ["model", "messages"]
     }
-}]
+]
+
 
 def managed_prompt() -> Tuple[ChatObject, str]:
     """
@@ -94,10 +97,7 @@ def send_request(client, assistant, conversation):
     role = {"role": "system", "content": assistant["role"]}
     conversation.insert(0, role)
     response = client.chat.completions.create(
-        model=assistant["model_name"],
-        messages=conversation,
-        stream=False,
-        tools=tools
+        model=assistant["model_name"], messages=conversation, stream=False, tools=tools
     )
     return response.choices[0].message.tool_calls
 
