@@ -14,11 +14,46 @@ from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
 
+tools = [{
+    "name": "managed_prompt",
+    "description": "Selects optimal AI model and generates appropriate system instructions based on user query analysis",
+    "inputSchema": {
+        "type": "object",
+        "properties": {
+            "model": {
+                "type": "string",
+                "enum": ["gpt-4o-latest", "gpt-4o-mini", "o1", "o1-mini"],
+                "description": "The selected AI model based on query analysis"
+            },
+            "messages": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "role": {
+                            "type": "string",
+                            "enum": ["system"],
+                            "description": "The role of the message, only system messages are allowed"
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "The system instruction for the selected AI model"
+                        }
+                    },
+                    "required": ["role", "content"]
+                },
+                "minItems": 1,
+                "maxItems": 1
+            }
+        },
+        "required": ["model", "messages"]
+    }
+}]
 
 def managed_prompt() -> Tuple[ChatObject, str]:
     """
     Use assistant help to determine the best model and fromat for the query
-    :return: Returns a ChatObject object
+    :return: Returns a ChatObject object, along with the original user prompt
     """
     assistant = configure_assistant()
     model_name, system_prompt, user_prompt = get_model_and_prompts_based_on_conversation(assistant)
@@ -41,14 +76,14 @@ def configure_assistant():
 
 
 def update_api_key_if_placeholder(model_data):
-    if model_data["api_key"] in api_key_placeholders:
+    if model_data.get("api_key") in api_key_placeholders:
         return set_api_key(model_data)
     return model_data
 
 
 def get_client(assistant):
     """
-    Get the default model based on the config
+    Init the client
     :param assistant: Data from the config
     """
     return UnifiedChatApi(api_key=assistant["api_key"])
@@ -62,14 +97,9 @@ def send_request(client, assistant, conversation):
         model=assistant["model_name"],
         messages=conversation,
         stream=False,
+        tools=tools
     )
-    return response.choices[0].message.content
-
-
-def handle_error(*args):
-    for error in args:
-        print(error)
-    custom_print("error", "Exception was raised. Please check the error above for more information.", exit_code=1)
+    return response.choices[0].message.tool_calls
 
 
 def self_correction(last_reply):
@@ -79,7 +109,7 @@ def self_correction(last_reply):
         "Please carefully review the instructions and provide your response strictly in the "
         "specified JSON format, without any additional text or explanations outside the JSON structure."
     )
-    conversation.append({"role": "assistant", "content": last_reply})
+    conversation.append({"role": "assistant", "content": last_reply or "Your response was empty"})
     conversation.append({"role": "user", "content": fallback_prompt})
     return conversation
 
@@ -120,9 +150,9 @@ def get_model_and_prompts_based_on_conversation(assistant):
         with console.status("[bold cyan]Choosing the best model for you...", spinner="aesthetic"):
             response = send_request(client, assistant, conversation)
             try:
-                response = json.loads(response)
+                response = json.loads(response[0].function.arguments)
                 break
-            except json.decoder.JSONDecodeError:
+            except (json.decoder.JSONDecodeError, TypeError):
                 max_retries -= 1
                 custom_print("info", f"Self-correction due to incorrect format. Attempts left: {max_retries}")
                 conversation.extend(self_correction(response))
