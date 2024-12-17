@@ -44,6 +44,14 @@ nutritionist = "Advise on nutrition blending science with practicality, focusing
 scientist = "Make science engaging and understandable across math, physics, chemistry, and biology."
 assistant = "Deliver precise and informative virtual assistance for any inquiry efficiently."
 
+[chat.models.gpt-4o-chatgpt]
+api_key = "YOUR_OPENAI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k =0.0005
+model_max_tokens = 4096
+model_name = "chatgpt-4o-latest"
+model_output_pricing_per_1k = 0.0015
+
 [chat.models.gpt-4o-mini]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
