@@ -38,6 +38,8 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     if not _show_menu:
         if not skip_exit:
             custom_print("exit", "Goodbye, see you soon!", 130)
+        else:
+            return
 
     base_name = "chat"
     timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
