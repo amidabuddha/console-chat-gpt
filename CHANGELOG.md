@@ -3,7 +3,6 @@
 
 > Improvements:
 - [7d178ea] [Improvement] Use tools with ai_managed
-- [05e3a2c] [Improvement] Notify when using tools + fix repeating assistant prompt
 
 > Bug Fixes:
 - [0c7f1af] [Bugfix] Skip asking to save chat if disabled in config
