@@ -47,10 +47,10 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 [chat.models.gpt-4o-chatgpt]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k =0.0005
-model_max_tokens = 4096
+model_input_pricing_per_1k =0.005
+model_max_tokens = 16384
 model_name = "chatgpt-4o-latest"
-model_output_pricing_per_1k = 0.0015
+model_output_pricing_per_1k = 0.015
 
 [chat.models.gpt-4o-mini]
 api_key = "YOUR_OPENAI_API_KEY"
