@@ -1,4 +1,5 @@
 > Features:
+- [baf1126] [Feature] Add o1
 - [c9f8deb] [Feature] Add gemini-2.0-flash-exp
 
 > Improvements:
