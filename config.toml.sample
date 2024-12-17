@@ -76,12 +76,20 @@ model_max_tokens = 65536
 model_name = "o1-mini"
 model_output_pricing_per_1k = 0.012
 
-[chat.models.o1]
+[chat.models.o1-preview]
 api_key = "YOUR_OPENAI_API_KEY"
 api_usage = 0
 model_input_pricing_per_1k =0.015
 model_max_tokens = 32768
 model_name = "o1-preview"
+model_output_pricing_per_1k = 0.06
+
+[chat.models.o1]
+api_key = "YOUR_OPENAI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k =0.015
+model_max_tokens = 100000
+model_name = "o1"
 model_output_pricing_per_1k = 0.06
 
 [chat.models.mistral-small]
