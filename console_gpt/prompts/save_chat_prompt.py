@@ -35,9 +35,8 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     # Determines if the prompt should be shown
     _show_menu = fetch_variable("features", "save_chat_on_exit")
     # If False the whole code will be skipped
-    if not _show_menu:
-        if not skip_exit:
-            custom_print("exit", "Goodbye, see you soon!", 130)
+    if not skip_exit and not _show_menu:
+        custom_print("exit", "Goodbye, see you soon!", 130)
 
     base_name = "chat"
     timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")

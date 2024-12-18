@@ -105,8 +105,8 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                 return "continue"
             return upload_image(model_title)
         case "exit" | "quit" | "bye":
-            shutdown()
             save_chat(conversation, ask=True)
+            shutdown()
         case _:
             if cached is True:
                 return user_input, str(cached)
