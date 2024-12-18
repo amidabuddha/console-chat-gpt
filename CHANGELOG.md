@@ -3,6 +3,7 @@
 - [baf1126] [Feature] Add o1
 
 > Bug Fixes:
+- [4488ec1] [Bugfix] Trigger mcp servers shutdown before exit
 - [6d4d94e] [Bugfix] Skip asking to save chat on exit if disabled in config
 - [ca1d8c0] [BUGFIX] Re-Fix a bug introduced in 0c7f1af
 
