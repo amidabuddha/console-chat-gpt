@@ -48,10 +48,10 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google or their subsidia
 
 ## Features
 
+- :new: [**Anthropic Prompt caching**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) Fully supported :new:
 - :new: [Model Context Protocol (MCP)](https://modelcontextprotocol.io) supported! If you are already using MCP servers just copy your `claude_desktop_config.json` to the root directory and rename to `mcp_config.json` to start using with any model! :new:
 - :star: Unified chat completion function separated as independent library to be used in any application for seamless cross-provider API experience. The source code is available in [Python](https://github.com/amidabuddha/unichat) and [TypeScript](https://github.com/amidabuddha/unichat-ts) :star:
 - :star: Streaming with all supported models, disabled by default, may be enabled in 'settings' menu :star:
-- [**Anthropic Prompt caching (beta)**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) supported
 - [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported
 - **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
