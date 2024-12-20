@@ -1,6 +1,6 @@
 > Features:
+- [440fc19] [Feature] Add gemini-2.0-flash-thinking-exp
 - [e258b78] [Feature] Anthropic Prompt caching fully supported
-- [baf1126] [Feature] Add o1
 
 > Bug Fixes:
 - [4488ec1] [Bugfix] Trigger mcp servers shutdown before exit
