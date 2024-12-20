@@ -172,6 +172,14 @@ model_max_tokens = 8192
 model_name = "gemini-2.0-flash-exp"
 model_output_pricing_per_1k = 0.00
 
+[chat.models.gemini-flash-thinking-exp]
+api_key = "YOUR_GEMINI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k =0.00
+model_max_tokens = 8192
+model_name = "gemini-2.0-flash-thinking-exp"
+model_output_pricing_per_1k = 0.00
+
 [chat.models.gemini-exp]
 api_key = "YOUR_GEMINI_API_KEY"
 api_usage = 0
