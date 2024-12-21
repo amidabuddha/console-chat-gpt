@@ -10,7 +10,7 @@ from console_gpt.custom_stdout import colored, custom_print
 CreateType = Literal["folder", "config.toml", "mcp_config.json"]
 
 
-def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optional[CreateType]= None) -> str:
+def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optional[CreateType] = None) -> str:
     """
     Join path presented by `paths` (separate args) and check if exists.
     The path can be created if it doesn't exist and create is enabled
@@ -33,7 +33,6 @@ def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optiona
         elif not target:
             custom_print("error", f'No such file or directory: "{q_path}', 2)
     return str(q_path)
-
 
 
 def _load_toml(conf_path: str) -> Optional[Dict]:
@@ -77,11 +76,7 @@ def __var_error(data: Iterable[Any], auto_exit) -> Union[None, bool]:
 
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
-CONFIG_SAMPLE_PATH = _join_and_check(
-    BASE_PATH,
-    "config.toml.sample",
-    target="config.toml"
-)
+CONFIG_SAMPLE_PATH = _join_and_check(BASE_PATH, "config.toml.sample", target="config.toml")
 CONFIG_PATH = _join_and_check(
     BASE_PATH,
     "config.toml",
