@@ -15,11 +15,7 @@ from console_gpt.config_manager import _join_and_check
 from console_gpt.custom_stdout import custom_print
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
-MCP_PATH = _join_and_check(
-    BASE_PATH,
-    "mcp_config.json",
-    create="mcp_config"
-)
+MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config")
 
 
 class MCPServer:
