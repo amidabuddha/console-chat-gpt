@@ -18,9 +18,9 @@ BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
 MCP_SAMPLE_PATH = _join_and_check(
     BASE_PATH,
     "mcp_config.json.sample",
-    error_message='"mcp_config.json.sample" is either missing or renamed, please udpate from source.',
+    target="mcp_config.json"
 )
-MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config")
+MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config.json")
 
 
 class MCPServer:

@@ -7,16 +7,17 @@ import toml
 from console_gpt.custom_stdout import colored, custom_print
 
 # Define the specific types for 'create' for join_and_check function
-CreateType = Literal["folder", "config"]
+CreateType = Literal["folder", "config.toml", "mcp_config.json"]
 
 
-def _join_and_check(*paths, error_message: Optional[str] = None, create: Optional[CreateType] = None) -> str:
+def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optional[CreateType]= None) -> str:
     """
     Join path presented by `paths` (separate args) and check if exists.
     The path can be created if it doesn't exist and create is enabled
     :param paths: paths to join
     :param error_message: error message to display if path doesn't exist
     :param create: whether to create path if it doesn't exist
+    :param target: the file that would be created if this path exist (for sample files)
     :return: joined path
     """
     q_path = os.path.join(*paths)
@@ -24,15 +25,15 @@ def _join_and_check(*paths, error_message: Optional[str] = None, create: Optiona
         if create == "folder":
             os.mkdir(q_path)
             custom_print("ok", f"Created the folder - {paths[-1]}")
-        elif create == "config":
+        elif create in ("config.toml", "mcp_config.json"):
             shutil.copy(q_path + ".sample", q_path)
-            custom_print("ok", f'"config.toml" created from sample')
-        elif create == "mcp_config":
-            shutil.copy(q_path + ".sample", q_path)
-            custom_print("ok", f'"mcp_config.json" created from sample')
-        else:
-            custom_print("error", error_message, 2)
+            custom_print("ok", f'"{create}" created from sample')
+        elif target and not os.path.exists(os.path.join(paths[0], target)):
+            custom_print("error", f'"{target}.sample" is either missing or renamed, please update from source.', 2)
+        elif not target:
+            custom_print("error", f'No such file or directory: "{q_path}', 2)
     return str(q_path)
+
 
 
 def _load_toml(conf_path: str) -> Optional[Dict]:
@@ -79,12 +80,12 @@ BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
 CONFIG_SAMPLE_PATH = _join_and_check(
     BASE_PATH,
     "config.toml.sample",
-    error_message='"config.toml.sample" is either missing or renamed, please udpate from source.',
+    target="config.toml"
 )
 CONFIG_PATH = _join_and_check(
     BASE_PATH,
     "config.toml",
-    create="config",
+    create="config.toml",
 )
 # Responsible for app-data/version.toml
 CONFIG_VERSION_PATH = _join_and_check(BASE_PATH, "app-data", "version.toml")
