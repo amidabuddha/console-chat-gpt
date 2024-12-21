@@ -15,6 +15,11 @@ from console_gpt.config_manager import _join_and_check
 from console_gpt.custom_stdout import custom_print
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
+MCP_SAMPLE_PATH = _join_and_check(
+    BASE_PATH,
+    "mcp_config.json.sample",
+    error_message='"mcp_config.json.sample" is either missing or renamed, please udpate from source.',
+)
 MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config")
 
 
