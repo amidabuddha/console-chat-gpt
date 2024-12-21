@@ -18,7 +18,7 @@ BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
 MCP_PATH = _join_and_check(
     BASE_PATH,
     "mcp_config.json",
-    error_message='"mcp_config.json" is either missing or renamed, please check.',
+    create="mcp_config"
 )
 
 

@@ -27,6 +27,9 @@ def _join_and_check(*paths, error_message: Optional[str] = None, create: Optiona
         elif create == "config":
             shutil.copy(q_path + ".sample", q_path)
             custom_print("ok", f'"config.toml" created from sample')
+        elif create == "mcp_config":
+            shutil.copy(q_path + ".sample", q_path)
+            custom_print("ok", f'"mcp_config.json" created from sample')
         else:
             custom_print("error", error_message, 2)
     return str(q_path)
