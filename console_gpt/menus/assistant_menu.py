@@ -8,22 +8,17 @@ from typing import List, Optional, Tuple
 
 from unichat.api_helper import openai
 
-from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
+from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
+                                        write_to_config)
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.general_utils import capitalize, decapitalize
-from console_gpt.mcp_client import (
-    MCPToolError,
-    call_tool,
-    get_available_tools,
-    initialize_tools,
-)
+from console_gpt.mcp_client import (MCPToolError, call_tool,
+                                    get_available_tools, initialize_tools)
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (
-    base_checkbox_menu,
-    base_multiselect_menu,
-    base_settings_menu,
-)
+from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
+                                              base_multiselect_menu,
+                                              base_settings_menu)
 from console_gpt.menus.tools_menu import transform_tools_selection
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
@@ -257,10 +252,9 @@ def _select_assistant_tools():
         custom_print("error", f"Unexpected error: {str(e)}")
         tools = []
     menu_items = {"code_interpreter": "Allows the Assistants API to write and run Python code"}
-    menu_items.update({
-        str(tool.get("name", "Unknown")): str(tool.get("description", "No description available"))
-        for tool in tools
-    })
+    menu_items.update(
+        {str(tool.get("name", "Unknown")): str(tool.get("description", "No description available")) for tool in tools}
+    )
     tools_selection = base_settings_menu(menu_items, " Assistant tools")
     return transform_tools_selection(tools_selection, tools)
 
@@ -445,19 +439,19 @@ def run_thread(client, assistant_id, thread_id):
                     for tool in run.required_action.submit_tool_outputs.tool_calls:
                         try:
                             markdown_print(f"> Triggered: `{tool.function.name}`.")
-                            tool_outputs.append({
-                                "tool_call_id": tool.id,
-                                "output": str(call_tool(tool.function.name, json.loads(tool.function.arguments)))
-                            })
+                            tool_outputs.append(
+                                {
+                                    "tool_call_id": tool.id,
+                                    "output": str(call_tool(tool.function.name, json.loads(tool.function.arguments))),
+                                }
+                            )
                         except Exception as e:
                             run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
                             raise
                     if tool_outputs:
                         try:
                             run = client.beta.threads.runs.submit_tool_outputs_and_poll(
-                                thread_id=thread_id,
-                                run_id=run.id,
-                                tool_outputs=tool_outputs
+                                thread_id=thread_id, run_id=run.id, tool_outputs=tool_outputs
                             )
                             custom_print("info", "Tool outputs submitted successfully.")
                         except Exception as e:

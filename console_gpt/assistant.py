@@ -2,12 +2,12 @@ from unichat.api_helper import openai
 
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize
+from console_gpt.mcp_client import shutdown
 from console_gpt.menus.assistant_menu import (create_message, run_thread,
                                               update_conversation)
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.user_prompt import assistant_user_prompt
-from console_gpt.mcp_client import shutdown
 
 
 def assistant(console, data) -> None:
