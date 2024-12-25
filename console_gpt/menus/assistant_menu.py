@@ -8,15 +8,23 @@ from typing import List, Optional, Tuple
 
 from unichat.api_helper import openai
 
-from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
-                                        write_to_config)
+from console_gpt.config_manager import ASSISTANTS_PATH, fetch_variable, write_to_config
 from console_gpt.custom_stdin import custom_input
-from console_gpt.custom_stdout import custom_print
+from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.general_utils import capitalize, decapitalize
+from console_gpt.mcp_client import (
+    MCPToolError,
+    call_tool,
+    get_available_tools,
+    initialize_tools,
+)
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
-from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
-                                              base_multiselect_menu,
-                                              base_settings_menu)
+from console_gpt.menus.skeleton_menus import (
+    base_checkbox_menu,
+    base_multiselect_menu,
+    base_settings_menu,
+)
+from console_gpt.menus.tools_menu import transform_tools_selection
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
 from console_gpt.prompts.system_prompt import system_reply
 
@@ -236,19 +244,25 @@ def _edit_tools(model, assistant):
 
 
 def _select_assistant_tools():
-    tools_selection = base_settings_menu(
-        {
-            "code_interpreter": "Allows the Assistants API to write and run Python code",
-        },
-        " Assistant tools",
-    )
-    match tools_selection:
-        case {"code_interpreter": True}:
-            system_reply("Code interpeter tool added to this Assistant.")
-            return [{"type": "code_interpreter"}]
-        case _:
-            system_reply("No tools selected.")
-            return None
+    try:
+        if fetch_variable("features", "mcp_client"):
+            try:
+                tools = get_available_tools()
+            except MCPToolError:
+                custom_print("warn", "MCP servers not initialized. Initializing...")
+                tools = initialize_tools()
+        else:
+            tools = []
+    except Exception as e:
+        custom_print("error", f"Unexpected error: {str(e)}")
+        tools = []
+    menu_items = {"code_interpreter": "Allows the Assistants API to write and run Python code"}
+    menu_items.update({
+        str(tool.get("name", "Unknown")): str(tool.get("description", "No description available"))
+        for tool in tools
+    })
+    tools_selection = base_settings_menu(menu_items, " Assistant tools")
+    return transform_tools_selection(tools_selection, tools)
 
 
 def _create_assistant(client, model, assistant_tools, role_title, role):
@@ -320,9 +334,13 @@ def _modify_assisstant(model, name, instructions, tools):
     client = openai.OpenAI(api_key=model["api_key"])
     new_tools = [] if tools == None else tools
     id, _ = _get_local_assistant(name)
-    updated_assistant = client.beta.assistants.update(
-        assistant_id=id, instructions=instructions, name=name, tools=new_tools, model=model["model_name"]
-    ).model_dump_json()
+    try:
+        updated_assistant = client.beta.assistants.update(
+            assistant_id=id, instructions=instructions, name=name, tools=new_tools, model=model["model_name"]
+        ).model_dump_json()
+    except openai.BadRequestError as e:
+        custom_print("error", str(e))
+        return
     updated_assistant_json = json.loads(updated_assistant)
     if updated_assistant_json["tools"] == new_tools and updated_assistant_json["instructions"] == instructions:
         custom_print("info", f"Assistant {name} was succesfully updated!")
@@ -344,12 +362,12 @@ def _delete_assistant(model, assistants):
         assistant_id = data["assistant_id"]
         thread_id = data["thread_id"]
         response = client.beta.assistants.delete(assistant_id)
-        print(response)
+        custom_print("info", str(response))
         try:
             response = client.beta.threads.delete(thread_id)
-            print(response)
+            custom_print("info", str(response))
         except openai.NotFoundError as e:
-            print(e)
+            custom_print("error", str(e))
         os.remove(assistant_path)
         custom_print("info", f"Assistant {assistant_path}  successfully deleted.")
 
@@ -417,15 +435,52 @@ def run_thread(client, assistant_id, thread_id):
         while run.status != "completed":
             run = client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
             match run.status:
+                case "requires_action":
+                    tool_outputs = []
+                    try:
+                        get_available_tools()
+                    except MCPToolError:
+                        custom_print("warn", "MCP servers not initialized. Initializing...")
+                        initialize_tools()
+                    for tool in run.required_action.submit_tool_outputs.tool_calls:
+                        try:
+                            markdown_print(f"> Triggered: `{tool.function.name}`.")
+                            tool_outputs.append({
+                                "tool_call_id": tool.id,
+                                "output": str(call_tool(tool.function.name, json.loads(tool.function.arguments)))
+                            })
+                        except Exception as e:
+                            run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
+                            raise
+                    if tool_outputs:
+                        try:
+                            run = client.beta.threads.runs.submit_tool_outputs_and_poll(
+                                thread_id=thread_id,
+                                run_id=run.id,
+                                tool_outputs=tool_outputs
+                            )
+                            custom_print("info", "Tool outputs submitted successfully.")
+                        except Exception as e:
+                            custom_print("error", f"Failed to submit tool outputs: {e}")
+                            run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
+                            break
+                    else:
+                        custom_print("info", "No tool outputs to submit.")
+                    continue
                 case "expired":
-                    custom_print("error", "Maximum wait time exceeded, please try again")
+                    custom_print("error", "Maximum wait time exceeded, please try again.")
                     break
                 case "cancelled":
-                    custom_print("error", "Request interrupted, please submit a new one")
+                    custom_print("error", "Request interrupted, please submit a new one.")
                     break
                 case "failed":
                     custom_print("error", run.last_error)
                     break
+                case "incomplete":
+                    custom_print("error", "Run ended due to max_prompt_tokens or max_completion_tokens reached.")
+                    break
+                case _:
+                    continue
             time.sleep(2)
             current_time = time.time()
             if (current_time - start_time) > TIMEOUT:
@@ -433,12 +488,15 @@ def run_thread(client, assistant_id, thread_id):
                 run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
                 break  # Exit the loop if more than 5 minutes have passed
             continue
+        return
     except KeyboardInterrupt:
         run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
         # Notifying the user about the interrupt but continues normally.
         custom_print("info", "Interrupted the request. Continue normally.")
     except openai.BadRequestError as e:
-        print(e)
+        custom_print("error", str(e))
+    except Exception as e:
+        custom_print("error", f"Unexpected error: {str(e)}")
 
 
 ## Create run

@@ -7,6 +7,7 @@ from console_gpt.menus.assistant_menu import (create_message, run_thread,
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.user_prompt import assistant_user_prompt
+from console_gpt.mcp_client import shutdown
 
 
 def assistant(console, data) -> None:
@@ -16,12 +17,16 @@ def assistant(console, data) -> None:
         user_input = assistant_user_prompt()
         # Command Handler
         if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
+            shutdown()
             custom_print("exit", "Goodbye, see you soon!", 130)
         elif user_input.lower() == "save":
             custom_print("info", "Assistant conversations are not saved locally.")
             continue
         elif user_input.lower() == "image":
             custom_print("warn", "Assistant conversations do not support processing images yet.")
+            continue
+        elif user_input.lower() == "tools":
+            custom_print("warn", "Assistant tools may be currently selected only before the converstaion.")
             continue
         elif user_input.lower() in ["flush", "new"]:
             break
@@ -49,5 +54,6 @@ def assistant(console, data) -> None:
             run_thread(client, data.assistant_id, data.thread_id)
         # Step 6: Display the Assistant's Response
         conversation, new_replies = update_conversation(client, conversation, data.thread_id)
-        for reply in new_replies:
-            assistance_reply(reply["content"], capitalize(data.assistant_name))
+        if new_replies:
+            for reply in new_replies:
+                assistance_reply(reply["content"], capitalize(data.assistant_name))

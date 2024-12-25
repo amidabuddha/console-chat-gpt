@@ -15,7 +15,6 @@ def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optiona
     Join path presented by `paths` (separate args) and check if exists.
     The path can be created if it doesn't exist and create is enabled
     :param paths: paths to join
-    :param error_message: error message to display if path doesn't exist
     :param create: whether to create path if it doesn't exist
     :param target: the file that would be created if this path exist (for sample files)
     :return: joined path
