@@ -94,10 +94,10 @@ def chat(console, data, managed_user_prompt) -> None:
         if response not in ["interrupted", "error_appeared"] and not streaming:
             conversation = handle_non_streaming_response(model_name, response, conversation)
         elif response == "interrupted":
-            last_user_index = next((i for i, msg in enumerate(reversed(conversation)) if msg['role'] == 'user'), None)
+            last_user_index = next((i for i, msg in enumerate(reversed(conversation)) if msg["role"] == "user"), None)
 
             if last_user_index is not None:
-                conversation = conversation[:len(conversation) - 1 - last_user_index]
+                conversation = conversation[: len(conversation) - 1 - last_user_index]
             continue
         elif response == "error_appeared":
             error_appeared = True
