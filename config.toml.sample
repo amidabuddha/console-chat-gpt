@@ -187,3 +187,11 @@ model_input_pricing_per_1k =0.00
 model_max_tokens = 8192
 model_name = "gemini-exp-1206"
 model_output_pricing_per_1k = 0.00
+
+[chat.models.deepseek-chat]
+api_key = "YOUR_DEEPSEEK_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.00014
+model_max_tokens = 8192
+model_name = "deepseek-chat"
+model_output_pricing_per_1k = 0.00028
