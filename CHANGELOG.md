@@ -9,7 +9,6 @@
 
 > Bug Fixes:
 - [4488ec1] [Bugfix] Trigger mcp servers shutdown before exit
-- [6d4d94e] [Bugfix] Skip asking to save chat on exit if disabled in config
 
 
 ---
