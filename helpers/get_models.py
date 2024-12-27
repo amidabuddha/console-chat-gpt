@@ -18,6 +18,7 @@ def get_models():
         "openai_models": [],
         "grok_models": [],
         "gemini_models": [],
+        "deepseek_models": [],
     }
 
     MODELS_MAX_TOKEN = {}
@@ -44,5 +45,7 @@ def get_models():
             MODELS_LIST["grok_models"].append(model_name)
         elif "gemini" in model:
             MODELS_LIST["gemini_models"].append(model_name)
+        elif "deepseek" in model:
+            MODELS_LIST["deepseek_models"].append(model_name)
 
     return MODELS_LIST, MODELS_MAX_TOKEN
