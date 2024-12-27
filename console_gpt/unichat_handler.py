@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 
-from console_gpt.custom_stdout import markdown_print
+from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.mcp_client import call_tool
 from console_gpt.prompts.assistant_prompt import assistance_reply
 
@@ -86,7 +86,13 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 }
                 conversation.append(result)
             except Exception as e:
-                raise
+                custom_print("error", f"Error calling tool: {e}")
+                result = {
+                    "role": "tool",
+                    "content": str(e),
+                    "tool_call_id": tool_call["id"],
+                }
+                conversation.append(result)
     return conversation
 
 
@@ -148,6 +154,12 @@ def handle_non_streaming_response(model_name, response, conversation):
                 }
                 conversation.append(result)
             except Exception as e:
-                raise
+                custom_print("error", f"Error calling tool: {e}")
+                result = {
+                    "role": "tool",
+                    "content": str(e),
+                    "tool_call_id": tool_call["id"],
+                }
+                conversation.append(result)
 
     return conversation
