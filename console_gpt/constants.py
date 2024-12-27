@@ -7,7 +7,7 @@ help_options = {
     "tools": "List all active tools.",
     "exit": "Exits the chat.",
     "file": "Allows you to upload a TXT or PDF file content to the chat.",
-    "image": "Allows you to upload an image [Supported by gpt-4-turbo and anthropic models].",
+    "image": "Allows you to upload an image [Supported by openai API based and anthropic models].",
     "flush": "Start the chat all over again.",
     "format": "Allows you to write multiline messages.",
     "save": "Saves the chat to a given file.",

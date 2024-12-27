@@ -21,7 +21,6 @@ from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_settings_menu)
 from console_gpt.menus.tools_menu import transform_tools_selection
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
-from console_gpt.prompts.system_prompt import system_reply
 
 TIMEOUT = 300
 

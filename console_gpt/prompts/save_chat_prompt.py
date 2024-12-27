@@ -9,6 +9,7 @@ from console_gpt.config_manager import CHATS_PATH, fetch_variable
 from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
+from console_gpt.mcp_client import shutdown
 
 
 def _validate_confirmation(val: str):
@@ -36,6 +37,7 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     _show_menu = fetch_variable("features", "save_chat_on_exit")
     # If False the whole code will be skipped
     if not skip_exit and not _show_menu:
+        shutdown()
         custom_print("exit", "Goodbye, see you soon!", 130)
 
     base_name = "chat"
@@ -74,4 +76,5 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
         custom_print("info", f"Successfully saved to - {full_path}", (None if skip_exit else 0))
     else:
         if not skip_exit:
+            shutdown()
             custom_print("exit", "Goodbye, see you soon!", 130)
