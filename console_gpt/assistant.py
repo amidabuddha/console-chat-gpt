@@ -1,13 +1,14 @@
 from unichat.api_helper import openai
 
+from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import capitalize
-from console_gpt.mcp_client import shutdown
 from console_gpt.menus.assistant_menu import (create_message, run_thread,
                                               update_conversation)
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.assistant_prompt import assistance_reply
 from console_gpt.prompts.user_prompt import assistant_user_prompt
+from mcp_servers.mcp_tcp_client import MCPClient
 
 
 def assistant(console, data) -> None:
@@ -17,7 +18,9 @@ def assistant(console, data) -> None:
         user_input = assistant_user_prompt()
         # Command Handler
         if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
-            shutdown()
+            if fetch_variable("features", "mcp_client"):
+                with MCPClient() as mcp:
+                    mcp.stop_server()
             custom_print("exit", "Goodbye, see you soon!", 130)
         elif user_input.lower() == "save":
             custom_print("info", "Assistant conversations are not saved locally.")

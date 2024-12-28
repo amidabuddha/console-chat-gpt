@@ -5,7 +5,7 @@ from rich.live import Live
 from rich.markdown import Markdown
 
 from console_gpt.custom_stdout import custom_print, markdown_print
-from console_gpt.mcp_client import call_tool
+from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.prompts.assistant_prompt import assistance_reply
 
 
@@ -77,13 +77,14 @@ def handle_streaming_response(model_name, response_stream, conversation):
             tool_name = tool_call["function"]["name"]
             markdown_print(f"> Triggered: `{tool_name}`.")
             try:
-                result = {
-                    "role": "tool",
-                    "content": str(
-                        call_tool(tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"]))
-                    ),
-                    "tool_call_id": tool_call["id"],
-                }
+                with MCPClient() as mcp:
+                    result = {
+                        "role": "tool",
+                        "content": str(
+                            mcp.call_tool(tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"]))
+                        ),
+                        "tool_call_id": tool_call["id"],
+                    }
                 conversation.append(result)
             except Exception as e:
                 custom_print("error", f"Error calling tool: {e}")
@@ -147,11 +148,12 @@ def handle_non_streaming_response(model_name, response, conversation):
             tool_name = tool["function"]["name"]
             markdown_print(f"> Triggered: `{tool_name}`.")
             try:
-                result = {
-                    "role": "tool",
-                    "content": str(call_tool(tool["function"]["name"], json.loads(tool["function"]["arguments"]))),
-                    "tool_call_id": tool["id"],
-                }
+                with MCPClient() as mcp:
+                    result = {
+                        "role": "tool",
+                        "content": str(mcp.call_tool(tool["function"]["name"], json.loads(tool["function"]["arguments"]))),
+                        "tool_call_id": tool["id"],
+                    }
                 conversation.append(result)
             except Exception as e:
                 custom_print("error", f"Error calling tool: {e}")

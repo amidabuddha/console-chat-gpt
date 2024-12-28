@@ -1,9 +1,10 @@
-from console_gpt.mcp_client import get_available_tools
+from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.menus.skeleton_menus import preview_multiselect_menu
 
 
 def tools_menu():
-    tools = get_available_tools()
+    with MCPClient() as mcp:
+        tools = mcp.get_available_tools()
     menu_items = [
         {"label": str(tool.get("name", "Unknown")), "preview": str(tool.get("description", "No description available"))}
         for tool in tools

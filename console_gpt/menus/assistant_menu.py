@@ -13,8 +13,7 @@ from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.general_utils import capitalize, decapitalize
-from console_gpt.mcp_client import (MCPToolError, call_tool,
-                                    get_available_tools, initialize_tools)
+from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
 from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_multiselect_menu,
@@ -240,11 +239,8 @@ def _edit_tools(model, assistant):
 def _select_assistant_tools():
     try:
         if fetch_variable("features", "mcp_client"):
-            try:
-                tools = get_available_tools()
-            except MCPToolError:
-                custom_print("warn", "MCP servers not initialized. Initializing...")
-                tools = initialize_tools()
+            with MCPClient() as mcp:
+                tools = mcp.get_available_tools()
         else:
             tools = []
     except Exception as e:
@@ -430,20 +426,16 @@ def run_thread(client, assistant_id, thread_id):
             match run.status:
                 case "requires_action":
                     tool_outputs = []
-                    try:
-                        get_available_tools()
-                    except MCPToolError:
-                        custom_print("warn", "MCP servers not initialized. Initializing...")
-                        initialize_tools()
                     for tool in run.required_action.submit_tool_outputs.tool_calls:
                         try:
                             markdown_print(f"> Triggered: `{tool.function.name}`.")
-                            tool_outputs.append(
-                                {
-                                    "tool_call_id": tool.id,
-                                    "output": str(call_tool(tool.function.name, json.loads(tool.function.arguments))),
-                                }
-                            )
+                            with MCPClient() as mcp:
+                                tool_outputs.append(
+                                    {
+                                        "tool_call_id": tool.id,
+                                        "output": str(mcp.call_tool(tool.function.name, json.loads(tool.function.arguments))),
+                                    }
+                                )
                         except Exception as e:
                             run = client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
                             raise
