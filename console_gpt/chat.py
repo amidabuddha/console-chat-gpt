@@ -30,6 +30,7 @@ def chat(console, data, managed_user_prompt) -> None:
     if fetch_variable("features", "mcp_client"):
         with MCPClient() as mcp:
             tools = mcp.get_available_tools()
+            custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
     else:
         tools = []
 
