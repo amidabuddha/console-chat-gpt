@@ -1,5 +1,5 @@
-from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.menus.skeleton_menus import preview_multiselect_menu
+from mcp_servers.mcp_tcp_client import MCPClient
 
 
 def tools_menu():

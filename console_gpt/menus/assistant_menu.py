@@ -13,13 +13,13 @@ from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.general_utils import capitalize, decapitalize
-from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.menus.role_menu import _add_custom_role, role_menu
 from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_multiselect_menu,
                                               base_settings_menu)
 from console_gpt.menus.tools_menu import transform_tools_selection
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
+from mcp_servers.mcp_tcp_client import MCPClient
 
 TIMEOUT = 300
 
@@ -433,7 +433,9 @@ def run_thread(client, assistant_id, thread_id):
                                 tool_outputs.append(
                                     {
                                         "tool_call_id": tool.id,
-                                        "output": str(mcp.call_tool(tool.function.name, json.loads(tool.function.arguments))),
+                                        "output": str(
+                                            mcp.call_tool(tool.function.name, json.loads(tool.function.arguments))
+                                        ),
                                     }
                                 )
                         except Exception as e:

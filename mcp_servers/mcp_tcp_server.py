@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 import sys
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
@@ -22,6 +22,7 @@ MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config.json
 
 class MCPToolError(Exception):
     """Custom exception for MCP tool initialization errors"""
+
     pass
 
 
@@ -54,7 +55,7 @@ class MCPServer:
 
 
 class MCPTCPServer:
-    def __init__(self, host: str = 'localhost', port: int = 8765):
+    def __init__(self, host: str = "localhost", port: int = 8765):
         self.host = host
         self.port = port
         self.servers: Dict[str, MCPServer] = {}
@@ -68,13 +69,16 @@ class MCPTCPServer:
             "name": tool.name,
             "description": tool.description,
             "inputSchema": (
-                tool.inputSchema if hasattr(tool, "inputSchema") else {"type": "object", "properties": {}, "required": []}
+                tool.inputSchema
+                if hasattr(tool, "inputSchema")
+                else {"type": "object", "properties": {}, "required": []}
             ),
         }
 
     @staticmethod
     def get_executable_path(command: str) -> str:
         """Get the full path of an executable, considering the OS."""
+
         def check_common_paths(cmd: str) -> Optional[str]:
             common_paths = [
                 f"/usr/local/bin/{cmd}",
@@ -100,12 +104,7 @@ class MCPTCPServer:
             try:
                 npm_path = shutil.which("npm")
                 if npm_path:
-                    result = subprocess.run(
-                        [npm_path, "bin", "-g"],
-                        capture_output=True,
-                        text=True,
-                        check=True
-                    )
+                    result = subprocess.run([npm_path, "bin", "-g"], capture_output=True, text=True, check=True)
                     global_bin = result.stdout.strip()
                     potential_path = os.path.join(global_bin, command)
                     if os.path.isfile(potential_path):
@@ -147,11 +146,7 @@ class MCPTCPServer:
                 env.update(server_config["env"])
 
             # Prepare server parameters
-            server_params = StdioServerParameters(
-                command=command_path,
-                args=server_config.get("args", []),
-                env=env
-            )
+            server_params = StdioServerParameters(command=command_path, args=server_config.get("args", []), env=env)
 
             server.client = stdio_client(server_params)
             read, write = await server.client.__aenter__()
@@ -162,10 +157,7 @@ class MCPTCPServer:
 
             # Get available tools
             tools_list = await server.session.list_tools()
-            server.tools = {
-                tool.name: tool for tool in tools_list.tools
-                if isinstance(tool, Tool)
-            }
+            server.tools = {tool.name: tool for tool in tools_list.tools if isinstance(tool, Tool)}
 
             return server
 
@@ -178,10 +170,7 @@ class MCPTCPServer:
         config = self.load_config()
 
         # Initialize all servers concurrently
-        init_tasks = [
-            self.init_server(name, cfg)
-            for name, cfg in config.items()
-        ]
+        init_tasks = [self.init_server(name, cfg) for name, cfg in config.items()]
 
         # Wait for all servers to initialize
         results = await asyncio.gather(*init_tasks, return_exceptions=True)
@@ -194,10 +183,7 @@ class MCPTCPServer:
                 continue
 
             self.servers[server_name] = result
-            all_tools.extend(
-                self.tool_to_dict(tool)
-                for tool in result.tools.values()
-            )
+            all_tools.extend(self.tool_to_dict(tool) for tool in result.tools.values())
 
         custom_print("info", f"Total tools initialized: {len(all_tools)}", start="\n")
         return all_tools
@@ -211,56 +197,51 @@ class MCPTCPServer:
                 if not length_bytes:
                     break
 
-                msg_length = int.from_bytes(length_bytes, 'big')
+                msg_length = int.from_bytes(length_bytes, "big")
                 data = await reader.read(msg_length)
                 if not data:
                     break
 
                 request = json.loads(data.decode())
-                command = request.get('command')
-                response = {'status': 'error', 'message': 'Invalid command'}
+                command = request.get("command")
+                response = {"status": "error", "message": "Invalid command"}
 
-                if command == 'call_tool':
+                if command == "call_tool":
                     try:
-                        tool_name = request['tool_name']
-                        arguments = request['arguments']
+                        tool_name = request["tool_name"]
+                        arguments = request["arguments"]
                         # Find server with the requested tool
-                        server = next(
-                            (s for s in self.servers.values() if tool_name in s.tools),
-                            None
-                        )
+                        server = next((s for s in self.servers.values() if tool_name in s.tools), None)
 
                         if not server:
                             raise MCPToolError(f"Tool '{tool_name}' not found in any server")
 
                         result = await server.session.call_tool(tool_name, arguments)
-                        response = {
-                            'status': 'success',
-                            'result': str(result)
-                        }
+                        response = {"status": "success", "result": str(result)}
                     except Exception as e:
-                        response = {'status': 'error', 'message': str(e)}
+                        response = {"status": "error", "message": str(e)}
 
-                elif command == 'get_tools':
+                elif command == "get_tools":
                     try:
                         tools = [
                             self.tool_to_dict(tool)
                             for server in self.servers.values()
                             for tool in server.tools.values()
                         ]
-                        response = {'status': 'success', 'tools': tools}
+                        response = {"status": "success", "tools": tools}
                     except Exception as e:
-                        response = {'status': 'error', 'message': str(e)}
+                        response = {"status": "error", "message": str(e)}
 
                 # Send response
                 response_data = json.dumps(response).encode()
-                writer.write(len(response_data).to_bytes(4, 'big'))
+                writer.write(len(response_data).to_bytes(4, "big"))
                 writer.write(response_data)
                 await writer.drain()
 
         except Exception as e:
             print(f"Error handling client: {e}")
             import traceback
+
             print(traceback.format_exc())
         finally:
             writer.close()
@@ -268,10 +249,7 @@ class MCPTCPServer:
 
     async def cleanup(self):
         """Cleanup all MCP sessions and connections."""
-        cleanup_tasks = [
-            server.cleanup()
-            for server in self.servers.values()
-        ]
+        cleanup_tasks = [server.cleanup() for server in self.servers.values()]
         await asyncio.gather(*cleanup_tasks, return_exceptions=True)
         self.servers.clear()
 
@@ -282,9 +260,7 @@ class MCPTCPServer:
             await self.initialize_tools()
 
             # Start TCP server
-            server = await asyncio.start_server(
-                self.handle_client, self.host, self.port
-            )
+            server = await asyncio.start_server(self.handle_client, self.host, self.port)
 
             async with server:
                 print(f"Server running on {self.host}:{self.port}")
@@ -293,6 +269,7 @@ class MCPTCPServer:
             print(f"Server error: {e}")
             await self.cleanup()
             raise
+
 
 if __name__ == "__main__":
     server = MCPTCPServer()

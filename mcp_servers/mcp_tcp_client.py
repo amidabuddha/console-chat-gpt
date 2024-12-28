@@ -1,12 +1,13 @@
-import socket
 import json
-from typing import Dict, Any, List, Tuple
+import socket
+from typing import Any, Dict, List, Tuple
 
 # Update the import to use relative import
 from .server_manager import ServerManager
 
+
 class MCPClient:
-    def __init__(self, host: str = 'localhost', port: int = 8765, auto_start: bool = True):
+    def __init__(self, host: str = "localhost", port: int = 8765, auto_start: bool = True):
         self.host = host
         self.port = port
         self.sock = None
@@ -44,7 +45,7 @@ class MCPClient:
         try:
             # Serialize and send request
             data = json.dumps(request).encode()
-            self.sock.sendall(len(data).to_bytes(4, 'big'))
+            self.sock.sendall(len(data).to_bytes(4, "big"))
             self.sock.sendall(data)
 
             # Read response length
@@ -52,7 +53,7 @@ class MCPClient:
             if not length_bytes:
                 raise ConnectionError("Connection closed by server")
 
-            msg_length = int.from_bytes(length_bytes, 'big')
+            msg_length = int.from_bytes(length_bytes, "big")
 
             # Read response data
             chunks = []
@@ -64,7 +65,7 @@ class MCPClient:
                 chunks.append(chunk)
                 bytes_received += len(chunk)
 
-            response_data = b''.join(chunks)
+            response_data = b"".join(chunks)
             return json.loads(response_data.decode())
 
         except (ConnectionError, socket.error) as e:
@@ -73,23 +74,19 @@ class MCPClient:
             raise ConnectionError(f"Communication error: {str(e)}")
 
     def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
-        request = {
-            'command': 'call_tool',
-            'tool_name': tool_name,
-            'arguments': arguments
-        }
+        request = {"command": "call_tool", "tool_name": tool_name, "arguments": arguments}
 
         response = self._send_request(request)
-        if response['status'] == 'error':
-            raise Exception(response['message'])
-        return response['result']
+        if response["status"] == "error":
+            raise Exception(response["message"])
+        return response["result"]
 
     def get_available_tools(self) -> List[Dict[str, Any]]:
-        request = {'command': 'get_tools'}
+        request = {"command": "get_tools"}
         response = self._send_request(request)
-        if response['status'] == 'error':
-            raise Exception(response['message'])
-        return response['tools']
+        if response["status"] == "error":
+            raise Exception(response["message"])
+        return response["tools"]
 
     def start_server(self) -> Tuple[bool, str]:
         """Start the server if it's not running."""

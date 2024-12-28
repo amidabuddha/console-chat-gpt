@@ -3,12 +3,12 @@ from unichat import UnifiedChatApi
 from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
-from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.menus.command_handler import command_handler
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
 from console_gpt.unichat_handler import (handle_non_streaming_response,
                                          handle_streaming_response)
+from mcp_servers.mcp_tcp_client import MCPClient
 
 
 def chat(console, data, managed_user_prompt) -> None:

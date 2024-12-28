@@ -1,18 +1,20 @@
-import subprocess
 import os
 import signal
-import time
 import socket
+import subprocess
 import sys
-import psutil
+import time
 from typing import Optional, Tuple
 
+import psutil
+
+
 class ServerManager:
-    def __init__(self, host: str = 'localhost', port: int = 8765):
+    def __init__(self, host: str = "localhost", port: int = 8765):
         self.host = host
         self.port = port
         self.server_process: Optional[subprocess.Popen] = None
-        self.server_script = os.path.join(os.path.dirname(__file__), 'mcp_tcp_server.py')
+        self.server_script = os.path.join(os.path.dirname(__file__), "mcp_tcp_server.py")
 
     def is_server_running(self) -> bool:
         """Check if the server is running by attempting to connect to it."""
@@ -25,11 +27,11 @@ class ServerManager:
     def find_server_process(self) -> Optional[psutil.Process]:
         """Find the server process if it's running"""
         server_name = os.path.basename(self.server_script)
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
             try:
-                if proc.info['cmdline']:
-                    cmdline = ' '.join(proc.info['cmdline'])
-                    if server_name in cmdline and 'python' in cmdline.lower():
+                if proc.info["cmdline"]:
+                    cmdline = " ".join(proc.info["cmdline"])
+                    if server_name in cmdline and "python" in cmdline.lower():
                         return proc
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
@@ -42,19 +44,19 @@ class ServerManager:
 
         try:
             # Start the server as a subprocess
-            if os.name == 'nt':  # Windows
+            if os.name == "nt":  # Windows
                 self.server_process = subprocess.Popen(
                     [sys.executable, self.server_script],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
                 )
             else:  # Unix-like systems
                 self.server_process = subprocess.Popen(
                     [sys.executable, self.server_script],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    start_new_session=True
+                    start_new_session=True,
                 )
 
             # Wait for the server to start (max 5 seconds)
@@ -66,7 +68,7 @@ class ServerManager:
             # If server didn't start, try to clean up
             self.stop_server()
             return False, "Server failed to start within timeout"
-            
+
         except Exception as e:
             if self.server_process:
                 try:
@@ -84,11 +86,11 @@ class ServerManager:
             server_proc = self.find_server_process()
             if server_proc:
                 # Try graceful shutdown first
-                if os.name == 'nt':  # Windows
+                if os.name == "nt":  # Windows
                     server_proc.send_signal(signal.CTRL_C_EVENT)
                 else:  # Unix-like systems
                     server_proc.send_signal(signal.SIGTERM)
-                
+
                 # Wait for the process to terminate (max 5 seconds)
                 for _ in range(10):
                     if not self.is_server_running():
@@ -97,23 +99,31 @@ class ServerManager:
                     time.sleep(0.5)
 
                 # If server still running, force kill
-                if os.name == 'nt':  # Windows
+                if os.name == "nt":  # Windows
                     server_proc.kill()
                 else:  # Unix-like systems
                     server_proc.send_signal(signal.SIGKILL)
-                
+
                 self.server_process = None
                 return True, "Server force stopped"
-            
+
             else:
                 # Try to find and kill the process by port
-                if os.name == 'posix':  # Linux/Mac
-                    subprocess.run(['pkill', '-f', f'python.*{self.server_script}'])
+                if os.name == "posix":  # Linux/Mac
+                    subprocess.run(["pkill", "-f", f"python.*{self.server_script}"])
                 else:  # Windows
-                    subprocess.run(['taskkill', '/F', '/IM', 'python.exe', '/FI', 
-                                  f'WINDOWTITLE eq python*{os.path.basename(self.server_script)}*'],
-                                 stdout=subprocess.DEVNULL,
-                                 stderr=subprocess.DEVNULL)
+                    subprocess.run(
+                        [
+                            "taskkill",
+                            "/F",
+                            "/IM",
+                            "python.exe",
+                            "/FI",
+                            f"WINDOWTITLE eq python*{os.path.basename(self.server_script)}*",
+                        ],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
                 return True, "Server stopped using system commands"
 
         except Exception as e:

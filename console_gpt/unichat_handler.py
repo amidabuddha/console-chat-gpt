@@ -5,8 +5,8 @@ from rich.live import Live
 from rich.markdown import Markdown
 
 from console_gpt.custom_stdout import custom_print, markdown_print
-from mcp_servers.mcp_tcp_client import MCPClient
 from console_gpt.prompts.assistant_prompt import assistance_reply
+from mcp_servers.mcp_tcp_client import MCPClient
 
 
 def handle_streaming_response(model_name, response_stream, conversation):
@@ -151,7 +151,9 @@ def handle_non_streaming_response(model_name, response, conversation):
                 with MCPClient() as mcp:
                     result = {
                         "role": "tool",
-                        "content": str(mcp.call_tool(tool["function"]["name"], json.loads(tool["function"]["arguments"]))),
+                        "content": str(
+                            mcp.call_tool(tool["function"]["name"], json.loads(tool["function"]["arguments"]))
+                        ),
                         "tool_call_id": tool["id"],
                     }
                 conversation.append(result)
