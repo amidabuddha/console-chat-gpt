@@ -2,11 +2,18 @@ import json
 import socket
 from typing import Any, Dict, List, Tuple
 
-# Update the import to use relative import
 from .server_manager import ServerManager
+from .mcp_errors import MCPError
+from console_gpt.custom_stdout import custom_print
 
+class MCPClientError(Exception):
+    def __init__(self, error: MCPError):
+        self.error = error
+        super().__init__(str(error.message))
 
 class MCPClient:
+    _server_failed = False  # Class-level flag to track server failure
+
     def __init__(self, host: str = "localhost", port: int = 8765, auto_start: bool = True):
         self.host = host
         self.port = port
@@ -14,48 +21,47 @@ class MCPClient:
         self.server_manager = ServerManager(host, port)
         self.auto_start = auto_start
 
-    def ensure_server_running(self) -> Tuple[bool, str]:
-        """Ensure the server is running before connecting."""
-        if not self.server_manager.is_server_running():
-            success, message = self.server_manager.start_server()
-            if not success:
-                raise ConnectionError(f"Failed to start server: {message}")
-            return success, message
-        return True, "Server is already running"
+    def _connect(self) -> bool:
+        """Internal method to establish connection."""
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.host, self.port))
+            return True
 
-    def connect(self):
-        """Establish connection to the server."""
-        if self.auto_start:
-            self.ensure_server_running()
+        except ConnectionRefusedError as e:
+            self.sock = None
+            custom_print("error", f"Connection refused: {e}")
+            if self.auto_start:
+                custom_print("error", "Failed to connect to MCP server even after starting it")
+            else:
+                custom_print("error", "MCP Server is not running.")
+            return False
+        except Exception as e:
+            self.sock = None
+            custom_print("error", f"Error during connection attempt: {e}")
+            return False
 
-        if self.sock is None:
-            try:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.sock.connect((self.host, self.port))
-            except ConnectionRefusedError:
-                if self.auto_start:
-                    raise ConnectionError("Failed to connect to server even after starting it")
-                else:
-                    raise ConnectionError("Server is not running. Enable auto_start or start the server manually")
+    def _handle_response(self, response: Dict[str, Any]) -> Any:
+        """Handle server response and raise appropriate exceptions."""
+        if response["status"] == "error":
+            error_data = response["error"]
+            error = MCPError.from_dict(error_data)
+            raise MCPClientError(error)
+        return response.get("result")
 
     def _send_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        # Ensure connection before sending request
-        self.connect()
-
+        """Send a request to the server and receive the response."""
         try:
-            # Serialize and send request
             data = json.dumps(request).encode()
             self.sock.sendall(len(data).to_bytes(4, "big"))
             self.sock.sendall(data)
 
-            # Read response length
             length_bytes = self.sock.recv(4)
             if not length_bytes:
                 raise ConnectionError("Connection closed by server")
 
             msg_length = int.from_bytes(length_bytes, "big")
 
-            # Read response data
             chunks = []
             bytes_received = 0
             while bytes_received < msg_length:
@@ -66,27 +72,41 @@ class MCPClient:
                 bytes_received += len(chunk)
 
             response_data = b"".join(chunks)
-            return json.loads(response_data.decode())
-
-        except (ConnectionError, socket.error) as e:
-            # Close the socket on connection errors
+            if response_data:
+                try:
+                    return json.loads(response_data.decode())
+                except json.JSONDecodeError as e:
+                    custom_print("error", f"Failed to decode JSON response: {e}")
+                    return {"status": "error", "error": {"type": "JSON_DECODE_ERROR", "message": str(e)}}
+            else:
+                return {"status": "error", "error": {"type": "EMPTY_RESPONSE", "message": "Empty response received from server"}}
+        except (ConnectionError, socket.error, Exception) as e:
+            custom_print("error", f"Communication error: {str(e)}")
             self.close()
-            raise ConnectionError(f"Communication error: {str(e)}")
+            return {"status": "error", "error": {"type": "CONNECTION_ERROR", "message": str(e)}}
 
     def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
-        request = {"command": "call_tool", "tool_name": tool_name, "arguments": arguments}
+        """Call a tool on the server."""
+        request = {
+            "command": "call_tool",
+            "tool_name": tool_name,
+            "arguments": arguments
+        }
 
         response = self._send_request(request)
-        if response["status"] == "error":
-            raise Exception(response["message"])
-        return response["result"]
+        return self._handle_response(response)
 
     def get_available_tools(self) -> List[Dict[str, Any]]:
+        """Get list of available tools from the server."""
         request = {"command": "get_tools"}
         response = self._send_request(request)
-        if response["status"] == "error":
-            raise Exception(response["message"])
-        return response["tools"]
+
+        # Check for initialization errors
+        if response.get("initialization_errors"):
+            for error in response["initialization_errors"]:
+                custom_print("error", f"Server '{error['server']}' failed to initialize: {error['error']}")
+
+        return response.get("tools", [])
 
     def start_server(self) -> Tuple[bool, str]:
         """Start the server if it's not running."""
@@ -94,6 +114,9 @@ class MCPClient:
 
     def stop_server(self) -> Tuple[bool, str]:
         """Stop the server."""
+        if MCPClient._server_failed:  # Skip if we know server failed to start
+            return True, "Server was not running"
+
         if self.sock:
             self.close()
         return self.server_manager.stop_server()
@@ -109,8 +132,25 @@ class MCPClient:
                 self.sock = None
 
     def __enter__(self):
-        self.connect()
+        """Context manager entry - ensures server is running and connects."""
+        if MCPClient._server_failed:
+            return None
+
+        if self.auto_start:
+            if not self.server_manager.is_server_running():
+                success, message = self.server_manager.start_server()
+                if not success:
+                    custom_print("error", f"Failed to start MCP server: {message}")
+                    MCPClient._server_failed = True
+                    self.close()
+                    return None
+
+        if not self._connect():
+            return None  # Return None if connection fails
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - closes the connection."""
         self.close()
+        # Don't suppress exceptions unless they're connection-related
+        return isinstance(exc_val, (ConnectionError, MCPClientError))

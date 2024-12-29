@@ -7,7 +7,7 @@ import time
 from typing import Optional, Tuple
 
 import psutil
-
+from console_gpt.custom_stdout import custom_print
 
 class ServerManager:
     def __init__(self, host: str = "localhost", port: int = 8765):
@@ -16,16 +16,27 @@ class ServerManager:
         self.server_process: Optional[subprocess.Popen] = None
         self.server_script = os.path.join(os.path.dirname(__file__), "mcp_tcp_server.py")
 
-    def is_server_running(self) -> bool:
-        """Check if the server is running by attempting to connect to it."""
+    def is_port_open(self) -> bool:
+        """Check if the server port is open."""
         try:
             with socket.create_connection((self.host, self.port), timeout=1):
                 return True
-        except (ConnectionRefusedError, socket.timeout, OSError):
+        except (ConnectionRefusedError, socket.timeout, OSError) as e:
             return False
+
+    def is_process_running(self) -> bool:
+        """Check if the server process is running."""
+        return self.find_server_process() is not None
+
+    def is_server_running(self) -> bool:
+        """Check if the server is fully running by checking both process and port."""
+        return self.is_process_running() and self.is_port_open()
 
     def find_server_process(self) -> Optional[psutil.Process]:
         """Find the server process if it's running"""
+        if self.server_process and self.server_process.poll() is None:
+            return self.server_process
+
         server_name = os.path.basename(self.server_script)
         for proc in psutil.process_iter(["pid", "name", "cmdline"]):
             try:
@@ -43,31 +54,30 @@ class ServerManager:
             return True, "Server is already running"
 
         try:
+            custom_print("info", "Starting MCP server...")
+
             # Start the server as a subprocess
             if os.name == "nt":  # Windows
                 self.server_process = subprocess.Popen(
                     [sys.executable, self.server_script],
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
                     creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
                 )
             else:  # Unix-like systems
                 self.server_process = subprocess.Popen(
                     [sys.executable, self.server_script],
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
                     start_new_session=True,
                 )
 
-            # Wait for the server to start (max 5 seconds)
-            for _ in range(10):
-                if self.is_server_running():
-                    return True, "Server started successfully"
+            start_time = time.time()
+            while time.time() - start_time < 60:
                 time.sleep(0.5)
+                if self.is_port_open():
+                    custom_print("info", "Server is accepting connections.")
+                    return True, "Server process started successfully"
 
-            # If server didn't start, try to clean up
-            self.stop_server()
-            return False, "Server failed to start within timeout"
+            return False, "Server failed to start: Port did not open within timeout"
 
         except Exception as e:
             if self.server_process:
@@ -83,7 +93,9 @@ class ServerManager:
             return True, "Server is not running"
 
         try:
+            custom_print("info", "Stopping MCP server...")
             server_proc = self.find_server_process()
+
             if server_proc:
                 # Try graceful shutdown first
                 if os.name == "nt":  # Windows
@@ -95,36 +107,65 @@ class ServerManager:
                 for _ in range(10):
                     if not self.is_server_running():
                         self.server_process = None
+                        custom_print("info", "Server stopped successfully")
                         return True, "Server stopped successfully"
                     time.sleep(0.5)
 
                 # If server still running, force kill
-                if os.name == "nt":  # Windows
+                custom_print("warn", "Server didn't stop gracefully, forcing shutdown...")
+                if os.name == "nt":
                     server_proc.kill()
-                else:  # Unix-like systems
+                else:
                     server_proc.send_signal(signal.SIGKILL)
 
                 self.server_process = None
-                return True, "Server force stopped"
+                for _ in range(10):
+                    if not self.is_port_open():
+                        break
+                    time.sleep(0.5)
+                else:
+                    return False, "Failed to stop server: Port still in use"
 
+                return True, "Server force stopped"
             else:
-                # Try to find and kill the process by port
-                if os.name == "posix":  # Linux/Mac
-                    subprocess.run(["pkill", "-f", f"python.*{self.server_script}"])
-                else:  # Windows
-                    subprocess.run(
-                        [
-                            "taskkill",
-                            "/F",
-                            "/IM",
-                            "python.exe",
-                            "/FI",
-                            f"WINDOWTITLE eq python*{os.path.basename(self.server_script)}*",
-                        ],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                    )
-                return True, "Server stopped using system commands"
+                return False, "Could not find server process to stop"
 
         except Exception as e:
             return False, f"Failed to stop server: {str(e)}"
+
+    def release_port(self):
+        """Attempts to release the port using OS-specific commands."""
+        try:
+            if os.name == "posix":  # Linux/Mac
+                # Use lsof to find the process ID (PID) using the port and kill it
+                result = subprocess.run(
+                    ["lsof", "-t", "-i", f":{self.port}"],
+                    capture_output=True,
+                    text=True,
+                )
+                pid = result.stdout.strip()
+                if pid:
+                    custom_print("warn", f"Killing process {pid} using port {self.port}")
+                    os.kill(int(pid), signal.SIGKILL)
+            elif os.name == "nt":  # Windows
+                # Use netstat and taskkill to find and kill the process
+                result = subprocess.run(
+                    ["netstat", "-ano", "|", "findstr", f":{self.port}"],
+                    capture_output=True,
+                    text=True,
+                    shell=True,  # Needed for piped commands on Windows
+                )
+                lines = result.stdout.splitlines()
+                for line in lines:
+                    parts = line.split()
+                    if len(parts) >= 5 and parts[1].endswith(f":{self.port}"):
+                        pid = parts[4]
+                        custom_print("warn", f"Killing process {pid} using port {self.port}")
+                        subprocess.run(
+                            ["taskkill", "/F", "/PID", pid],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                        )
+            time.sleep(1) # Give it some time to cleanup after killing
+        except Exception as e:
+            custom_print("error", f"Failed to release port: {str(e)}")

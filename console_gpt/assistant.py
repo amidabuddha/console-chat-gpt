@@ -19,8 +19,9 @@ def assistant(console, data) -> None:
         # Command Handler
         if not user_input or user_input.lower() in ("exit", "quit", "bye"):  # Used to catch SIGINT
             if fetch_variable("features", "mcp_client"):
-                with MCPClient() as mcp:
-                    mcp.stop_server()
+                with MCPClient(auto_start=False) as mcp:
+                    if mcp is not None:
+                        mcp.stop_server()
             custom_print("exit", "Goodbye, see you soon!", 130)
         elif user_input.lower() == "save":
             custom_print("info", "Assistant conversations are not saved locally.")

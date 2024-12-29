@@ -29,8 +29,12 @@ def chat(console, data, managed_user_prompt) -> None:
     cached = model_title.startswith("anthropic")
     if fetch_variable("features", "mcp_client"):
         with MCPClient() as mcp:
-            tools = mcp.get_available_tools()
-            custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
+            if mcp is None:
+                custom_print("error", "Could not establish connection to MCP server. Chat functionality may be limited.")
+            else:
+                tools = mcp.get_available_tools()
+                custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
+
     else:
         tools = []
 

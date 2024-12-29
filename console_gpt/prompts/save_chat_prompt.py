@@ -38,8 +38,9 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     # If False the whole code will be skipped
     if not skip_exit and not _show_menu:
         if fetch_variable("features", "mcp_client"):
-            with MCPClient() as mcp:
-                mcp.stop_server()
+            with MCPClient(auto_start=False) as mcp:
+                if mcp is not None:
+                    mcp.stop_server()
         custom_print("exit", "Goodbye, see you soon!", 130)
 
     base_name = "chat"
@@ -79,6 +80,7 @@ def save_chat(conversation: List[Dict], ask: bool = False, skip_exit: bool = Fal
     else:
         if not skip_exit:
             if fetch_variable("features", "mcp_client"):
-                with MCPClient() as mcp:
-                    mcp.stop_server()
+                with MCPClient(auto_start=False) as mcp:
+                    if mcp is not None:
+                        mcp.stop_server()
             custom_print("exit", "Goodbye, see you soon!", 130)
