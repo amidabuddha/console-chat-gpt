@@ -3,8 +3,8 @@
 import asyncio
 import json
 import os
-import signal
 import shutil
+import signal
 import subprocess
 import sys
 from typing import Any, Dict, List, Optional, Tuple
@@ -13,13 +13,16 @@ from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from mcp_errors import (CommandNotFoundError, ConfigError, MCPError,
+                        ServerInitError, ToolExecutionError)
+
 from console_gpt.config_manager import _join_and_check
 from console_gpt.custom_stdout import custom_print
-from mcp_errors import CommandNotFoundError, MCPError, ConfigError, ServerInitError, ToolExecutionError
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
 MCP_SAMPLE_PATH = _join_and_check(BASE_PATH, "mcp_config.json.sample", target="mcp_config.json")
 MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config.json")
+
 
 class MCPServer:
     def __init__(self, name: str, config: Dict[str, Any]):
@@ -48,6 +51,7 @@ class MCPServer:
             except Exception:
                 pass
 
+
 class MCPTCPServer:
     def __init__(self, host: str = "localhost", port: int = 8765):
         self.host = host
@@ -73,10 +77,7 @@ class MCPTCPServer:
     def get_executable_path(command: str) -> str:
         """Get the full path of an executable, considering the OS."""
         if not command or not isinstance(command, str):
-            raise CommandNotFoundError(
-                command,
-                available_paths=os.environ.get("PATH", "").split(os.pathsep)
-            )
+            raise CommandNotFoundError(command, available_paths=os.environ.get("PATH", "").split(os.pathsep))
 
         def check_common_paths(cmd: str) -> Optional[str]:
             common_paths = [
@@ -117,19 +118,13 @@ class MCPTCPServer:
 
             # If we get here, command wasn't found
             available_paths = os.environ.get("PATH", "").split(os.pathsep)
-            raise CommandNotFoundError(
-                command,
-                available_paths=available_paths
-            )
+            raise CommandNotFoundError(command, available_paths=available_paths)
 
         except Exception as e:
             if isinstance(e, CommandNotFoundError):
                 raise
             available_paths = os.environ.get("PATH", "").split(os.pathsep)
-            raise CommandNotFoundError(
-                command,
-                available_paths=available_paths
-            ) from e
+            raise CommandNotFoundError(command, available_paths=available_paths) from e
 
     @staticmethod
     def load_config() -> Dict[str, Dict[str, Any]]:
@@ -159,11 +154,7 @@ class MCPTCPServer:
             if "env" in server_config:
                 env.update(server_config["env"])
 
-            server_params = StdioServerParameters(
-                command=command_path,
-                args=server_config.get("args", []),
-                env=env
-            )
+            server_params = StdioServerParameters(command=command_path, args=server_config.get("args", []), env=env)
 
             # Start the server process and store it
             process = subprocess.Popen(
@@ -218,14 +209,15 @@ class MCPTCPServer:
             custom_print("info", f"Initializing server: {server_name}")
             try:
                 server = await asyncio.wait_for(
-                    self.init_server(server_name, server_config),
-                    timeout=self.initialization_timeout
+                    self.init_server(server_name, server_config), timeout=self.initialization_timeout
                 )
                 self.servers[server_name] = server
                 custom_print("info", f"Server {server_name} initialized successfully")
                 return [self.tool_to_dict(tool) for tool in server.tools.values()]
             except asyncio.TimeoutError:
-                error = ServerInitError(f"Server initialization timed out after {self.initialization_timeout} seconds", server_name)
+                error = ServerInitError(
+                    f"Server initialization timed out after {self.initialization_timeout} seconds", server_name
+                )
                 self.servers[server_name] = error  # Store the error
                 initialization_errors.append(error)
                 custom_print("error", f"TimeoutError initializing server {server_name}")
@@ -284,27 +276,29 @@ class MCPTCPServer:
                         arguments = request["arguments"]
 
                         # Find server for tool
-                        server = next((s for s in self.servers.values()
-                                    if isinstance(s, MCPServer) and tool_name in s.tools), None)
+                        server = next(
+                            (s for s in self.servers.values() if isinstance(s, MCPServer) and tool_name in s.tools),
+                            None,
+                        )
 
                         # Check if server failed to initialize
-                        failed_server = next((s for s in self.servers.values()
-                                            if isinstance(s, Exception) and not isinstance(s, MCPServer)), None)
+                        failed_server = next(
+                            (
+                                s
+                                for s in self.servers.values()
+                                if isinstance(s, Exception) and not isinstance(s, MCPServer)
+                            ),
+                            None,
+                        )
 
                         if failed_server:
                             # Return the initialization error
                             if isinstance(failed_server, CommandNotFoundError):
-                                response = {
-                                    "status": "error",
-                                    "error": failed_server.to_dict()
-                                }
+                                response = {"status": "error", "error": failed_server.to_dict()}
                             else:
                                 response = {
                                     "status": "error",
-                                    "error": MCPError(
-                                        "SERVER_ERROR",
-                                        "Server initialization failed"
-                                    ).to_dict()
+                                    "error": MCPError("SERVER_ERROR", "Server initialization failed").to_dict(),
                                 }
 
                         elif not server:
@@ -321,25 +315,24 @@ class MCPTCPServer:
                             if isinstance(server, MCPServer):
                                 tools.extend(self.tool_to_dict(tool) for tool in server.tools.values())
                             elif isinstance(server, Exception):
-                                initialization_errors.append({
-                                    "server": server_name,
-                                    "error": server.to_dict() if hasattr(server, 'to_dict') else str(server)
-                                })
+                                initialization_errors.append(
+                                    {
+                                        "server": server_name,
+                                        "error": server.to_dict() if hasattr(server, "to_dict") else str(server),
+                                    }
+                                )
 
                         response = {
                             "status": "success",
                             "tools": tools,
-                            "initialization_errors": initialization_errors if initialization_errors else None
+                            "initialization_errors": initialization_errors if initialization_errors else None,
                         }
 
                 except Exception as e:
                     if isinstance(e, (ConfigError, ServerInitError, ToolExecutionError, CommandNotFoundError)):
                         response = {"status": "error", "error": e.to_dict()}
                     else:
-                        response = {
-                            "status": "error",
-                            "error": MCPError("UNKNOWN_ERROR", str(e)).to_dict()
-                        }
+                        response = {"status": "error", "error": MCPError("UNKNOWN_ERROR", str(e)).to_dict()}
 
                 # Ensure response is sent and connection is drained
                 response_data = json.dumps(response).encode()
@@ -424,6 +417,7 @@ class MCPTCPServer:
         """Handle shutdown signals."""
         custom_print("info", "\nReceived shutdown signal...")
         asyncio.create_task(self.cleanup())
+
 
 if __name__ == "__main__":
     server = MCPTCPServer()

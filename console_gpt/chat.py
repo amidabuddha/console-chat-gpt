@@ -30,7 +30,9 @@ def chat(console, data, managed_user_prompt) -> None:
     if fetch_variable("features", "mcp_client"):
         with MCPClient() as mcp:
             if mcp is None:
-                custom_print("error", "Could not establish connection to MCP server. Chat functionality may be limited.")
+                custom_print(
+                    "error", "Could not establish connection to MCP server. Chat functionality may be limited."
+                )
             else:
                 tools = mcp.get_available_tools()
                 custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")

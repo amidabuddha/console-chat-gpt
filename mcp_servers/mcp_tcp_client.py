@@ -2,14 +2,17 @@ import json
 import socket
 from typing import Any, Dict, List, Tuple
 
-from .server_manager import ServerManager
-from .mcp_errors import MCPError
 from console_gpt.custom_stdout import custom_print
+
+from .mcp_errors import MCPError
+from .server_manager import ServerManager
+
 
 class MCPClientError(Exception):
     def __init__(self, error: MCPError):
         self.error = error
         super().__init__(str(error.message))
+
 
 class MCPClient:
     _server_failed = False  # Class-level flag to track server failure
@@ -79,7 +82,10 @@ class MCPClient:
                     custom_print("error", f"Failed to decode JSON response: {e}")
                     return {"status": "error", "error": {"type": "JSON_DECODE_ERROR", "message": str(e)}}
             else:
-                return {"status": "error", "error": {"type": "EMPTY_RESPONSE", "message": "Empty response received from server"}}
+                return {
+                    "status": "error",
+                    "error": {"type": "EMPTY_RESPONSE", "message": "Empty response received from server"},
+                }
         except (ConnectionError, socket.error, Exception) as e:
             custom_print("error", f"Communication error: {str(e)}")
             self.close()
@@ -87,11 +93,7 @@ class MCPClient:
 
     def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         """Call a tool on the server."""
-        request = {
-            "command": "call_tool",
-            "tool_name": tool_name,
-            "arguments": arguments
-        }
+        request = {"command": "call_tool", "tool_name": tool_name, "arguments": arguments}
 
         response = self._send_request(request)
         return self._handle_response(response)

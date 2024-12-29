@@ -7,7 +7,9 @@ import time
 from typing import Optional, Tuple
 
 import psutil
+
 from console_gpt.custom_stdout import custom_print
+
 
 class ServerManager:
     def __init__(self, host: str = "localhost", port: int = 8765):
@@ -166,6 +168,6 @@ class ServerManager:
                             stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL,
                         )
-            time.sleep(1) # Give it some time to cleanup after killing
+            time.sleep(1)  # Give it some time to cleanup after killing
         except Exception as e:
             custom_print("error", f"Failed to release port: {str(e)}")
