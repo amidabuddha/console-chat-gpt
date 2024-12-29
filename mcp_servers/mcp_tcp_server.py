@@ -76,39 +76,24 @@ class MCPTCPServer:
 
         for server_name, server_config in config.items():
             if not isinstance(server_config, dict):
-                raise ConfigError(
-                    f"Server configuration for '{server_name}' must be a dictionary",
-                    MCP_PATH
-                )
+                raise ConfigError(f"Server configuration for '{server_name}' must be a dictionary", MCP_PATH)
 
             # Check required fields
             if "command" not in server_config:
-                raise ConfigError(
-                    f"Missing required field 'command' in server '{server_name}'",
-                    MCP_PATH
-                )
+                raise ConfigError(f"Missing required field 'command' in server '{server_name}'", MCP_PATH)
 
             if not isinstance(server_config["command"], str):
-                raise ConfigError(
-                    f"Field 'command' must be a string in server '{server_name}'",
-                    MCP_PATH
-                )
+                raise ConfigError(f"Field 'command' must be a string in server '{server_name}'", MCP_PATH)
 
             # Check args field if present
             if "args" in server_config:
                 if not isinstance(server_config["args"], list):
-                    raise ConfigError(
-                        f"Field 'args' must be a list in server '{server_name}'",
-                        MCP_PATH
-                    )
+                    raise ConfigError(f"Field 'args' must be a list in server '{server_name}'", MCP_PATH)
 
                 # Validate that all args are strings
                 for i, arg in enumerate(server_config["args"]):
                     if not isinstance(arg, str):
-                        raise ConfigError(
-                            f"Argument {i} in server '{server_name}' must be a string",
-                            MCP_PATH
-                        )
+                        raise ConfigError(f"Argument {i} in server '{server_name}' must be a string", MCP_PATH)
 
     @staticmethod
     def tool_to_dict(tool: Tool) -> Dict[str, Any]:
