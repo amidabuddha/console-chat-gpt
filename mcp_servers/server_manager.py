@@ -74,7 +74,11 @@ class ServerManager:
 
             start_time = time.time()
             while time.time() - start_time < 60:
-                time.sleep(0.5)
+            # Check if process has exited
+                if self.server_process.poll() is not None:
+                    # Process has exited
+                    if self.server_process.returncode != 0:
+                        return False, "Server failed to start: Pelase check your mcp_config.json file"
                 if self.is_port_open():
                     custom_print("info", "Server is accepting connections.")
                     return True, "Server process started successfully"
