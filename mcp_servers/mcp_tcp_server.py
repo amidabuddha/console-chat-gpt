@@ -61,6 +61,56 @@ class MCPTCPServer:
         self.server_processes: Dict[str, subprocess.Popen] = {}
 
     @staticmethod
+    def validate_config(config: Dict[str, Dict[str, Any]]) -> None:
+        """
+        Validate the structure of each element in the MCP configuration.
+
+        Args:
+            config: Dictionary containing MCP server configurations
+
+        Raises:
+            ConfigError: If the configuration structure is invalid
+        """
+        if not isinstance(config, dict):
+            raise ConfigError("Configuration must be a dictionary", MCP_PATH)
+
+        for server_name, server_config in config.items():
+            if not isinstance(server_config, dict):
+                raise ConfigError(
+                    f"Server configuration for '{server_name}' must be a dictionary",
+                    MCP_PATH
+                )
+
+            # Check required fields
+            if "command" not in server_config:
+                raise ConfigError(
+                    f"Missing required field 'command' in server '{server_name}'",
+                    MCP_PATH
+                )
+
+            if not isinstance(server_config["command"], str):
+                raise ConfigError(
+                    f"Field 'command' must be a string in server '{server_name}'",
+                    MCP_PATH
+                )
+
+            # Check args field if present
+            if "args" in server_config:
+                if not isinstance(server_config["args"], list):
+                    raise ConfigError(
+                        f"Field 'args' must be a list in server '{server_name}'",
+                        MCP_PATH
+                    )
+
+                # Validate that all args are strings
+                for i, arg in enumerate(server_config["args"]):
+                    if not isinstance(arg, str):
+                        raise ConfigError(
+                            f"Argument {i} in server '{server_name}' must be a string",
+                            MCP_PATH
+                        )
+
+    @staticmethod
     def tool_to_dict(tool: Tool) -> Dict[str, Any]:
         """Convert a Tool object to a dictionary with the specified schema."""
         return {
@@ -132,7 +182,10 @@ class MCPTCPServer:
         try:
             with open(MCP_PATH, "r") as f:
                 config = json.load(f)
-                return config.get("mcpServers", {})
+                mcp_servers = config.get("mcpServers", {})
+                # Validate the configuration structure
+                MCPTCPServer.validate_config(mcp_servers)
+                return mcp_servers
         except json.JSONDecodeError as e:
             raise ConfigError(f"Invalid JSON in config file: {str(e)}", MCP_PATH)
         except FileNotFoundError:
