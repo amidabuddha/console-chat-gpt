@@ -74,7 +74,7 @@ class ServerManager:
 
             start_time = time.time()
             while time.time() - start_time < 60:
-            # Check if process has exited
+                # Check if process has exited
                 if self.server_process.poll() is not None:
                     # Process has exited
                     if self.server_process.returncode != 0:
