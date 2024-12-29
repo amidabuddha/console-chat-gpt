@@ -9,6 +9,7 @@ from console_gpt.prompts.user_prompt import chat_user_prompt
 from console_gpt.unichat_handler import (handle_non_streaming_response,
                                          handle_streaming_response)
 from mcp_servers.mcp_tcp_client import MCPClient
+from mcp_servers.server_manager import ServerManager
 
 
 def chat(console, data, managed_user_prompt) -> None:
@@ -27,18 +28,24 @@ def chat(console, data, managed_user_prompt) -> None:
     conversation = data.conversation
     temperature = data.temperature
     cached = model_title.startswith("anthropic")
+    tools = []
     if fetch_variable("features", "mcp_client"):
-        with MCPClient() as mcp:
-            if mcp is None:
-                custom_print(
-                    "error", "Could not establish connection to MCP server. Chat functionality may be limited."
-                )
-            else:
-                tools = mcp.get_available_tools()
-                custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
-
-    else:
-        tools = []
+        try:
+            with MCPClient() as mcp:
+                if mcp is None:
+                    custom_print(
+                        "error", "Could not establish connection to MCP server. Chat functionality may be limited."
+                    )
+                else:
+                    tools = mcp.get_available_tools()
+                    custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
+        except KeyboardInterrupt:
+            ready = False
+            while not ready:
+                _, message = ServerManager().stop_server()
+                if message in ["Server stopped successfully", "Server force stopped"]:
+                    ready = True
+            custom_print("exit", "Goodbye, see you soon!", 130)
 
     # Inner Loop
     while True:

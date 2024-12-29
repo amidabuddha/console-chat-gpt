@@ -25,12 +25,13 @@ MCP_PATH = _join_and_check(BASE_PATH, "mcp_config.json", create="mcp_config.json
 
 
 class MCPServer:
-    def __init__(self, name: str, config: Dict[str, Any]):
-        self.name = name
-        self.config = config
-        self.session: Optional[ClientSession] = None
+    def __init__(self, server_name, server_config):
+        self.server_name = server_name
+        self.server_config = server_config
         self.client = None
-        self.tools: Dict[str, Tool] = {}
+        self.session = None
+        self.tools = {}
+        self.client_entered = False  # Track if client context was entered successfully
 
     async def __aenter__(self):
         return self
@@ -39,17 +40,19 @@ class MCPServer:
         await self.cleanup()
 
     async def cleanup(self):
-        """Cleanup server resources"""
+        """Clean up resources associated with the server."""
         if self.session:
             try:
                 await self.session.__aexit__(None, None, None)
-            except Exception:
-                pass
-        if self.client:
+            except Exception as e:
+                print(f"Error during session cleanup for {self.server_name}: {e}")
+            self.session = None
+        if self.client and self.client_entered:  # Check if client context was entered
             try:
                 await self.client.__aexit__(None, None, None)
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Error during client cleanup for {self.server_name}: {e}")
+            self.client = None
 
 
 class MCPTCPServer:
@@ -194,7 +197,7 @@ class MCPTCPServer:
 
             server_params = StdioServerParameters(command=command_path, args=server_config.get("args", []), env=env)
 
-            # Start the server process and store it
+            # Start the server process
             process = subprocess.Popen(
                 [command_path] + server_config.get("args", []),
                 env=env,
@@ -207,6 +210,7 @@ class MCPTCPServer:
 
             server.client = stdio_client(server_params)
             read_stream, write_stream = await server.client.__aenter__()
+            server.client_entered = True  # Mark client context as entered
             server.session = ClientSession(read_stream, write_stream)
             await server.session.__aenter__()
             await server.session.initialize()
@@ -216,15 +220,35 @@ class MCPTCPServer:
 
             return server
 
-        except CommandNotFoundError as e:
-            await server.cleanup()
-            custom_print("error", f"Command not found error for server {server_name}: {str(e)}")
-            raise
+        except (asyncio.CancelledError, Exception) as e:
+            # Handle cancellation or any other exception
+            if isinstance(e, asyncio.CancelledError):
+                print(f"Server initialization for {server_name} was cancelled.")
+            else:
+                print(f"Server initialization for {server_name} failed: {e}")
 
-        except Exception as e:
-            if read_stream is not None and write_stream is not None:
-                await server.cleanup()
-            raise ServerInitError(str(e), server_name)
+            # Terminate the subprocess if it's still running
+            if server_name in self.server_processes:
+                process = self.server_processes[server_name]
+                if process.poll() is None:  # Check if the process is still running
+                    print(f"Terminating subprocess for server {server_name}")
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)  # Wait for process to terminate with a timeout
+                    except subprocess.TimeoutExpired:
+                        print(f"Forcefully killing subprocess for server {server_name}")
+                        process.kill()
+
+            # Clean up resources
+            await server.cleanup()
+
+            if isinstance(e, CommandNotFoundError):
+                custom_print("error", f"Command not found error for server {server_name}: {str(e)}")
+                raise
+            elif isinstance(e, asyncio.CancelledError):
+                raise  # Re-raise CancelledError to be handled by the caller if needed
+            else:
+                raise ServerInitError(str(e), server_name)
 
     async def initialize_tools(self) -> Tuple[List[Dict[str, Any]], List[Exception]]:
         """Initialize all MCP tools asynchronously with timeout."""
@@ -324,7 +348,7 @@ class MCPTCPServer:
                             (
                                 s
                                 for s in self.servers.values()
-                                if isinstance(s, Exception) and not isinstance(s, MCPServer)
+                                if isinstance(s, Exception) and not isinstance(s, MCPServer) and s == server
                             ),
                             None,
                         )

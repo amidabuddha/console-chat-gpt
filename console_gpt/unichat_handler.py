@@ -144,17 +144,17 @@ def handle_non_streaming_response(model_name, response, conversation):
 
     # Process tool calls if they exist
     if tool_calls:
-        for tool in assistant_response.get("tool_calls"):
-            tool_name = tool["function"]["name"]
+        for tool_call in assistant_response.get("tool_calls"):
+            tool_name = tool_call["function"]["name"]
             markdown_print(f"> Triggered: `{tool_name}`.")
             try:
                 with MCPClient() as mcp:
                     result = {
                         "role": "tool",
                         "content": str(
-                            mcp.call_tool(tool["function"]["name"], json.loads(tool["function"]["arguments"]))
+                            mcp.call_tool(tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"]))
                         ),
-                        "tool_call_id": tool["id"],
+                        "tool_call_id": tool_call["id"],
                     }
                 conversation.append(result)
             except Exception as e:
