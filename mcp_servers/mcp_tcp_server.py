@@ -446,7 +446,7 @@ class MCPTCPServer:
             # Check if config load failed and prevent server start
             config_error = next((e for e in errors if isinstance(e, ConfigError)), None)
             if config_error:
-                print(f"Failed to start server: {config_error}", exit_code=1)
+                print(f"Failed to start server: {config_error}")
 
             # Start TCP server even if some tools failed to initialize
             server = await asyncio.start_server(self.handle_client, self.host, self.port)
