@@ -17,7 +17,6 @@ from mcp_errors import (CommandNotFoundError, ConfigError, MCPError,
                         ServerInitError, ToolExecutionError)
 
 from console_gpt.config_manager import _join_and_check
-from console_gpt.custom_stdout import custom_print
 
 BASE_PATH = os.path.dirname(os.path.realpath(f"{__file__}/.."))
 MCP_SAMPLE_PATH = _join_and_check(BASE_PATH, "mcp_config.json.sample", target="mcp_config.json")
@@ -243,7 +242,7 @@ class MCPTCPServer:
             await server.cleanup()
 
             if isinstance(e, CommandNotFoundError):
-                custom_print("error", f"Command not found error for server {server_name}: {str(e)}")
+                print(f"Command not found error for server {server_name}: {str(e)}")
                 raise
             elif isinstance(e, asyncio.CancelledError):
                 raise  # Re-raise CancelledError to be handled by the caller if needed
@@ -268,13 +267,13 @@ class MCPTCPServer:
             return [], initialization_errors
 
         async def init_with_timeout(server_name: str, server_config: Dict[str, Any]):
-            custom_print("info", f"Initializing server: {server_name}")
+            print(f"Initializing server: {server_name}")
             try:
                 server = await asyncio.wait_for(
                     self.init_server(server_name, server_config), timeout=self.initialization_timeout
                 )
                 self.servers[server_name] = server
-                custom_print("info", f"Server {server_name} initialized successfully")
+                print(f"Server {server_name} initialized successfully")
                 return [self.tool_to_dict(tool) for tool in server.tools.values()]
             except asyncio.TimeoutError:
                 error = ServerInitError(
@@ -282,24 +281,24 @@ class MCPTCPServer:
                 )
                 self.servers[server_name] = error  # Store the error
                 initialization_errors.append(error)
-                custom_print("error", f"TimeoutError initializing server {server_name}")
+                print(f"TimeoutError initializing server {server_name}")
                 return []
             except Exception as e:
-                custom_print("error", f"Exception caught in init_with_timeout for {server_name}: {e}")
+                print(f"Exception caught in init_with_timeout for {server_name}: {e}")
 
                 # Try to get more details from specific exception types
                 if isinstance(e, CommandNotFoundError):
                     error_details = e.to_dict()
-                    custom_print("error", f"CommandNotFoundError details: {error_details}")
+                    print(f"CommandNotFoundError details: {error_details}")
                 elif isinstance(e, ServerInitError):
                     error_details = e.to_dict()
-                    custom_print("error", f"ServerInitError details: {error_details}")
+                    print(f"ServerInitError details: {error_details}")
                 else:
                     error_details = {
                         "error_type": type(e).__name__,
                         "message": str(e),
                     }
-                    custom_print("error", f"Other exception details: {error_details}")
+                    print(f"Other exception details: {error_details}")
 
                 error = ServerInitError(f"Server initialization failed: {e}", server_name)
                 error.details = error_details
@@ -403,7 +402,7 @@ class MCPTCPServer:
                 await writer.drain()  # Make sure data is sent before continuing
 
         except Exception as e:
-            custom_print("error", f"Error handling client: {e}")
+            print(f"Error handling client: {e}")
         finally:
             writer.close()
             await writer.wait_closed()
@@ -418,14 +417,14 @@ class MCPTCPServer:
         results = await asyncio.gather(*cleanup_tasks, return_exceptions=True)
         for res in results:
             if isinstance(res, Exception):
-                custom_print("error", f"Error during server cleanup: {res}")
+                print(f"Error during server cleanup: {res}")
 
         self.servers.clear()
 
         # Terminate server processes
         for server_name, process in self.server_processes.items():
             if process.poll() is None:  # Check if process is still running
-                custom_print("info", f"Terminating server process: {server_name}")
+                print(f"Terminating server process: {server_name}")
                 try:
                     if os.name == "nt":
                         process.send_signal(signal.CTRL_C_EVENT)
@@ -434,7 +433,7 @@ class MCPTCPServer:
 
                     process.wait(timeout=5)  # Wait for process to terminate
                 except subprocess.TimeoutExpired:
-                    custom_print("warning", f"Force killing server process: {server_name}")
+                    print(f"Force killing server process: {server_name}")
                     process.kill()
         self.server_processes.clear()
 
@@ -447,37 +446,32 @@ class MCPTCPServer:
             # Check if config load failed and prevent server start
             config_error = next((e for e in errors if isinstance(e, ConfigError)), None)
             if config_error:
-                custom_print("error", f"Failed to start server: {config_error}", exit_code=1)
+                print(f"Failed to start server: {config_error}", exit_code=1)
 
             # Start TCP server even if some tools failed to initialize
             server = await asyncio.start_server(self.handle_client, self.host, self.port)
 
             # Print information about successful tool initialization
             if tools:
-                custom_print("info", f"Total tools initialized: {len(tools)}")
+                print(f"Total tools initialized: {len(tools)}")
                 for tool_info in tools:
-                    custom_print("info", f"  - {tool_info['name']}: {tool_info['description']}")
+                    print(f"  - {tool_info['name']}: {tool_info['description']}")
 
             # Print information about failed tool initializations
             if errors:
-                custom_print("error", f"Failed to initialize {len(errors)} servers:")
+                print(f"Failed to initialize {len(errors)} servers:")
                 for error in errors:
                     if isinstance(error, Exception):
-                        custom_print("error", f"  - {error}")
+                        print(f"  - {error}")
 
             async with server:
-                custom_print("info", f"Server running on {self.host}:{self.port}")
+                print(f"Server running on {self.host}:{self.port}")
                 await server.serve_forever()
 
         except Exception as e:
-            custom_print("error", f"Server error: {e}")
+            print(f"Server error: {e}")
             await self.cleanup()
             raise
-
-    def shutdown_signal_handler(self):
-        """Handle shutdown signals."""
-        custom_print("info", "\nReceived shutdown signal...")
-        asyncio.create_task(self.cleanup())
 
 
 if __name__ == "__main__":

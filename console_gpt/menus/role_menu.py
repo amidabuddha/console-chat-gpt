@@ -107,6 +107,8 @@ def _add_custom_role(title=None, return_role=False) -> Optional[str]:
         multiline=True,
     )
     description = re.sub(r"(\t|\s|\n)+", " ", description)
+    if not fetch_variable("roles"):
+        write_to_config("defaults", "system_role", new_value=decapitalize(title))
     write_to_config("roles", title, new_value=description)
     if return_role:
         return description
@@ -117,25 +119,32 @@ def role_menu() -> Tuple[Optional[str], Optional[str]]:
     Generates a menu with all available roles in the config
     :return: The role title and description or exists with message on "Exit" or SIGINT
     """
-    # Checks if the menu should be displayed at all
-    _show_menu = fetch_variable("features", "role_selector")
-    # Fetch default role
-    default_role = fetch_variable("defaults", "system_role")
 
-    if not _show_menu:
-        return capitalize(default_role), fetch_variable("roles", default_role)
+    if fetch_variable("roles"):
+        # Checks if the menu should be displayed at all
+        _show_menu = fetch_variable("features", "role_selector")
 
-    # Generate a list based on the role title (chat.roles.<role>)
-    role_titles = list(fetch_variable("roles").keys())
-    role_titles = [capitalize(title) for title in role_titles]
+        # Fetch default role
+        default_role = fetch_variable("defaults", "system_role")
 
-    # Add option to Add new roles
-    role_titles.append("Add New System Behavior")
+        if not _show_menu:
+            return capitalize(default_role), fetch_variable("roles", default_role)
 
-    # Add option to remove roles
-    role_titles.append("Remove System Behavior")
+        # Generate a list based on the role title (chat.roles.<role>)
+        role_titles = list(fetch_variable("roles").keys()) or []
+        role_titles = [capitalize(title) for title in role_titles]
+
+        # Add option to Add new roles
+        role_titles.append("Add New System Behavior")
+
+        # Add option to remove roles
+        role_titles.append("Remove System Behavior")
+    else:
+        default_role = "Add New System Behavior"
+        role_titles = ["Add New System Behavior"]
 
     menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD"))
+
     selection = base_multiselect_menu(
         "Role Menu", role_titles, menu_title, default_value=capitalize(default_role), preview_command=_role_preview
     )

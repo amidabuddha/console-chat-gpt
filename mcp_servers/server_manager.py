@@ -140,39 +140,3 @@ class ServerManager:
         except Exception as e:
             return False, f"Failed to stop server: {str(e)}"
 
-    def release_port(self):
-        """Attempts to release the port using OS-specific commands."""
-        try:
-            if os.name == "posix":  # Linux/Mac
-                # Use lsof to find the process ID (PID) using the port and kill it
-                result = subprocess.run(
-                    ["lsof", "-t", "-i", f":{self.port}"],
-                    capture_output=True,
-                    text=True,
-                )
-                pid = result.stdout.strip()
-                if pid:
-                    custom_print("warn", f"Killing process {pid} using port {self.port}")
-                    os.kill(int(pid), signal.SIGKILL)
-            elif os.name == "nt":  # Windows
-                # Use netstat and taskkill to find and kill the process
-                result = subprocess.run(
-                    ["netstat", "-ano", "|", "findstr", f":{self.port}"],
-                    capture_output=True,
-                    text=True,
-                    shell=True,  # Needed for piped commands on Windows
-                )
-                lines = result.stdout.splitlines()
-                for line in lines:
-                    parts = line.split()
-                    if len(parts) >= 5 and parts[1].endswith(f":{self.port}"):
-                        pid = parts[4]
-                        custom_print("warn", f"Killing process {pid} using port {self.port}")
-                        subprocess.run(
-                            ["taskkill", "/F", "/PID", pid],
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                        )
-            time.sleep(1)  # Give it some time to cleanup after killing
-        except Exception as e:
-            custom_print("error", f"Failed to release port: {str(e)}")
