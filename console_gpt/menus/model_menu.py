@@ -23,7 +23,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     all_models = fetch_variable("models")
 
     if default_model not in all_models:
-        default_model = list(all_models.keys())[0] 
+        default_model = list(all_models.keys())[0]
         _show_menu = True
 
     if not _show_menu:
