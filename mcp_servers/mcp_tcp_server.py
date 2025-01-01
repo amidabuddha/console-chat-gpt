@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
-
 from mcp_errors import (CommandNotFoundError, ConfigError, MCPError,
                         ServerInitError, ToolExecutionError)
 
@@ -21,15 +20,16 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Set the base logger level to DEBUG
 
 # Create a FileHandler for DEBUG logs
-file_handler = logging.FileHandler(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mcp_tcp_server.log'),
-    mode='w')
+file_handler = logging.FileHandler(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp_tcp_server.log"), mode="w"
+)
 file_handler.setLevel(logging.DEBUG)  # Log all messages (DEBUG and above) to the file
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
 
 # Create a StreamHandler for INFO logs
 stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.INFO)  # Only log INFO and above to the console
-stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
 # Add both handlers to the logger
 logger.addHandler(file_handler)
@@ -45,6 +45,7 @@ if not os.path.exists(MCP_PATH):
     else:
         logger.error('"mcp_config.json.sample" is either missing or renamed, please update from source.')
         exit(1)
+
 
 class MCPServer:
     def __init__(self, server_name, server_config):
@@ -76,6 +77,7 @@ class MCPServer:
             except Exception as e:
                 self.logger.error(f"Error during client cleanup: {e}")
             self.client = None
+
 
 class MCPTCPServer:
     def __init__(self, host: str = "localhost", port: int = 8765):
@@ -497,6 +499,7 @@ class MCPTCPServer:
             self.logger.error(f"Server error: {e}")
             await self.cleanup()
             raise
+
 
 if __name__ == "__main__":
     server = MCPTCPServer()
