@@ -1,6 +1,5 @@
 > Features:
 - [e523815] [Feature] Standalone MCP server script
-- [5d138d5] [Feature] Separate MCP server and client processes
 
 > Improvements:
 - [b3bd283] [Improvement] More flexible and user-friendly  command + clarification visability
