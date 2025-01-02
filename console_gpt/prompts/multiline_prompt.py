@@ -1,12 +1,15 @@
+from typing import Optional
+
+from rich.console import Console
 from textual.app import App, ComposeResult
-from textual.containers import Vertical, Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.widgets import Button, Static, TextArea
-from typing import Optional
+
 from console_gpt.catch_errors import eof_wrapper
-from rich.console import Console
 
 console = Console()
+
 
 class MultilinePromptApp(App):
     """Textual app for handling multiline prompts."""
@@ -92,7 +95,7 @@ class MultilinePromptApp(App):
 
     multiline_data: str = reactive("")
     additional_data: Optional[str] = reactive(None)
-    
+
     def show_error(self, message: str) -> None:
         """Display an error message."""
         output_label = self.query_one("#output_label")
@@ -104,7 +107,7 @@ class MultilinePromptApp(App):
         output_label = self.query_one("#output_label")
         output_label.update("")
         output_label.remove_class("show")
-    
+
     def clear_info(self) -> None:
         """Clear the info message."""
         info_label = self.query_one("#info_label")
@@ -117,17 +120,14 @@ class MultilinePromptApp(App):
             Static("", id="output_label"),
             Static("Instructions or actions to perform:", id="additional_placeholder"),
             TextArea(id="additional_input_area"),
-
             Static("Enter multiline text here:", id="multiline_placeholder"),
             TextArea(id="multiline_input"),
-
             Horizontal(
                 Button("Submit", id="submit_button", variant="primary"),
                 Button("Exit", id="exit_button", variant="default"),
-                classes="buttons"
+                classes="buttons",
             ),
-
-            id="dialog"
+            id="dialog",
         )
 
     def on_mount(self) -> None:
@@ -155,7 +155,7 @@ class MultilinePromptApp(App):
             self.multiline_data = ""
             self.additional_data = None
             self.exit((self.additional_data, self.multiline_data))
-            
+
     def clean_up_input(self, input_text: str) -> str:
         """Clean up the input text by removing leading and trailing whitespaces."""
         return input_text.strip()
@@ -172,7 +172,7 @@ class MultilinePromptApp(App):
             self.show_error("Main text field cannot be empty!")
             multiline_input.focus()
             return
-        
+
         if cleaned_additional_data == "":
             self.show_error("Additional info cannot be just spaces or new lines!")
             additional_input.focus()
@@ -181,14 +181,13 @@ class MultilinePromptApp(App):
         self.exit((cleaned_additional_data, cleaned_multiline_data))
 
 
-
 @eof_wrapper
 def multiline_prompt() -> tuple[Optional[str], str]:
     """Multiline prompt which allows writing on multiple lines without
     "Enter" (Return) interrupting your input.
     :return: Tuple containing additional data (Optional[str]) and multiline data (str)
     """
-    
+
     app = MultilinePromptApp()
     try:
         additional_data, multiline_data = app.run()

@@ -11,7 +11,9 @@ PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit", "changelog"
 HeaderColor = Literal["green", "yellow", "blue", "red", "white", "cyan"]
 
 
-def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] = "", header_color: Optional[HeaderColor] = "blue") -> None:
+def markdown_print(
+    data: str, header: Optional[str] = None, end: Optional[str] = "", header_color: Optional[HeaderColor] = "blue"
+) -> None:
     console = Console()
     # Print the header if it exists
     if header:
