@@ -1,6 +1,6 @@
 from typing import Optional
 
-from console_gpt.custom_stdout import custom_print
+from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.general_utils import help_message
 from console_gpt.menus.settings_menu import settings_menu
 from console_gpt.menus.tools_menu import tools_menu
@@ -58,6 +58,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                 else:
                     user_input = multiline_data
             else:
+                markdown_print(clarification, header="Prompt clarifications", header_color="yellow", end="\n")
                 if cached is True:
                     user_input = clarification, multiline_data
                 else:

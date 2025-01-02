@@ -8,14 +8,14 @@ from termcolor import colored
 
 # Define the specific types for 'ptype'
 PrintType = Literal["ok", "warn", "info", "error", "sigint", "exit", "changelog"]
+HeaderColor = Literal["green", "yellow", "blue", "red", "white", "cyan"]
 
 
-def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] = ""):
+def markdown_print(data: str, header: Optional[str] = None, end: Optional[str] = "", header_color: Optional[HeaderColor] = "blue") -> None:
     console = Console()
-
     # Print the header if it exists
     if header:
-        header_text = Text(f"╰─❯ {header}:", style="blue underline bold")
+        header_text = Text(f"╰─❯ {header}:", style=f"{header_color} underline bold")
         console.print(header_text, end=end)
 
     # Create a Markdown object
