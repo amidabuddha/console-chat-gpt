@@ -7,5 +7,8 @@
 - [7fa1a6f] [Improvement] Handle interruption during MCP Server initialization
 - [abbcd08] [Improvement] Better MCP server related error handling
 
+> Others:
+- [6c525ba] [Other] Minor adjustments to the CSS of format command to make the interface flexible.
+
 
 ---
