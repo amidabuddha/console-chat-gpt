@@ -22,21 +22,24 @@ class MultilinePromptApp(App):
     #dialog {
         padding: 1 2;
         border: heavy $background 80%;
-        height: 100%;
-        width: 80%;
+        height: auto;
+        width: 90%;
+        max-width: 120;
+        min-width: 40;
         layout: vertical;
     }
 
     #additional_input_area {
         width: 100%;
-        height: 3;
-        min-height: 1;
+        height: 5;
+        min-height: 2;
         max-height: 9;
     }
 
     #multiline_input {
         width: 100%;
-        height: 10;
+        height: 15;
+        min-height: 5;
         max-height: 30;
     }
 
@@ -90,6 +93,13 @@ class MultilinePromptApp(App):
         width: 100%;
         height: auto;
         align: center bottom;
+        padding: 1;
+    }
+
+    Button {
+        min-width: 8;
+        max-width: 12;
+        width: auto;
     }
     """
 
