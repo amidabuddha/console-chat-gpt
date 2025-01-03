@@ -113,6 +113,8 @@ def handle_non_streaming_response(model_name, response, conversation):
 
     # Handle content
     content = getattr(message, "content", None)
+    if not content and not has_previous_tool_calls:
+        assistance_reply("", model_name)
     if content:
         assistant_response["content"] = content
         # Use the boolean flag directly instead of counting
