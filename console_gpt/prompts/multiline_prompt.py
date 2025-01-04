@@ -3,9 +3,10 @@ from typing import Optional
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Button, Static, TextArea, Input, Label
+from textual.widgets import Button, Input, Label, Static, TextArea
 
 from console_gpt.catch_errors import eof_wrapper
+
 
 class MultilinePromptApp(App):
     """Textual app for handling multiline prompts."""
@@ -185,6 +186,7 @@ class MultilinePromptApp(App):
             return
 
         self.exit((cleaned_additional_data, cleaned_multiline_data))
+
 
 @eof_wrapper
 def multiline_prompt() -> tuple[Optional[str], str]:
