@@ -1,15 +1,11 @@
 from typing import Optional
 
-from rich.console import Console
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Button, Static, TextArea
+from textual.widgets import Button, Static, TextArea, Input, Label
 
 from console_gpt.catch_errors import eof_wrapper
-
-console = Console()
-
 
 class MultilinePromptApp(App):
     """Textual app for handling multiline prompts."""
@@ -31,9 +27,6 @@ class MultilinePromptApp(App):
 
     #additional_input_area {
         width: 100%;
-        height: 5;
-        min-height: 2;
-        max-height: 9;
     }
 
     #multiline_input {
@@ -63,12 +56,12 @@ class MultilinePromptApp(App):
         background: $success 20%;
         color: $success;
         margin: 1;
-        padding: 1;
-        border: round $success;
+        border: none;
         text-align: center;
         text-style: bold;
-        height: auto;
+        height: 1;
         display: none;
+        width: 100%;
     }
 
     #info_label.show {
@@ -97,9 +90,8 @@ class MultilinePromptApp(App):
     }
 
     Button {
-        min-width: 8;
-        max-width: 12;
-        width: auto;
+        height: 1;
+        border: none;
     }
     """
 
@@ -126,14 +118,13 @@ class MultilinePromptApp(App):
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Vertical(
-            Static("💡 Use <TAB> to navigate and CTRL+Q or 'Exit' to quit.", id="info_label"),
+            Label("💡 Use <TAB> to navigate and CTRL+Q or 'Exit' to quit.", id="info_label"),
             Static("", id="output_label"),
-            Static("Instructions or actions to perform:", id="additional_placeholder"),
-            TextArea(id="additional_input_area"),
-            Static("Enter multiline text here:", id="multiline_placeholder"),
-            TextArea(id="multiline_input"),
+            Input(placeholder="Instructions or actions to perform", id="additional_input_area"),
+            Label("Enter multiline text here:", id="multiline_placeholder"),
+            TextArea(id="multiline_input", show_line_numbers=True),
             Horizontal(
-                Button("Submit", id="submit_button", variant="primary"),
+                Button("Submit", id="submit_button", variant="primary", disabled=True),
                 Button("Exit", id="exit_button", variant="default"),
                 classes="buttons",
             ),
@@ -141,7 +132,7 @@ class MultilinePromptApp(App):
         )
 
     def on_mount(self) -> None:
-        # Enable both text areas on mount
+        """Enable both text areas on mount and show info label."""
         self.query_one("#additional_input_area").disabled = False
         self.query_one("#multiline_input").disabled = False
         self.query_one("#additional_input_area").focus()
@@ -152,10 +143,15 @@ class MultilinePromptApp(App):
         self.clear_error()
         self.clear_info()
 
-        if event.text_area.id == "multiline_input":
-            self.multiline_data = event.text_area.text
-        elif event.text_area.id == "additional_input_area":
-            self.additional_data = event.text_area.text
+        self.query_one("#submit_button").disabled = not event.text_area.text
+        self.multiline_data = event.text_area.text
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        """Handle text changes in TextArea widgets."""
+        self.clear_error()
+        self.clear_info()
+
+        self.additional_data = event.input.value
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
@@ -176,7 +172,7 @@ class MultilinePromptApp(App):
         additional_input = self.query_one("#additional_input_area")
 
         cleaned_multiline_data = self.clean_up_input(multiline_input.text)
-        cleaned_additional_data = self.clean_up_input(additional_input.text) if additional_input.text else None
+        cleaned_additional_data = self.clean_up_input(additional_input.value) if additional_input.value else None
 
         if not cleaned_multiline_data:
             self.show_error("Main text field cannot be empty!")
@@ -190,14 +186,13 @@ class MultilinePromptApp(App):
 
         self.exit((cleaned_additional_data, cleaned_multiline_data))
 
-
 @eof_wrapper
 def multiline_prompt() -> tuple[Optional[str], str]:
     """Multiline prompt which allows writing on multiple lines without
     "Enter" (Return) interrupting your input.
+
     :return: Tuple containing additional data (Optional[str]) and multiline data (str)
     """
-
     app = MultilinePromptApp()
     try:
         additional_data, multiline_data = app.run()
