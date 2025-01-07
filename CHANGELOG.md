@@ -8,6 +8,7 @@
 - [7fa1a6f] [Improvement] Handle interruption during MCP Server initialization
 
 > Others:
+- [401d4d8] [Other] Include DeepSeek into automatic API key check
 - [6c525ba] [Other] Minor adjustments to the CSS of format command to make the interface flexible.
 
 
