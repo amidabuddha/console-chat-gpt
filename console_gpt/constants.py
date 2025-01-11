@@ -11,6 +11,7 @@ help_options = {
     "flush": "Start the chat all over again.",
     "format": "Allows you to write multiline messages.",
     "save": "Saves the chat to a given file.",
+    "chats": "Manage chats",
     "settings": "Manage available features.",
     "browser": "Scrapes a given page and use the content as input.",
 }

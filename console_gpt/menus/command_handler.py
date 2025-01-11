@@ -2,6 +2,7 @@ from typing import Optional
 
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.general_utils import help_message
+from console_gpt.menus.chat_manager import chat_manager
 from console_gpt.menus.settings_menu import settings_menu
 from console_gpt.menus.tools_menu import tools_menu
 from console_gpt.prompts.file_prompt import file_prompt
@@ -68,6 +69,9 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             # simply breaks this loop (inner) which start the outer one
             save_chat(conversation, ask=True, skip_exit=True)
             return "break"
+        case "chats":
+            chat_manager()
+            return "continue"
         case "settings":
             settings_menu()
             return "continue"
