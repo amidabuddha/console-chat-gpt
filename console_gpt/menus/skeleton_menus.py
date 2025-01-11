@@ -71,8 +71,8 @@ def base_multiselect_menu(
     menu_entry_index = terminal_menu.show()
 
     if menu_entry_index is None and allow_none:
-        return None # Handle situations as in chat_manager.py
-    
+        return None  # Handle situations as in chat_manager.py
+
     # Catching SIGINT by checking the return of the previous function (None)
     selection = "Exit" if menu_entry_index is None else data[menu_entry_index]
     return selection if selection != "Exit" else custom_print("exit", exit_message, 0)
