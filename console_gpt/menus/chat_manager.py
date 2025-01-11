@@ -98,7 +98,7 @@ def chat_manager() -> None:
     selection = base_multiselect_menu(
         menu_name="Chat Manager Action",
         data=[
-            "Import",
+            "Sync External Chat",
             "Delete",
             "Return"
         ],
@@ -107,7 +107,7 @@ def chat_manager() -> None:
     )
 
     match selection:
-        case "Import":
+        case "Sync External Chat":
             _import_chats()
         case "Delete":
             _delete_chats()
