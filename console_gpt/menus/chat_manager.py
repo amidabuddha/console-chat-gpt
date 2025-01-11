@@ -113,6 +113,7 @@ def chat_manager() -> None:
         data=["Sync External Chat", "Delete", "Return"],
         menu_title="Select an action:",
         exit=False,
+        allow_none=True
     )
 
     match selection:
@@ -120,6 +121,9 @@ def chat_manager() -> None:
             _import_chats()
         case "Delete":
             _delete_chats()
-        case "Return":
+        case "Return" | None:
             system_reply("No actions performed!")
+            return None
+        case _: # Handle unexpected selections
+            system_reply("Invalid selection!")
             return None

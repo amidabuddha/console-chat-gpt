@@ -19,6 +19,7 @@ def base_multiselect_menu(
     preview_title: str = "preview",
     exit: bool = True,
     exit_message: str = "Goodbye! See you later!",
+    allow_none: bool = False,
 ) -> Union[str, None]:
     """
     Creates a multiselect menu
@@ -34,6 +35,7 @@ def base_multiselect_menu(
     :param preview_command: Function used to generate a preview
     :param exit: Allows the user to quit the appication from this menu
     :param exit_message: Message to display to the user before exiting
+    :param allow_none: Allow SIGINT to return None instead of exiting the application
     :return: Exits upon ctrl+c and the given keys, otherwise returns the item from the menu
     """
     menu_title = f"(Press Q or Esc to exit)\n\n{menu_title}"
@@ -67,6 +69,10 @@ def base_multiselect_menu(
         preview_title=preview_title,
     )
     menu_entry_index = terminal_menu.show()
+
+    if menu_entry_index is None and allow_none:
+        return None # Handle situations as in chat_manager.py
+    
     # Catching SIGINT by checking the return of the previous function (None)
     selection = "Exit" if menu_entry_index is None else data[menu_entry_index]
     return selection if selection != "Exit" else custom_print("exit", exit_message, 0)
