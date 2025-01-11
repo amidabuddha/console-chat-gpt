@@ -9,39 +9,39 @@ from console_gpt.custom_stdout import custom_print
 from console_gpt.custom_stdin import custom_input
 from console_gpt.prompts.file_prompt import browser_files
 from console_gpt.constants import style
+from typing import Union
 
 """
 Chat management
 """
 
-def _chat_exists(path_to_file) -> str | bool:
+def _chat_exists(path_to_file: str) -> Union[str, bool]:
     """
     Verify if a chat with the same name already exists
     :param path_to_file: Path to file
     :return: Either an error message or True represented as string for compatibility
     """
-    if '.json' in path_to_file:
-        if os.path.exists(f"{CHATS_PATH}/{path_to_file}"):
+    if path_to_file.endswith('.json'):
+        if os.path.exists(os.path.join(CHATS_PATH, path_to_file)):
             return f"Chat with the name {path_to_file.strip('.json')} already exists!"
     else:
-        if os.path.exists(f"{CHATS_PATH}/{path_to_file}.json"):
+        if os.path.exists(os.path.join(CHATS_PATH, f"{path_to_file}.json")):
             return f"Chat with the name {path_to_file} already exists!"
     return True
 
-def _is_chat(path_to_file) -> str | bool:
+def _is_chat(path_to_file: str) -> Union[str, bool]:
     """
     Verify if the given path leads to a valid chat and not a directory or non-existing path
     :param path_to_file: Path to file
     :return: Either an error message or True represented as string for compatibility
     """
     if os.path.isfile(path_to_file):
-        decode_error = False
         try:
             with open(path_to_file, 'r') as file:
                 _ = json.load(file)
-        except json.JSONDecodeError:
-            decode_error = True
-        return True if not decode_error else "Unable to parse chat!"
+            return True
+        except json.JSONDecodeError as e:
+            return f"Unable to parse chat due to: {str(e)}"
     if os.path.isdir(path_to_file):
         return f"{path_to_file} is a directory!"
     return "No such file!"
@@ -58,8 +58,8 @@ def _import_chats() -> None:
         system_reply("No chat selected.")
         return None
 
-    copy_filename = chat_path.split('/')[-1]
-    if os.path.exists(f"{CHATS_PATH}/{copy_filename}"):
+    copy_filename = os.path.basename(chat_path)
+    if os.path.exists(os.path.join(CHATS_PATH, copy_filename)):
         custom_print("error", f"Can't import {copy_filename} since a chat with the same name already exists!")
         copy_filename = custom_input(
             message="Select a new name for the chat:",
@@ -67,11 +67,16 @@ def _import_chats() -> None:
             style=style,
             validate=_chat_exists,
         )
-
-    if '.json' not in copy_filename:
+    
+    # Handle just in case, since `custom_input` can return None
+    if copy_filename is None:
+        system_reply("No chat selected.")
+        return None
+    
+    if not copy_filename.endswith('.json'):
         copy_filename = copy_filename + '.json'
 
-    shutil.copy2(chat_path, f"{CHATS_PATH}/{copy_filename}")
+    shutil.copy2(chat_path, os.path.join(CHATS_PATH, copy_filename))
     custom_print("ok", f"Chat {copy_filename} successfully imported!")
 
 def _delete_chats() -> None:
@@ -90,19 +95,19 @@ def _delete_chats() -> None:
         return None
 
     for chat in chats_selection:
-        os.remove(f"{CHATS_PATH}/{chat}")
+        os.remove(os.path.join(CHATS_PATH, chat))
         custom_print("ok", f"Successfully deleted chat - {chat}")
 
 
 def chat_manager() -> None:
     selection = base_multiselect_menu(
-        menu_name="Chat Manager Action",
+        menu_name="Chat Manager Actions:",
         data=[
             "Sync External Chat",
             "Delete",
             "Return"
         ],
-        menu_title="Select action:",
+        menu_title="Select an action:",
         exit=False
     )
 

@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple, Any
 
 import PyPDF2
 from questionary import path
@@ -57,7 +57,7 @@ def _read_file(file_path: str) -> Optional[str]:
 
 
 @eof_wrapper
-def browser_files(input_message: str, interrupt_message: str, validate_func: Callable[[str], str]) -> Optional[str]:
+def browser_files(input_message: str, interrupt_message: str, validate_func: Callable) -> Optional[str]:
     """
     A base prompt for browsing files
     :param input_message: The prompt message that the user will see
@@ -77,7 +77,7 @@ def browser_files(input_message: str, interrupt_message: str, validate_func: Cal
 
 
 @eof_wrapper
-def file_prompt() -> Optional[str]:
+def file_prompt() -> Tuple[Any, Any]:
     """
     Prompt for reading content from file.
     :return: The content or None (NoneType)
