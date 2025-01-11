@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional, Tuple, Any
+from typing import Any, Callable, Optional, Tuple
 
 import PyPDF2
 from questionary import path
