@@ -1,5 +1,5 @@
 > Features:
-- [e523815] [Feature] Standalone MCP server script
+- [3aa9667] [Feature] Add the ability to read old chats via 'chats' command
 
 > Improvements:
 - [5b6defb] [Improvement] Multiline prompt styling

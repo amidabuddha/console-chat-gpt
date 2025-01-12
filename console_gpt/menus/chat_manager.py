@@ -6,8 +6,9 @@ from typing import Union
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.padding import Padding
-from rich.theme import Theme
+from rich.panel import Panel
 from rich.style import Style
+from rich.theme import Theme
 
 from console_gpt.config_manager import CHATS_PATH
 from console_gpt.constants import style
@@ -17,7 +18,6 @@ from console_gpt.menus.skeleton_menus import (base_checkbox_menu,
                                               base_multiselect_menu)
 from console_gpt.prompts.file_prompt import browser_files
 from console_gpt.prompts.system_prompt import system_reply
-from rich.panel import Panel
 
 """
 Chat management
@@ -113,20 +113,23 @@ def _delete_chats() -> None:
         os.remove(os.path.join(CHATS_PATH, chat))
         custom_print("ok", f"Successfully deleted chat - {chat}")
 
+
 def _read_chat() -> None:
     # Constants for markdown templates
     MD_TEMPLATES = {
         "system": "🤖 **System Message**:\n{}\n\n---\n\n",
         "user": ">🧑 **User**:\n\n{}\n\n",
-        "assistant": ">>🤖 **Assistant**:\n\n{}\n\n---\n\n"
+        "assistant": ">>🤖 **Assistant**:\n\n{}\n\n---\n\n",
     }
-    
-    CUSTOM_THEME = Theme({
-        "markdown.h1": Style(color="cyan", bold=True),
-        "markdown.h3": Style(color="magenta", bold=True),
-        "markdown.item": Style(color="green"),
-        "markdown.code": Style(color="yellow"),
-    })
+
+    CUSTOM_THEME = Theme(
+        {
+            "markdown.h1": Style(color="cyan", bold=True),
+            "markdown.h3": Style(color="magenta", bold=True),
+            "markdown.item": Style(color="green"),
+            "markdown.code": Style(color="yellow"),
+        }
+    )
 
     try:
         available_chats = os.listdir(CHATS_PATH)
@@ -136,35 +139,28 @@ def _read_chat() -> None:
 
         available_chats.append("Return")
         chat_selection = base_multiselect_menu(
-            "Chats",
-            available_chats,
-            "Select a chat to read:",
-            exit=False,
-            allow_none=True
+            "Chats", available_chats, "Select a chat to read:", exit=False, allow_none=True
         )
 
         if chat_selection in ("Return", None):
             return
 
         chat_path = os.path.join(CHATS_PATH, chat_selection)
-        with open(chat_path, 'r') as f:
+        with open(chat_path, "r") as f:
             chat_data = json.load(f)
 
         help_box = Panel(
-                "Press 'q' to exit\nUse ↑/↓ or Page Up/Down to scroll",
-                style="green",
-                title="Controls",
-                border_style="green"
-            )
+            "Press 'q' to exit\nUse ↑/↓ or Page Up/Down to scroll",
+            style="green",
+            title="Controls",
+            border_style="green",
+        )
 
         md_content = [f"# 📜 Chat: {chat_selection}\n\n"]
         for msg in chat_data:
             role = msg.get("role", "Unknown")
             content = msg.get("content", "Unknown")
-            template = MD_TEMPLATES.get(
-                role,
-                f"❓❓❓ {role.capitalize()}:\n\n{{}}\n\n---\n\n"
-            )
+            template = MD_TEMPLATES.get(role, f"❓❓❓ {role.capitalize()}:\n\n{{}}\n\n---\n\n")
             md_content.append(template.format(content))
 
         console = Console(theme=CUSTOM_THEME)
@@ -178,13 +174,14 @@ def _read_chat() -> None:
     except Exception as e:
         system_reply(f"Error reading chat: {str(e)}")
 
+
 def chat_manager() -> None:
     selection = base_multiselect_menu(
         menu_name="Chat Manager Actions:",
         data=["Read Existing Chat", "Sync External Chat", "Delete", "Return"],
         menu_title="Select an action:",
         exit=False,
-        allow_none=True
+        allow_none=True,
     )
 
     match selection:
@@ -197,6 +194,6 @@ def chat_manager() -> None:
         case "Return" | None:
             system_reply("No actions performed!")
             return None
-        case _: # Handle unexpected selections
+        case _:  # Handle unexpected selections
             system_reply("Invalid selection!")
             return None
