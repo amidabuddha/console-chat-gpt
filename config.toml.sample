@@ -116,6 +116,14 @@ model_max_tokens = 128000
 model_name = "mistral-large-latest"
 model_output_pricing_per_1k = 0.006
 
+[chat.models.mistral-codestral]
+api_key = "YOUR_MISTRALAI_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.0003
+model_max_tokens = 256000
+model_name = "codestral-latest"
+model_output_pricing_per_1k = 0.0009
+
 [chat.models.anthropic-haiku]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 api_usage = 0
