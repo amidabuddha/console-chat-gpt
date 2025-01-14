@@ -94,12 +94,12 @@ def _import_chats() -> None:
     custom_print("ok", f"Chat {copy_filename} successfully imported!")
 
 
-def _delete_chats() -> None:
+def _delete_chats(available_chats) -> None:
     """
     Detect and delete existing chats, allows for selecting multiple ones at once.
     Simply removes the file from the `chats` directory
     """
-    available_chats = os.listdir(CHATS_PATH)
+
     if len(available_chats) == 0:
         system_reply("No available chats!")
         return None
@@ -114,7 +114,7 @@ def _delete_chats() -> None:
         custom_print("ok", f"Successfully deleted chat - {chat}")
 
 
-def _read_chat() -> None:
+def _read_chat(available_chats) -> None:
     # Constants for markdown templates
     MD_TEMPLATES = {
         "system": "🤖 **System Message**:\n{}\n\n---\n\n",
@@ -132,7 +132,6 @@ def _read_chat() -> None:
     )
 
     try:
-        available_chats = os.listdir(CHATS_PATH)
         if not available_chats:
             system_reply("No available chats!")
             return
@@ -176,9 +175,14 @@ def _read_chat() -> None:
 
 
 def chat_manager() -> None:
+    available_chats = os.listdir(CHATS_PATH)
+    if available_chats:
+        selections = ["Read Existing Chat", "Sync External Chat", "Delete", "Return"]
+    else:
+        selections = ["Sync External Chat", "Return"]
     selection = base_multiselect_menu(
         menu_name="Chat Manager Actions:",
-        data=["Read Existing Chat", "Sync External Chat", "Delete", "Return"],
+        data=selections,
         menu_title="Select an action:",
         exit=False,
         allow_none=True,
@@ -186,11 +190,11 @@ def chat_manager() -> None:
 
     match selection:
         case "Read Existing Chat":
-            _read_chat()
+            _read_chat(available_chats)
         case "Sync External Chat":
             _import_chats()
         case "Delete":
-            _delete_chats()
+            _delete_chats(available_chats)
         case "Return" | None:
             system_reply("No actions performed!")
             return None
