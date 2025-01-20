@@ -1,5 +1,6 @@
 import json
 
+from regex import R
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
@@ -19,6 +20,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
     ) != "tool":
         assistance_reply("", model_name)
 
+    reasoning_content = ""
     current_content = ""
     current_assistant_message = {
         "role": "assistant",
@@ -30,6 +32,11 @@ def handle_streaming_response(model_name, response_stream, conversation):
         for chunk in response_stream:
             delta = chunk.choices[0].delta
             finish_reason = chunk.choices[0].finish_reason
+
+            if hasattr(delta, "reasoning_content") and delta.reasoning_content:
+                reasoning_content += delta.reasoning_content
+                rmd = Markdown(reasoning_content, code_theme="dracula")
+                live.update(rmd)
 
             if hasattr(delta, "content") and delta.content:
                 current_content += delta.content
@@ -110,6 +117,11 @@ def handle_non_streaming_response(model_name, response, conversation):
 
     # Safely get tool_calls
     tool_calls = getattr(message, "tool_calls", None)
+
+    # Handle reasoning content
+    reasoning_content = getattr(message, "reasoning_content", None)
+    if reasoning_content:
+        markdown_print(content)
 
     # Handle content
     content = getattr(message, "content", None)
