@@ -1,9 +1,9 @@
 > Features:
+- [3b9d331] [Feature] Add Deepseek R1
 - [3aa9667] [Feature] Add the ability to read old chats via 'chats' command
 
 > Improvements:
 - [8d470b9] [Improvement] Hide unusable menu selections
-- [5b6defb] [Improvement] Multiline prompt styling
 
 > Others:
 - [bb18ca0] [Other] Bump Unichat version
