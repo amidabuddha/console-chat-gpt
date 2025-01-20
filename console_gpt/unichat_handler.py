@@ -41,7 +41,9 @@ def handle_streaming_response(model_name, response_stream, conversation):
             if hasattr(delta, "content") and delta.content:
                 current_content += delta.content
                 current_assistant_message["content"] = current_content
-                md = Markdown(current_content, code_theme="dracula")
+                italicized_reasoning = "\n".join(f"*{line}*" for line in reasoning_content.splitlines()) if reasoning_content else None
+                formatted_content = f"{italicized_reasoning}\n\n{current_content}" if italicized_reasoning else current_content
+                md = Markdown(formatted_content, code_theme="dracula")
                 live.update(md)
 
             # Handle tool calls
@@ -121,7 +123,7 @@ def handle_non_streaming_response(model_name, response, conversation):
     # Handle reasoning content
     reasoning_content = getattr(message, "reasoning_content", None)
     if reasoning_content:
-        markdown_print(content)
+        assistance_reply(reasoning_content, f"{model_name} Reasoning")
 
     # Handle content
     content = getattr(message, "content", None)
