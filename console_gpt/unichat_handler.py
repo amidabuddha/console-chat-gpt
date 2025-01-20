@@ -41,8 +41,12 @@ def handle_streaming_response(model_name, response_stream, conversation):
             if hasattr(delta, "content") and delta.content:
                 current_content += delta.content
                 current_assistant_message["content"] = current_content
-                italicized_reasoning = "\n".join(f"*{line}*" for line in reasoning_content.splitlines()) if reasoning_content else None
-                formatted_content = f"{italicized_reasoning}\n\n{current_content}" if italicized_reasoning else current_content
+                italicized_reasoning = (
+                    "\n".join(f"*{line}*" for line in reasoning_content.splitlines()) if reasoning_content else None
+                )
+                formatted_content = (
+                    f"{italicized_reasoning}\n\n{current_content}" if italicized_reasoning else current_content
+                )
                 md = Markdown(formatted_content, code_theme="dracula")
                 live.update(md)
 

@@ -3,6 +3,7 @@
 - [3aa9667] [Feature] Add the ability to read old chats via 'chats' command
 
 > Improvements:
+- [e01da9e] [Improvement] Formatting of reasoning responses
 - [8d470b9] [Improvement] Hide unusable menu selections
 
 > Others:
