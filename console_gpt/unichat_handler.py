@@ -40,7 +40,9 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 current_content += delta.content
                 current_assistant_message["content"] = current_content
                 formatted_content = (
-                    f"{reasoning_content}\n\n\n***** **REASONING END** *****\n\n\n{current_content}" if reasoning_content else current_content
+                    f"{reasoning_content}\n\n\n***** **REASONING END** *****\n\n\n{current_content}"
+                    if reasoning_content
+                    else current_content
                 )
                 md = Markdown(formatted_content, code_theme="dracula")
                 live.update(md)
