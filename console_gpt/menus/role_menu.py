@@ -143,7 +143,7 @@ def role_menu() -> Tuple[Optional[str], Optional[str]]:
         default_role = "Add New System Behavior"
         role_titles = ["Add New System Behavior"]
 
-    menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001F3AD"))
+    menu_title = "{} Select a role:".format(use_emoji_maybe("\U0001f3ad"))
 
     selection = base_multiselect_menu(
         "Role Menu", role_titles, menu_title, default_value=capitalize(default_role), preview_command=_role_preview

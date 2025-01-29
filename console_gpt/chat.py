@@ -26,7 +26,7 @@ def chat(console, data, managed_user_prompt) -> None:
     ) = data.model.values()
 
     if model_title == "ollama":
-        client = openai.OpenAI(base_url = 'http://localhost:11434/v1', api_key=api_key)
+        client = openai.OpenAI(base_url="http://localhost:11434/v1", api_key=api_key)
     else:
         client = UnifiedChatApi(api_key=api_key)
     conversation = data.conversation
@@ -109,9 +109,7 @@ def chat(console, data, managed_user_prompt) -> None:
             if cached is not False:
                 params["cached"] = cached
 
-            response = handle_with_exceptions(
-                lambda: client.chat.completions.create(**params)
-            )
+            response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
 
         if response not in ["interrupted", "error_appeared"] and streaming:
             conversation = handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation))

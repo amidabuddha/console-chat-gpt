@@ -37,7 +37,7 @@ def input_url() -> Optional[str]:
     :return: Either none if SIGINT or the URL
     """
     url = text(
-        message="Provide a URL:", style=custom_style, validate=_validate_url, qmark=use_emoji_maybe("\U0001F30D")
+        message="Provide a URL:", style=custom_style, validate=_validate_url, qmark=use_emoji_maybe("\U0001f30d")
     ).ask()
     if not url:
         flush_lines(4)

@@ -66,7 +66,7 @@ def browser_files(input_message: str, interrupt_message: str, validate_func: Cal
     :return: Either none if SIGINT or the Path
     """
     file_name = path(
-        message=input_message, style=custom_style, validate=validate_func, qmark=use_emoji_maybe("\U0001F4C1")
+        message=input_message, style=custom_style, validate=validate_func, qmark=use_emoji_maybe("\U0001f4c1")
     ).ask()
     if file_name:
         flush_lines(1)

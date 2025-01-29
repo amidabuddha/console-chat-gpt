@@ -1,7 +1,10 @@
 import subprocess
-import requests
 import time
+
+import requests
+
 from console_gpt.custom_stdout import custom_print
+
 
 def is_ollama_running():
     """Check if Ollama is running by attempting to connect to http://localhost:11434."""
@@ -11,12 +14,12 @@ def is_ollama_running():
     except requests.ConnectionError:
         return False
 
+
 def start_ollama():
     """Start Ollama in the background using 'ollama serve'."""
     try:
         # Start Ollama in the background
         subprocess.Popen(["ollama", "serve"])
-
 
         # Wait for Ollama to be fully up and running
         while not is_ollama_running():
@@ -24,6 +27,7 @@ def start_ollama():
         custom_print("info", "Ollama started successfully.")
     except Exception as e:
         custom_print("error", f"Failed to start Ollama: {e}")
+
 
 def list_ollama_models():
     """List all available Ollama models using 'ollama list' and return them as a list."""
@@ -44,6 +48,7 @@ def list_ollama_models():
     except Exception as e:
         custom_print("error", f"Failed to list Ollama models: {e}")
         return []
+
 
 def get_ollama():
     # Check if Ollama is running, start it if not, and return the list of available models.

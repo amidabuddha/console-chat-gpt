@@ -17,7 +17,7 @@ def user_prompt() -> str:
     user_input = questionary.autocomplete(
         message=prompt_title,
         choices=help_options.keys(),
-        qmark=use_emoji_maybe("\U0001F9D1"),
+        qmark=use_emoji_maybe("\U0001f9d1"),
         meta_information=help_options.copy(),
         style=custom_style,
         validate=lambda x: True if x and not x.isspace() else "Empty inputs are not allowed!",
