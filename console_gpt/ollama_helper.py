@@ -1,8 +1,9 @@
+import atexit
 import subprocess
 import time
 
 import requests
-import atexit
+
 from console_gpt.custom_stdout import custom_print
 
 

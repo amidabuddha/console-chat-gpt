@@ -13,7 +13,6 @@
 - [bb18ca0] [Other] Bump Unichat version
 - [22af716] [Other] Update config.toml.sample with codestral
 - [73fc633] [Other] Bump Unichat version to support codestral
-- [d2b06ef] [Other] Expand base_multiselect_menu + minor changes to chats manager
 
 
 ---
