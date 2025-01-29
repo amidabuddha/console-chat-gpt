@@ -2,7 +2,7 @@ import subprocess
 import time
 
 import requests
-
+import atexit
 from console_gpt.custom_stdout import custom_print
 
 
@@ -19,12 +19,25 @@ def start_ollama():
     """Start Ollama in the background using 'ollama serve'."""
     try:
         # Start Ollama in the background
-        subprocess.Popen(["ollama", "serve"])
+        process = subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # Register cleanup function - Used to drop the Ollama process when the main program exits
+        def cleanup():
+            process.terminate()
+            try:
+                process.wait(timeout=5)  # Wait up to 5 seconds for normal termination
+            except subprocess.TimeoutExpired:
+                process.kill()  # Force kill if it doesn't terminate
+
+        atexit.register(cleanup)
 
         # Wait for Ollama to be fully up and running
         while not is_ollama_running():
-            time.sleep(1)  # Check every second
+            time.sleep(1)
         custom_print("info", "Ollama started successfully.")
+
+        return process
+
     except Exception as e:
         custom_print("error", f"Failed to start Ollama: {e}")
 

@@ -11,6 +11,7 @@ from console_gpt.unichat_handler import (handle_non_streaming_response,
                                          handle_streaming_response)
 from mcp_servers.mcp_tcp_client import MCPClient
 from mcp_servers.server_manager import ServerManager
+from console_gpt.ollama_helper import start_ollama
 
 
 def chat(console, data, managed_user_prompt) -> None:
@@ -126,10 +127,15 @@ def chat(console, data, managed_user_prompt) -> None:
             error_appeared = True
 
         if error_appeared:
-            custom_print(
-                "warn",
-                "Exception was raised. Decided whether to continue. Your last message is lost as well",
-            )
+            if model_title == "ollama":
+                custom_print("warn", "Ollama Server is not running. Starting it...")
+                start_ollama()
+                custom_print("info", "Note that your last message was lost.")
+            else:
+                custom_print(
+                    "warn",
+                    "Exception was raised. Decided whether to continue. Your last message is lost as well",
+                )
             # Removes the last user input in order to avoid issues if the conversation continues
             if conversation:
                 conversation.pop(-1)
