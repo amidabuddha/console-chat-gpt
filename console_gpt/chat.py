@@ -1,4 +1,5 @@
 from unichat import UnifiedChatApi
+from unichat.api_helper import openai
 
 from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
@@ -24,7 +25,10 @@ def chat(console, data, managed_user_prompt) -> None:
         model_title,
     ) = data.model.values()
 
-    client = UnifiedChatApi(api_key=api_key)
+    if model_title == "ollama":
+        client = openai.OpenAI(base_url = 'http://localhost:11434/v1', api_key=api_key)
+    else:
+        client = UnifiedChatApi(api_key=api_key)
     conversation = data.conversation
     temperature = data.temperature
     cached = model_title.startswith("anthropic")
@@ -95,15 +99,18 @@ def chat(console, data, managed_user_prompt) -> None:
         streaming = fetch_variable("features", "streaming")
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
+            params = {
+                "model": model_name,
+                "messages": conversation,
+                "temperature": temperature,
+                "tools": tools,
+                "stream": streaming,
+            }
+            if cached is not False:
+                params["cached"] = cached
+
             response = handle_with_exceptions(
-                lambda: client.chat.completions.create(
-                    model=model_name,
-                    messages=conversation,
-                    temperature=temperature,
-                    cached=cached,
-                    tools=tools,
-                    stream=streaming,
-                )
+                lambda: client.chat.completions.create(**params)
             )
 
         if response not in ["interrupted", "error_appeared"] and streaming:
