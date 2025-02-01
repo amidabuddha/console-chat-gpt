@@ -1,7 +1,6 @@
 > Features:
 - [c41655a] [Feature] Run Ollama hosted models locally
 - [3b9d331] [Feature] Add Deepseek R1
-- [3aa9667] [Feature] Add the ability to read old chats via 'chats' command
 
 > Improvements:
 - [e01da9e] [Improvement] Formatting of reasoning responses
