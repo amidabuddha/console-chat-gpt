@@ -95,7 +95,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
                 return user_input
             return "continue"
         case "image":
-            if model_title.lower().startswith(('mistral', 'o1-mini', 'o1-preview')):
+            if model_title.lower().startswith(("mistral", "o1-mini", "o1-preview")):
                 custom_print(
                     "error",
                     f"Cannot upload images unless you're using vision supported model. Current model: {model_name}!",
