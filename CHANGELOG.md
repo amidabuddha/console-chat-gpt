@@ -10,7 +10,6 @@
 > Others:
 - [3204d43] [Other] Use separator instead of separate formatting for reasoning
 - [ba0d032] [Other] Bump unichat
-- [bb18ca0] [Other] Bump Unichat version
 
 
 ---
