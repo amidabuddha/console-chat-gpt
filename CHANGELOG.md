@@ -4,7 +4,6 @@
 
 > Improvements:
 - [5a4458c] [Improvement] Handle exceptions during AI managed prompt
-- [e01da9e] [Improvement] Formatting of reasoning responses
 
 > Others:
 - [3204d43] [Other] Use separator instead of separate formatting for reasoning
