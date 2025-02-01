@@ -26,7 +26,11 @@ def chat(console, data, managed_user_prompt) -> None:
         model_title,
     ) = data.model.values()
 
-    client = openai.OpenAI(base_url="http://localhost:11434/v1", api_key=api_key) if model_title == "ollama" else UnifiedChatApi(api_key=api_key)
+    client = (
+        openai.OpenAI(base_url="http://localhost:11434/v1", api_key=api_key)
+        if model_title == "ollama"
+        else UnifiedChatApi(api_key=api_key)
+    )
     conversation = data.conversation
     temperature = data.temperature
     cached = model_title.startswith("anthropic")
