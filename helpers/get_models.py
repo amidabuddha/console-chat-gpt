@@ -40,7 +40,7 @@ def get_models():
             MODELS_LIST["anthropic_models"].append(model_name)
         elif "mistral" in model:
             MODELS_LIST["mistral_models"].append(model_name)
-        elif "gpt" in model or "o1" in model:
+        elif "gpt" in model or "o1" in model or "o3" in model:
             MODELS_LIST["openai_models"].append(model_name)
         elif "grok" in model:
             MODELS_LIST["grok_models"].append(model_name)
