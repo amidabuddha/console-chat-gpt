@@ -1,4 +1,5 @@
 > Features:
+- [5322390] [Feature] Enable o3-mini
 - [c41655a] [Feature] Run Ollama hosted models locally
 - [3b9d331] [Feature] Add Deepseek R1
 
@@ -10,8 +11,6 @@
 - [3204d43] [Other] Use separator instead of separate formatting for reasoning
 - [ba0d032] [Other] Bump unichat
 - [bb18ca0] [Other] Bump Unichat version
-- [22af716] [Other] Update config.toml.sample with codestral
-- [73fc633] [Other] Bump Unichat version to support codestral
 
 
 ---
