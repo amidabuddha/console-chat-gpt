@@ -4,8 +4,8 @@
 - [3b9d331] [Feature] Add Deepseek R1
 
 > Improvements:
+- [5a4458c] [Improvement] Handle exceptions during AI managed prompt
 - [e01da9e] [Improvement] Formatting of reasoning responses
-- [8d470b9] [Improvement] Hide unusable menu selections
 
 > Others:
 - [3204d43] [Other] Use separator instead of separate formatting for reasoning
