@@ -95,7 +95,7 @@ def base_settings_menu(data: Dict[str, bool], menu_title: Optional[str] = "Setti
         # If nothing is selected or ctrl+c
         # Return the original data
         flush_lines(3) if selections is None else flush_lines(0)
-        return data
+        return None
 
     for selection in selections:
         formatter_selection = [x.strip() for x in selection.split("|") if x]

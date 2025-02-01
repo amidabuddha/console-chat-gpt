@@ -49,8 +49,9 @@ def settings_menu() -> None:
     menu_data = fetch_variable("features")
     menu_title = " Control Features"
     selection = base_settings_menu(menu_data, menu_title)
-    _write_wrapper(selection)
-    if menu_data != selection:
-        system_reply(_generate_markdown_reply(selection))
-    else:
-        system_reply("No new changes!")
+    if selection:
+        _write_wrapper(selection)
+        if menu_data != selection:
+            system_reply(_generate_markdown_reply(selection))
+        else:
+            system_reply("No new changes!")
