@@ -211,3 +211,27 @@ model_input_pricing_per_1k = 0.00055
 model_max_tokens = 8192
 model_name = "deepseek-reasoner"
 model_output_pricing_per_1k = 0.00219
+
+[chat.models.qwen-turbo]
+api_key = "YOUR_ALIBABA_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.00005
+model_max_tokens = 8192
+model_name = "qwen-turbo-latest"
+model_output_pricing_per_1k = 0.0002
+
+[chat.models.qwen-plus]
+api_key = "YOUR_ALIBABA_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.0004
+model_max_tokens = 8192
+model_name = "qwen-plus-latest"
+model_output_pricing_per_1k = 0.0012
+
+[chat.models.qwen-max]
+api_key = "YOUR_ALIBABA_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k = 0.0016
+model_max_tokens = 8192
+model_name = "qwen-max-latest"
+model_output_pricing_per_1k = 0.0064

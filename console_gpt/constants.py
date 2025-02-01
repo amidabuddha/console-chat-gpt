@@ -39,4 +39,5 @@ api_key_placeholders = {
     "YOUR_GROK_API_KEY",
     "YOUR_GEMINI_API_KEY",
     "YOUR_DEEPSEEK_API_KEY",
+    "YOUR_ALIBABA_API_KEY"
 }
