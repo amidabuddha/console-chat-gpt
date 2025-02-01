@@ -156,13 +156,21 @@ model_max_tokens = 4096
 model_name = "claude-3-opus-latest"
 model_output_pricing_per_1k = 0.075
 
-[chat.models.grok-beta]
+[chat.models.grok-2]
 api_key = "YOUR_GROK_API_KEY"
 api_usage = 0
-model_input_pricing_per_1k =0.005
+model_input_pricing_per_1k =0.002
 model_max_tokens = 131072
-model_name = "grok-beta"
-model_output_pricing_per_1k = 0.015
+model_name = "grok-2-latest"
+model_output_pricing_per_1k = 0.01
+
+[chat.models.grok-2-vision]
+api_key = "YOUR_GROK_API_KEY"
+api_usage = 0
+model_input_pricing_per_1k =0.002
+model_max_tokens = 32768
+model_name = "grok-2-vision-latest"
+model_output_pricing_per_1k = 0.01
 
 [chat.models.gemini-flash]
 api_key = "YOUR_GEMINI_API_KEY"
