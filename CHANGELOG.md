@@ -1,7 +1,6 @@
 > Features:
 - [5322390] [Feature] Enable o3-mini
 - [c41655a] [Feature] Run Ollama hosted models locally
-- [3b9d331] [Feature] Add Deepseek R1
 
 > Improvements:
 - [5a4458c] [Improvement] Handle exceptions during AI managed prompt
