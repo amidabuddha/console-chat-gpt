@@ -97,7 +97,10 @@ def chat(console, data, managed_user_prompt) -> None:
             conversation.append(user_input)
 
         # Get chat completion
-        streaming = fetch_variable("features", "streaming")
+        if model_title == "o1":
+            streaming = False
+        else:
+            streaming = fetch_variable("features", "streaming")
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             params = {
