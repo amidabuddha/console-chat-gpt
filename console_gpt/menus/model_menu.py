@@ -45,7 +45,6 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
             local_selection = base_multiselect_menu("Ollama models", models, menu_title)
             model_data = {
                 "api_key": "ollama",
-                "api_usage": 0,
                 "model_input_pricing_per_1k": 0,
                 "model_max_tokens": 0,
                 "model_name": local_selection,

@@ -46,7 +46,6 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 
 [chat.models.gpt-4o-chatgpt]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.005
 model_max_tokens = 16384
 model_name = "chatgpt-4o-latest"
@@ -54,7 +53,6 @@ model_output_pricing_per_1k = 0.015
 
 [chat.models.gpt-4o-mini]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00015
 model_max_tokens = 16384
 model_name = "gpt-4o-mini"
@@ -62,7 +60,6 @@ model_output_pricing_per_1k = 0.0006
 
 [chat.models.gpt-4o]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.0025
 model_max_tokens = 16384
 model_name = "gpt-4o"
@@ -70,7 +67,6 @@ model_output_pricing_per_1k = 0.01
 
 [chat.models.gpt-4o-latest]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.0025
 model_max_tokens = 16384
 model_name = "gpt-4o-2024-11-20"
@@ -78,7 +74,6 @@ model_output_pricing_per_1k = 0.01
 
 [chat.models.o1-mini]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.0011
 model_max_tokens = 65536
 model_name = "o1-mini"
@@ -86,7 +81,6 @@ model_output_pricing_per_1k = 0.0044
 
 [chat.models.o1-preview]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.015
 model_max_tokens = 32768
 model_name = "o1-preview"
@@ -94,7 +88,6 @@ model_output_pricing_per_1k = 0.06
 
 [chat.models.o1]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.015
 model_max_tokens = 100000
 model_name = "o1"
@@ -102,7 +95,6 @@ model_output_pricing_per_1k = 0.06
 
 [chat.models.o3-mini]
 api_key = "YOUR_OPENAI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.0011
 model_max_tokens = 100000
 model_name = "o3-mini"
@@ -110,31 +102,34 @@ model_output_pricing_per_1k = 0.0044
 
 [chat.models.mistral-small]
 api_key = "YOUR_MISTRALAI_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.0002
+model_input_pricing_per_1k = 0.00
 model_max_tokens = 32000
 model_name = "mistral-small-latest"
-model_output_pricing_per_1k = 0.0006
+model_output_pricing_per_1k = 0.00
 
 [chat.models.mistral-large]
 api_key = "YOUR_MISTRALAI_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.002
+model_input_pricing_per_1k = 0.00
 model_max_tokens = 128000
 model_name = "mistral-large-latest"
-model_output_pricing_per_1k = 0.006
+model_output_pricing_per_1k = 0.00
 
 [chat.models.mistral-codestral]
 api_key = "YOUR_MISTRALAI_API_KEY"
-api_usage = 0
-model_input_pricing_per_1k = 0.0003
+model_input_pricing_per_1k = 0.00
 model_max_tokens = 256000
 model_name = "codestral-latest"
-model_output_pricing_per_1k = 0.0009
+model_output_pricing_per_1k = 0.00
+
+[chat.models.pixtral-large]
+api_key = "YOUR_MISTRALAI_API_KEY"
+model_input_pricing_per_1k = 0.00
+model_max_tokens = 128000
+model_name = "pixtral-large-latest"
+model_output_pricing_per_1k = 0.00
 
 [chat.models.anthropic-haiku]
 api_key = "YOUR_ANTHROPIC_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.001
 model_max_tokens = 8192
 model_name = "claude-3-5-haiku-latest"
@@ -142,15 +137,13 @@ model_output_pricing_per_1k = 0.005
 
 [chat.models.anthropic-sonnet]
 api_key = "YOUR_ANTHROPIC_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.003
 model_max_tokens = 8192
-model_name = "claude-3-5-sonnet-latest"
+model_name = "claude-3-7-sonnet-latest"
 model_output_pricing_per_1k = 0.015
 
 [chat.models.anthropic-opus]
 api_key = "YOUR_ANTHROPIC_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.015
 model_max_tokens = 4096
 model_name = "claude-3-opus-latest"
@@ -158,7 +151,6 @@ model_output_pricing_per_1k = 0.075
 
 [chat.models.grok-2]
 api_key = "YOUR_GROK_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.002
 model_max_tokens = 131072
 model_name = "grok-2-latest"
@@ -166,7 +158,6 @@ model_output_pricing_per_1k = 0.01
 
 [chat.models.grok-2-vision]
 api_key = "YOUR_GROK_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.002
 model_max_tokens = 32768
 model_name = "grok-2-vision-latest"
@@ -174,7 +165,6 @@ model_output_pricing_per_1k = 0.01
 
 [chat.models.gemini-flash-light]
 api_key = "YOUR_GEMINI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
 model_name = "gemini-2.0-flash-lite-preview-02-05"
@@ -182,7 +172,6 @@ model_output_pricing_per_1k = 0.00
 
 [chat.models.gemini-flash]
 api_key = "YOUR_GEMINI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
 model_name = "gemini-2.0-flash"
@@ -190,7 +179,6 @@ model_output_pricing_per_1k = 0.00
 
 [chat.models.gemini-flash-thinking-exp]
 api_key = "YOUR_GEMINI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
 model_name = "gemini-2.0-flash-thinking-exp"
@@ -198,7 +186,6 @@ model_output_pricing_per_1k = 0.00
 
 [chat.models.gemini-pro]
 api_key = "YOUR_GEMINI_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
 model_name = "gemini-2.0-pro-exp-02-05"
@@ -206,7 +193,6 @@ model_output_pricing_per_1k = 0.00
 
 [chat.models.deepseek-chat]
 api_key = "YOUR_DEEPSEEK_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00027
 model_max_tokens = 8192
 model_name = "deepseek-chat"
@@ -214,7 +200,6 @@ model_output_pricing_per_1k = 0.0011
 
 [chat.models.deepseek-reasoner]
 api_key = "YOUR_DEEPSEEK_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00055
 model_max_tokens = 8192
 model_name = "deepseek-reasoner"
@@ -222,7 +207,6 @@ model_output_pricing_per_1k = 0.00219
 
 [chat.models.qwen-turbo]
 api_key = "YOUR_ALIBABA_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.00005
 model_max_tokens = 8192
 model_name = "qwen-turbo-latest"
@@ -230,7 +214,6 @@ model_output_pricing_per_1k = 0.0002
 
 [chat.models.qwen-plus]
 api_key = "YOUR_ALIBABA_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.0004
 model_max_tokens = 8192
 model_name = "qwen-plus-latest"
@@ -238,7 +221,6 @@ model_output_pricing_per_1k = 0.0012
 
 [chat.models.qwen-max]
 api_key = "YOUR_ALIBABA_API_KEY"
-api_usage = 0
 model_input_pricing_per_1k = 0.0016
 model_max_tokens = 8192
 model_name = "qwen-max-latest"

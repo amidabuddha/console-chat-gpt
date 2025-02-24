@@ -18,7 +18,6 @@ def chat(console, data, managed_user_prompt) -> None:
     # Assign all variables at once via the Object returned by the menu
     (
         api_key,
-        api_usage,
         model_input_pricing_per_1k,
         model_max_tokens,
         model_name,
@@ -129,7 +128,7 @@ def chat(console, data, managed_user_prompt) -> None:
 
         if error_appeared:
             if model_title == "ollama":
-                custom_print("warn", "Ollama Server is not running. Starting it...")
+                custom_print("warn", "Restarting Ollama Server...")
                 start_ollama()
                 custom_print("info", "Note that your last message was lost.")
             else:
