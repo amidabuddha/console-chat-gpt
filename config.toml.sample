@@ -142,7 +142,14 @@ model_max_tokens = 8192
 model_name = "claude-3-5-haiku-latest"
 model_output_pricing_per_1k = 0.005
 
-[chat.models.anthropic-sonnet]
+[chat.models.anthropic-sonnet-legacy]
+api_key = "YOUR_ANTHROPIC_API_KEY"
+model_input_pricing_per_1k = 0.003
+model_max_tokens = 8192
+model_name = "claude-3-5-sonnet-latest"
+model_output_pricing_per_1k = 0.015
+
+[chat.models.anthropic-sonnet-latest]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 model_input_pricing_per_1k = 0.003
 model_max_tokens = 8192
