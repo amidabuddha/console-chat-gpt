@@ -1,4 +1,5 @@
 > Features:
+- [732aaa7] [Feature] add GPT-4.5
 - [dbc7a8a] [Feature] Add Sonnet 3.7 and Pixtral
 
 > Improvements:
