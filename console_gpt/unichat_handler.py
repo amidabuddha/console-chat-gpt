@@ -96,9 +96,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 with MCPClient() as mcp:
                     result = {
                         "role": "tool",
-                        "content": str(
-                            mcp.call_tool(tool_name, tool_arguments)
-                        ),
+                        "content": str(mcp.call_tool(tool_name, tool_arguments)),
                         "tool_call_id": tool_call["id"],
                     }
                 conversation.append(result)
@@ -179,9 +177,7 @@ def handle_non_streaming_response(model_name, response, conversation):
                 with MCPClient() as mcp:
                     result = {
                         "role": "tool",
-                        "content": str(
-                            mcp.call_tool(tool_name, tool_arguments)
-                        ),
+                        "content": str(mcp.call_tool(tool_name, tool_arguments)),
                         "tool_call_id": tool_call["id"],
                     }
                 conversation.append(result)
