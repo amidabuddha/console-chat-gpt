@@ -85,13 +85,19 @@ def handle_streaming_response(model_name, response_stream, conversation):
     if current_assistant_message.get("tool_calls"):
         for tool_call in current_assistant_message["tool_calls"]:
             tool_name = tool_call["function"]["name"]
+            function_arguments = tool_call["function"]["arguments"]
+            if function_arguments:
+                tool_arguments = json.loads(function_arguments)
+            else:
+                tool_arguments = {}
+            print(tool_name, tool_arguments)
             markdown_print(f"> Triggered: `{tool_name}`.")
             try:
                 with MCPClient() as mcp:
                     result = {
                         "role": "tool",
                         "content": str(
-                            mcp.call_tool(tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"]))
+                            mcp.call_tool(tool_name, tool_arguments)
                         ),
                         "tool_call_id": tool_call["id"],
                     }
@@ -163,13 +169,18 @@ def handle_non_streaming_response(model_name, response, conversation):
     if tool_calls:
         for tool_call in assistant_response.get("tool_calls"):
             tool_name = tool_call["function"]["name"]
+            function_arguments = tool_call["function"]["arguments"]
+            if function_arguments:
+                tool_arguments = json.loads(function_arguments)
+            else:
+                tool_arguments = {}
             markdown_print(f"> Triggered: `{tool_name}`.")
             try:
                 with MCPClient() as mcp:
                     result = {
                         "role": "tool",
                         "content": str(
-                            mcp.call_tool(tool_call["function"]["name"], json.loads(tool_call["function"]["arguments"]))
+                            mcp.call_tool(tool_name, tool_arguments)
                         ),
                         "tool_call_id": tool_call["id"],
                     }
