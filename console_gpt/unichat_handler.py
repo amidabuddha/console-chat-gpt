@@ -90,7 +90,6 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 tool_arguments = json.loads(function_arguments)
             else:
                 tool_arguments = {}
-            print(tool_name, tool_arguments)
             markdown_print(f"> Triggered: `{tool_name}`.")
             try:
                 with MCPClient() as mcp:
