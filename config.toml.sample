@@ -156,6 +156,13 @@ model_max_tokens = 8192
 model_name = "claude-3-7-sonnet-latest"
 model_output_pricing_per_1k = 0.015
 
+[chat.models.anthropic-sonnet-latest-thinking]
+api_key = "YOUR_ANTHROPIC_API_KEY"
+model_input_pricing_per_1k = 0.003
+model_max_tokens = 8192
+model_name = "claude-3-7-sonnet-latest"
+model_output_pricing_per_1k = 0.015
+
 [chat.models.anthropic-opus]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 model_input_pricing_per_1k = 0.015

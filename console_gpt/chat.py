@@ -109,7 +109,9 @@ def chat(console, data, managed_user_prompt) -> None:
             }
             if cached is not False:
                 params["cached"] = cached
-
+            if model_title == "anthropic-sonnet-latest-thinking":
+                params["thinking"] = True
+                
             response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
 
         if response not in ["interrupted", "error_appeared"] and streaming:
