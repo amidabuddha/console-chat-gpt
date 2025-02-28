@@ -164,7 +164,7 @@ def _read_chat(available_chats) -> None:
 
         # For OS which use default less (no color by default)
         os.environ["LESS"] = "-R"
-        
+
         console = Console(theme=CUSTOM_THEME)
         md = Markdown("".join(md_content), justify="left")
         styled_md = Padding(md, (1, 2))
@@ -176,7 +176,7 @@ def _read_chat(available_chats) -> None:
                 console.print(styled_md)
         else:
             # Fallback to plain output with a heads-up
-            custom_print('warn', "Color support or pager unavailable, using plain text.")
+            custom_print("warn", "Color support or pager unavailable, using plain text.")
             with console.pager(styles=False):
                 console.print(help_box)
                 console.print(styled_md)
