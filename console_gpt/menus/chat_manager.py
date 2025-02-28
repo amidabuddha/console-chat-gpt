@@ -162,13 +162,24 @@ def _read_chat(available_chats) -> None:
             template = MD_TEMPLATES.get(role, f"❓❓❓ {role.capitalize()}:\n\n{{}}\n\n---\n\n")
             md_content.append(template.format(content))
 
+        # For OS which use default less (no color by default)
+        os.environ["LESS"] = "-R"
+        
         console = Console(theme=CUSTOM_THEME)
         md = Markdown("".join(md_content), justify="left")
         styled_md = Padding(md, (1, 2))
 
-        with console.pager(styles=True, links=True):
-            console.print(help_box)
-            console.print(styled_md)
+        if console.is_terminal and shutil.which("less"):
+            # Terminal supports colors and less is available, use styled pager
+            with console.pager(styles=True, links=True):
+                console.print(help_box)
+                console.print(styled_md)
+        else:
+            # Fallback to plain output with a heads-up
+            custom_print('warn', "Color support or pager unavailable, using plain text.")
+            with console.pager(styles=False):
+                console.print(help_box)
+                console.print(styled_md)
 
     except Exception as e:
         system_reply(f"Error reading chat: {str(e)}")
