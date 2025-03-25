@@ -209,7 +209,7 @@ model_output_pricing_per_1k = 0.00
 api_key = "YOUR_GEMINI_API_KEY"
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
-model_name = "gemini-2.0-pro-exp-02-05"
+model_name = "gemini-2.5-pro-exp-03-25"
 model_output_pricing_per_1k = 0.00
 
 [chat.models.deepseek-chat]
