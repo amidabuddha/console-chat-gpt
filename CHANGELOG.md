@@ -7,7 +7,9 @@
 - [4953721] [Improvement] Allow tool calls without arguments
 - [258dbd5] [Improvement] Adding back Sonnet 3.5
 - [168c915] [Improvement] Enable streaming for o1
-- [8d690bc] [Improvement] Update grok models
+
+> Others:
+- [ef56d38] [Other] Bump Gemini Pro to latest mode
 
 
 ---
