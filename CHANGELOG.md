@@ -9,6 +9,7 @@
 - [168c915] [Improvement] Enable streaming for o1
 
 > Others:
+- [4eed6e9] [Other] Bump Unichat version
 - [ef56d38] [Other] Bump Gemini Pro to latest mode
 
 
