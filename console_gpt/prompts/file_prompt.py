@@ -1,7 +1,8 @@
 import os
 from typing import Any, Callable, Optional, Tuple
 
-import PyPDF2
+
+from pypdf import PdfReader
 from questionary import path
 
 from console_gpt.catch_errors import eof_wrapper
@@ -34,7 +35,7 @@ def _read_file(file_path: str) -> Optional[str]:
     if file_path.endswith(".pdf"):
         try:
             with open(file_path, "rb") as file:
-                pdf_reader = PyPDF2.PdfReader(file)
+                pdf_reader = PdfReader(file)
                 text = []
                 for page in pdf_reader.pages:
                     text.append(page.extract_text())
