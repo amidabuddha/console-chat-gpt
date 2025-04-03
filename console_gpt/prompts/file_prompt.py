@@ -1,7 +1,6 @@
 import os
 from typing import Any, Callable, Optional, Tuple
 
-
 from pypdf import PdfReader
 from questionary import path
 

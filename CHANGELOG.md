@@ -6,7 +6,9 @@
 > Improvements:
 - [4953721] [Improvement] Allow tool calls without arguments
 - [258dbd5] [Improvement] Adding back Sonnet 3.5
-- [168c915] [Improvement] Enable streaming for o1
+
+> Bug Fixes:
+- [b077a4c] [BUGFIX] Resolved Pillow issue with Python 3.13.x (Fixes: #24)
 
 > Others:
 - [4eed6e9] [Other] Bump Unichat version
