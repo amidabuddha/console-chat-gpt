@@ -312,3 +312,10 @@ model_input_pricing_per_1k = 0.00
 model_max_tokens = 32000
 model_name = "mercury-coder-small"
 model_output_pricing_per_1k = 0.00
+
+[chat.models.mercury-coder-mini]
+api_key = "YOUR_MERCURY_API_KEY"
+model_input_pricing_per_1k = 0.00
+model_max_tokens = 32000
+model_name = "mercury-coder-mini"
+model_output_pricing_per_1k = 0.00
