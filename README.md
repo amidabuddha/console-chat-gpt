@@ -8,7 +8,7 @@ console-chat-gpt v6
 
 **Your Ultimate CLI Companion for Chatting with AI Models**
 
-_Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xAI**, **Google AI**, **DeepSeek**, **Alibaba** or **Ollama** hosted models directly from your command line. </br>Elevate your chat experience with efficiency and ease._
+_Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xAI**, **Google AI**, **DeepSeek**, **Alibaba**, **Inception** or **Ollama** hosted models directly from your command line. </br>Elevate your chat experience with efficiency and ease._
 
 <h3>
 
@@ -41,14 +41,14 @@ _Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xA
 ---
 
 **DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI, Google AI, DeepSeek, Aliababa or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibaba or their subsidiaries in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI, Google AI, DeepSeek, Aliababa, Inception or any other related parties. There is no affiliation
+or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibaba, Inception or their subsidiaries in any form.
 
 ---
 
 ## Features
 
-- :new: Run [**Ollama**](https://ollama.com) hosted models locally. _Ollama should be installed and the selected models to be already downloaded_  :new:
+- :star: Run [**Ollama**](https://ollama.com) hosted models locally. _Ollama should be installed and the selected models to be already downloaded_  :star:
 - :star: [**Anthropic Prompt caching**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) Fully supported :star:
 - :star: [Model Context Protocol (MCP)](https://modelcontextprotocol.io) supported! If you are already using MCP servers just copy your `claude_desktop_config.json` to the root directory and rename to `mcp_config.json` to start using with any model! :star:
 - Unified chat completion function separated as independent library to be used in any application for seamless cross-provider API experience. The source code is available in [Python](https://github.com/amidabuddha/unichat) and [TypeScript](https://github.com/amidabuddha/unichat-ts)
@@ -97,7 +97,7 @@ personalization, control, and convenience.
    python3 -m pip install -r requirements.txt
    ```
 
-4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), [DeeepSeek](https://platform.deepseek.com/api_keys), [Alibaba](https://bailian.console.alibabacloud.com/?apiKey=1#/api-key) depending on your selected LLM.
+4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), [DeeepSeek](https://platform.deepseek.com/api_keys), [Alibaba](https://bailian.console.alibabacloud.com/?apiKey=1#/api-key), [Inception](https://platform.inceptionlabs.ai/dashboard/api-keys) depending on your selected LLM.
 
 5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the `settings` in-app menu as per your needs.
 
