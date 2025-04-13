@@ -128,7 +128,7 @@ def command_catcher(assistant):
         if prompt[0]["content"].lower() in ("tools"):
             custom_print(
                 "warn",
-                f'Tools are available only when the conversation is already initiated! ',
+                f"Tools are available only when the conversation is already initiated! ",
             )
             continue
         # Command Handler
