@@ -13,7 +13,7 @@ from console_gpt.prompts.url_prompt import additional_info, input_url
 from console_gpt.scrape_page import page_content
 
 
-def command_handler(model_title, model_name, user_input, conversation, cached) -> Optional[str]:
+def command_handler(model_title, model_name, user_input, conversation, cached, tools) -> Optional[str]:
     """
     Handled specific keywords as features if entered by the user
     :return: None or modified user input string or hint for the caller function loop or exits the application
@@ -30,7 +30,7 @@ def command_handler(model_title, model_name, user_input, conversation, cached) -
             custom_print("warn", "Edit last message is not yet implemented")
             return "continue"
         case "tools":
-            return "continue", tools_menu()
+            return "continue", tools_menu(tools)
         case "file":
             clarification, file_data = file_prompt()
             if not file_data:

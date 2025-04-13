@@ -125,9 +125,15 @@ def command_catcher(assistant):
                 f'Command {prompt[0]["content"].lower()} is available only when the conversation is already initiated!',
             )
             continue
+        if prompt[0]["content"].lower() in ("tools"):
+            custom_print(
+                "warn",
+                f'Tools are available only when the conversation is already initiated! ',
+            )
+            continue
         # Command Handler
         handled_prompt = command_handler(
-            assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt, False
+            assistant["model_title"], assistant["model_name"], prompt[0]["content"], prompt, False, []
         )
         match handled_prompt:
             case "continue" | None:

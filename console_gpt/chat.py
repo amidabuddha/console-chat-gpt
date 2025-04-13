@@ -77,10 +77,10 @@ def chat(console, data, managed_user_prompt) -> None:
             if not user_input:  # Used to catch SIGINT
                 save_chat(conversation, ask=True)
             # Command Handler
-            handled_user_input = command_handler(model_title, model_name, user_input["content"], conversation, cached)
+            handled_user_input = command_handler(model_title, model_name, user_input["content"], conversation, cached, tools)
             match handled_user_input:
                 case ("continue", new_tools):
-                    tools = new_tools if new_tools else []
+                    tools = new_tools
                     custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
                     continue
                 case "continue" | None:
