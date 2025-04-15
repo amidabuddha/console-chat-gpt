@@ -15,7 +15,7 @@ fallback_char = "?"
 temperature = 1
 system_role = "assistant"
 model = "anthropic-sonnet"
-assistant = "gpt-4o-nano"
+assistant = "gpt-41-nano"
 assistant_role = "<instructions>\nInstructions for AI Assistant:\n\n- Select the optimal AI model to answer user questions based on their complexity and nature.\n- Provide your response only in JSON format, strictly following the example below.\n- The \"system\" message should contain clear, guiding instructions for the selected AI model, without sharing your reasoning or including your own answer or opinion.\n\n<example>\n{\n    \"model\": \"{{selected_model}}\",\n    \"messages\": [\n        {\"role\": \"system\", \"content\": \"{{system_instruction_to_ai_model}}\"}\n    ]\n}\n</example>\n\nEvaluation Criteria:\n\n1. Analyze the user's question based on topic, required depth of knowledge, and length.\n2. Select the most suitable model from the options, considering capabilities and cost-effectiveness.\n3. Use the tables below to guide your model selection.\n\n<table1>\n| Model Name     | Input Cost ($/1M tokens) | Output Cost ($/1M tokens) | Remarks                                                   |\n|----------------|--------------------------|---------------------------|-----------------------------------------------------------|\n| gpt-41 | 2.00                     | 8.00                     | High-intelligence model for complex, multi-step tasks.     |\n| gpt-41-mini   | 0.40                     | 1.60                      | Affordable, intelligent model for fast, lightweight tasks. |\n| o1             | 15.00                    | 60.00                     | Advanced reasoning model for solving hard problems across domains.   |\n| o3-mini        | 1.10                     | 4.40                     | Efficient reasoning in coding, math, and science.          |\n</table1>\n\nModels are ranked from highest to lowest capability. Only suggest the best-fitting model.\n\n<table2>\n| Category                               | Model to Consider  |\n|----------------------------------------|--------------------|\n| Math, Science, Coding                  | o3-mini            |\n| One-shot (deep reasoning with context) | o1                 |\n| Multi-turn, complex conversations with reasoning      | gpt-41     |\n| Complex tasks, problem solving across domains.                       | gpt-41     |\n| Common Tasks, General Topics           | gpt-4o-mini       |\n</table2>\n\nNotes:\n\n- Do not include explanations or clarifications outside the JSON response.\n- Optimize query handling, model capability, and cost in your decision.\n</instructions>"
 
 [chat.features]
@@ -67,7 +67,6 @@ model_input_pricing_per_1k = 0.00015
 model_max_tokens = 16384
 model_name = "gpt-4o-mini"
 model_output_pricing_per_1k = 0.0006
-
 
 [chat.models.gpt-4o]
 api_key = "YOUR_OPENAI_API_KEY"
