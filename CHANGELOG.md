@@ -1,12 +1,12 @@
 > Features:
 - [dc7ae04] [Feature] Add OpenAI 4.1 series models
 - [6828df1] [Feature] Update supported models list
-- [7327f53] [Feature] To think or not to think (Sonnet 3.7)
 
 > Improvements:
 - [71de82d] [Improvement] Optimize tools command
 
 > Bug Fixes:
+- [5ccff7c] [BugFix] Typo
 - [b077a4c] [BUGFIX] Resolved Pillow issue with Python 3.13.x (Fixes: #24)
 
 > Others:
