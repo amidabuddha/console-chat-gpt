@@ -1,4 +1,5 @@
 > Features:
+- [dc7ae04] [Feature] Add OpenAI 4.1 series models
 - [6828df1] [Feature] Update supported models list
 - [7327f53] [Feature] To think or not to think (Sonnet 3.7)
 
