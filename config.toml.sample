@@ -124,6 +124,20 @@ model_max_tokens = 100000
 model_name = "o3-mini"
 model_output_pricing_per_1k = 0.0044
 
+[chat.models.o3]
+api_key = "YOUR_OPENAI_API_KEY"
+model_input_pricing_per_1k = 0.01
+model_max_tokens = 100000
+model_name = "o3"
+model_output_pricing_per_1k = 0.04
+
+[chat.models.o4-mini]
+api_key = "YOUR_OPENAI_API_KEY"
+model_input_pricing_per_1k = 0.0011
+model_max_tokens = 100000
+model_name = "o4-mini"
+model_output_pricing_per_1k = 0.0044
+
 # ==================================
 # Mistral models
 # ==================================
