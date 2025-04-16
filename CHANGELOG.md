@@ -7,13 +7,13 @@
 - [71de82d] [Improvement] Optimize tools command
 
 > Bug Fixes:
+- [85ba311] [BugFix] get o4 models properly
 - [5ccff7c] [BugFix] Typo
 - [b077a4c] [BUGFIX] Resolved Pillow issue with Python 3.13.x (Fixes: #24)
 
 > Others:
 - [92ada81] [Other] Update models properly
 - [7e7f56b] [Other] Update models helper
-- [4eed6e9] [Other] Bump Unichat version
 
 
 ---
