@@ -1,4 +1,5 @@
 > Features:
+- [3dabeac] [Feature] Add o3 and o4-mini
 - [dc7ae04] [Feature] Add OpenAI 4.1 series models
 - [6828df1] [Feature] Update supported models list
 
@@ -13,7 +14,6 @@
 - [92ada81] [Other] Update models properly
 - [7e7f56b] [Other] Update models helper
 - [4eed6e9] [Other] Bump Unichat version
-- [ef56d38] [Other] Bump Gemini Pro to latest mode
 
 
 ---
