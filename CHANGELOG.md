@@ -1,7 +1,7 @@
 > Features:
+- [f6e15db] [Feature] Add Gemini 2.5 Flash
 - [3dabeac] [Feature] Add o3 and o4-mini
 - [dc7ae04] [Feature] Add OpenAI 4.1 series models
-- [6828df1] [Feature] Update supported models list
 
 > Improvements:
 - [71de82d] [Improvement] Optimize tools command
