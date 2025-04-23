@@ -12,7 +12,6 @@
 
 > Others:
 - [92ada81] [Other] Update models properly
-- [7e7f56b] [Other] Update models helper
 
 
 ---
