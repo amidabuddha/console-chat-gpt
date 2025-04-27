@@ -8,6 +8,7 @@
 - [71de82d] [Improvement] Optimize tools command
 
 > Bug Fixes:
+- [62c451b] [BugFix] Get reasoning_effort value properly
 - [85ba311] [BugFix] get o4 models properly
 - [5ccff7c] [BugFix] Typo
 

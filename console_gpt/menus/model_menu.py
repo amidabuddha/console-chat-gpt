@@ -49,7 +49,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
                 "model_max_tokens": 0,
                 "model_name": local_selection,
                 "model_output_pricing_per_1k": 0,
-                "reasoning_effort": False
+                "reasoning_effort": False,
             }
         else:
             custom_print("info", "No models found in Ollama. Please check the Ollama server or select another model.")
