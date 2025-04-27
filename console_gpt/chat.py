@@ -23,7 +23,7 @@ def chat(console, data, managed_user_prompt) -> None:
         model_name,
         model_output_pricing_per_1k,
         model_title,
-        reasoning_effort
+        reasoning_effort,
     ) = data.model.values()
 
     client = (
