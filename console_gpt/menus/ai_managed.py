@@ -101,7 +101,11 @@ def send_request(client, assistant, conversation):
     role = {"role": "system", "content": assistant["role"]}
     conversation.insert(0, role)
     response = client.chat.completions.create(
-        model=assistant["model_name"], messages=conversation, stream=False, tools=tools, reasoning_effort=reasoning_effort
+        model=assistant["model_name"],
+        messages=conversation,
+        stream=False,
+        tools=tools,
+        reasoning_effort=reasoning_effort,
     )
     return response.choices[0].message.tool_calls
 
