@@ -53,6 +53,7 @@ model_input_pricing_per_1k = 0.0001
 model_max_tokens = 32768
 model_name = "gpt-4.1-nano"
 model_output_pricing_per_1k = 0.0004
+reasoning_effort = false
 
 [chat.models.gpt-41-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -60,6 +61,7 @@ model_input_pricing_per_1k = 0.0004
 model_max_tokens = 32768
 model_name = "gpt-4.1-mini"
 model_output_pricing_per_1k = 0.0016
+reasoning_effort = false
 
 [chat.models.gpt-4o-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -67,6 +69,7 @@ model_input_pricing_per_1k = 0.00015
 model_max_tokens = 16384
 model_name = "gpt-4o-mini"
 model_output_pricing_per_1k = 0.0006
+reasoning_effort = false
 
 [chat.models.gpt-4o]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -74,6 +77,7 @@ model_input_pricing_per_1k = 0.0025
 model_max_tokens = 16384
 model_name = "gpt-4o"
 model_output_pricing_per_1k = 0.01
+reasoning_effort = false
 
 [chat.models.gpt-4o-latest]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -81,6 +85,7 @@ model_input_pricing_per_1k = 0.0025
 model_max_tokens = 16384
 model_name = "gpt-4o-2024-11-20"
 model_output_pricing_per_1k = 0.01
+reasoning_effort = false
 
 [chat.models.gpt-4o-chatgpt]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -88,6 +93,7 @@ model_input_pricing_per_1k = 0.005
 model_max_tokens = 16384
 model_name = "chatgpt-4o-latest"
 model_output_pricing_per_1k = 0.015
+reasoning_effort = false
 
 [chat.models.gpt-41]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -95,6 +101,7 @@ model_input_pricing_per_1k = 0.002
 model_max_tokens = 32768
 model_name = "gpt-4.1"
 model_output_pricing_per_1k = 0.008
+reasoning_effort = false
 
 [chat.models.o1-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -102,6 +109,7 @@ model_input_pricing_per_1k = 0.0011
 model_max_tokens = 65536
 model_name = "o1-mini"
 model_output_pricing_per_1k = 0.0044
+reasoning_effort = "medium"
 
 [chat.models.o1-preview]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -109,6 +117,7 @@ model_input_pricing_per_1k = 0.015
 model_max_tokens = 32768
 model_name = "o1-preview"
 model_output_pricing_per_1k = 0.06
+reasoning_effort = "medium"
 
 [chat.models.o1]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -116,6 +125,7 @@ model_input_pricing_per_1k = 0.015
 model_max_tokens = 100000
 model_name = "o1"
 model_output_pricing_per_1k = 0.06
+reasoning_effort = "medium"
 
 [chat.models.o3-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -123,6 +133,7 @@ model_input_pricing_per_1k = 0.0011
 model_max_tokens = 100000
 model_name = "o3-mini"
 model_output_pricing_per_1k = 0.0044
+reasoning_effort = "medium"
 
 [chat.models.o3]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -130,6 +141,7 @@ model_input_pricing_per_1k = 0.01
 model_max_tokens = 100000
 model_name = "o3"
 model_output_pricing_per_1k = 0.04
+reasoning_effort = "medium"
 
 [chat.models.o4-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -137,6 +149,7 @@ model_input_pricing_per_1k = 0.0011
 model_max_tokens = 100000
 model_name = "o4-mini"
 model_output_pricing_per_1k = 0.0044
+reasoning_effort = "medium"
 
 # ==================================
 # Mistral models
@@ -147,6 +160,7 @@ model_input_pricing_per_1k = 0.0002
 model_max_tokens = 32000
 model_name = "mistral-saba-latest"
 model_output_pricing_per_1k = 0.0006
+reasoning_effort = false
 
 [chat.models.mistral-large]
 api_key = "YOUR_MISTRALAI_API_KEY"
@@ -154,6 +168,7 @@ model_input_pricing_per_1k = 0.002
 model_max_tokens = 128000
 model_name = "mistral-large-latest"
 model_output_pricing_per_1k = 0.006
+reasoning_effort = false
 
 [chat.models.mistral-codestral]
 api_key = "YOUR_MISTRALAI_API_KEY"
@@ -161,6 +176,7 @@ model_input_pricing_per_1k = 0.0003
 model_max_tokens = 256000
 model_name = "codestral-latest"
 model_output_pricing_per_1k = 0.0009
+reasoning_effort = false
 
 [chat.models.pixtral-large]
 api_key = "YOUR_MISTRALAI_API_KEY"
@@ -168,6 +184,7 @@ model_input_pricing_per_1k = 0.002
 model_max_tokens = 128000
 model_name = "pixtral-large-latest"
 model_output_pricing_per_1k = 0.006
+reasoning_effort = false
 
 # ==================================
 # Anthropic models
@@ -178,6 +195,7 @@ model_input_pricing_per_1k = 0.0008
 model_max_tokens = 8192
 model_name = "claude-3-5-haiku-latest"
 model_output_pricing_per_1k = 0.004
+reasoning_effort = false
 
 [chat.models.anthropic-sonnet-legacy]
 api_key = "YOUR_ANTHROPIC_API_KEY"
@@ -185,6 +203,7 @@ model_input_pricing_per_1k = 0.003
 model_max_tokens = 8192
 model_name = "claude-3-5-sonnet-latest"
 model_output_pricing_per_1k = 0.015
+reasoning_effort = false
 
 [chat.models.anthropic-sonnet-latest]
 api_key = "YOUR_ANTHROPIC_API_KEY"
@@ -192,13 +211,7 @@ model_input_pricing_per_1k = 0.003
 model_max_tokens = 64000
 model_name = "claude-3-7-sonnet-latest"
 model_output_pricing_per_1k = 0.015
-
-[chat.models.anthropic-sonnet-latest-thinking]
-api_key = "YOUR_ANTHROPIC_API_KEY"
-model_input_pricing_per_1k = 0.003
-model_max_tokens = 64000
-model_name = "claude-3-7-sonnet-latest"
-model_output_pricing_per_1k = 0.015
+reasoning_effort = "medium"
 
 [chat.models.anthropic-opus]
 api_key = "YOUR_ANTHROPIC_API_KEY"
@@ -206,6 +219,7 @@ model_input_pricing_per_1k = 0.015
 model_max_tokens = 4096
 model_name = "claude-3-opus-latest"
 model_output_pricing_per_1k = 0.075
+reasoning_effort = false
 
 # ==================================
 # xAI models
@@ -216,6 +230,7 @@ model_input_pricing_per_1k = 0.003
 model_max_tokens = 131072
 model_name = "grok-3-latest"
 model_output_pricing_per_1k = 0.015
+reasoning_effort = false
 
 [chat.models.grok-3-fast]
 api_key = "YOUR_GROK_API_KEY"
@@ -223,6 +238,7 @@ model_input_pricing_per_1k = 0.005
 model_max_tokens = 131072
 model_name = "grok-3-fast-latest"
 model_output_pricing_per_1k = 0.025
+reasoning_effort = false
 
 [chat.models.grok-3-mini]
 api_key = "YOUR_GROK_API_KEY"
@@ -230,6 +246,7 @@ model_input_pricing_per_1k = 0.0003
 model_max_tokens = 131072
 model_name = "grok-3-mini-latest"
 model_output_pricing_per_1k = 0.0005
+reasoning_effort = "medium"
 
 [chat.models.grok-3-mini-fast]
 api_key = "YOUR_GROK_API_KEY"
@@ -237,6 +254,7 @@ model_input_pricing_per_1k = 0.0006
 model_max_tokens = 131072
 model_name = "grok-3-mini-fast-latest"
 model_output_pricing_per_1k = 0.004
+reasoning_effort = "medium"
 
 [chat.models.grok-2-vision]
 api_key = "YOUR_GROK_API_KEY"
@@ -244,30 +262,26 @@ model_input_pricing_per_1k = 0.002
 model_max_tokens = 32768
 model_name = "grok-2-vision-latest"
 model_output_pricing_per_1k = 0.01
+reasoning_effort = false
 
 # ==================================
 # Google models
 # ==================================
-[chat.models.gemini-flash-thinking-exp]
-api_key = "YOUR_GEMINI_API_KEY"
-model_input_pricing_per_1k = 0.0001
-model_max_tokens = 8192
-model_name = "gemini-2.0-flash-thinking-exp"
-model_output_pricing_per_1k = 0.0004
-
 [chat.models.gemini-flash]
 api_key = "YOUR_GEMINI_API_KEY"
 model_input_pricing_per_1k = 0.00015
 model_max_tokens = 65536
 model_name = "gemini-2.5-flash-preview-04-17"
 model_output_pricing_per_1k = 0.0006
+reasoning_effort = "medium"
 
-[chat.models.gemini-pro-tinking-exp]
+[chat.models.gemini-pro-exp]
 api_key = "YOUR_GEMINI_API_KEY"
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
 model_name = "gemini-2.5-pro-exp-03-25"
 model_output_pricing_per_1k = 0.00
+reasoning_effort = "medium"
 
 [chat.models.gemini-pro]
 api_key = "YOUR_GEMINI_API_KEY"
@@ -275,6 +289,7 @@ model_input_pricing_per_1k = 0.00125
 model_max_tokens = 8192
 model_name = "gemini-2.5-pro-preview-03-25"
 model_output_pricing_per_1k = 0.01
+reasoning_effort = "medium"
 
 # ==================================
 # DeepSeek models
@@ -285,6 +300,7 @@ model_input_pricing_per_1k = 0.00027
 model_max_tokens = 8192
 model_name = "deepseek-chat"
 model_output_pricing_per_1k = 0.0011
+reasoning_effort = false
 
 [chat.models.deepseek-reasoner]
 api_key = "YOUR_DEEPSEEK_API_KEY"
@@ -292,6 +308,7 @@ model_input_pricing_per_1k = 0.00055
 model_max_tokens = 8192
 model_name = "deepseek-reasoner"
 model_output_pricing_per_1k = 0.00219
+reasoning_effort = false
 
 # ==================================
 # Alibaba Cloud models
@@ -302,6 +319,7 @@ model_input_pricing_per_1k = 0.00005
 model_max_tokens = 8192
 model_name = "qwen-turbo-latest"
 model_output_pricing_per_1k = 0.0002
+reasoning_effort = false
 
 [chat.models.qwen-plus]
 api_key = "YOUR_ALIBABA_API_KEY"
@@ -309,6 +327,7 @@ model_input_pricing_per_1k = 0.0004
 model_max_tokens = 8192
 model_name = "qwen-plus-latest"
 model_output_pricing_per_1k = 0.0012
+reasoning_effort = false
 
 [chat.models.qwen-max]
 api_key = "YOUR_ALIBABA_API_KEY"
@@ -316,6 +335,7 @@ model_input_pricing_per_1k = 0.0016
 model_max_tokens = 8192
 model_name = "qwen-max-latest"
 model_output_pricing_per_1k = 0.0064
+reasoning_effort = false
 
 [chat.models.qwq-plus]
 api_key = "YOUR_ALIBABA_API_KEY"
@@ -323,6 +343,7 @@ model_input_pricing_per_1k = 0.0008
 model_max_tokens = 8192
 model_name = "qwq-plus"
 model_output_pricing_per_1k = 0.0024
+reasoning_effort = false
 
 # ==================================
 # Inception Lab models
@@ -333,6 +354,7 @@ model_input_pricing_per_1k = 0.00
 model_max_tokens = 32000
 model_name = "mercury-coder-small"
 model_output_pricing_per_1k = 0.00
+reasoning_effort = false
 
 [chat.models.mercury-coder-mini]
 api_key = "YOUR_MERCURY_API_KEY"
@@ -340,3 +362,4 @@ model_input_pricing_per_1k = 0.00
 model_max_tokens = 32000
 model_name = "mercury-coder-mini"
 model_output_pricing_per_1k = 0.00
+reasoning_effort = false

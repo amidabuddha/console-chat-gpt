@@ -23,6 +23,7 @@ def chat(console, data, managed_user_prompt) -> None:
         model_name,
         model_output_pricing_per_1k,
         model_title,
+        reasoning_effort
     ) = data.model.values()
 
     client = (
@@ -111,8 +112,8 @@ def chat(console, data, managed_user_prompt) -> None:
             }
             if cached is not False:
                 params["cached"] = cached
-            if model_title == "anthropic-sonnet-latest-thinking":
-                params["thinking"] = True
+            if reasoning_effort:
+                params["reasoning_effort"] = reasoning_effort
 
             response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
 
