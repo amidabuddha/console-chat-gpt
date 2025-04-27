@@ -23,7 +23,7 @@ tools = [
             "properties": {
                 "model": {
                     "type": "string",
-                    "enum": ["gpt-41", "gpt-41-mini", "o1", "o3-mini"],
+                    "enum": ["gpt-41", "gpt-41-mini", "o1", "o4-mini"],
                     "description": "The selected AI model based on query analysis",
                 },
                 "messages": {
@@ -94,10 +94,14 @@ def get_client(assistant):
 
 @sigint_wrapper
 def send_request(client, assistant, conversation):
+    if "reasoning_effort" in assistant:
+        reasoning_effort = assistant["reasoning_effort"]
+    else:
+        reasoning_effort = False
     role = {"role": "system", "content": assistant["role"]}
     conversation.insert(0, role)
     response = client.chat.completions.create(
-        model=assistant["model_name"], messages=conversation, stream=False, tools=tools
+        model=assistant["model_name"], messages=conversation, stream=False, tools=tools, reasoning_effort=reasoning_effort
     )
     return response.choices[0].message.tool_calls
 
