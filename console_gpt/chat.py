@@ -1,3 +1,4 @@
+from pandas import read_sas
 from unichat import UnifiedChatApi
 from unichat.api_helper import openai
 
@@ -22,8 +23,8 @@ def chat(console, data, managed_user_prompt) -> None:
         model_max_tokens,
         model_name,
         model_output_pricing_per_1k,
-        model_title,
         reasoning_effort,
+        model_title,
     ) = data.model.values()
 
     client = (
