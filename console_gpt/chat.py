@@ -16,15 +16,30 @@ from mcp_servers.server_manager import ServerManager
 
 def chat(console, data, managed_user_prompt) -> None:
     # Assign all variables at once via the Object returned by the menu
-    (
-        api_key,
-        model_input_pricing_per_1k,
-        model_max_tokens,
-        model_name,
-        model_output_pricing_per_1k,
-        reasoning_effort,
-        model_title,
-    ) = data.model.values()
+
+
+    # Handle out-of-date config.toml
+    if "reasoning_effort" in data.model:
+        (
+            api_key,
+            model_input_pricing_per_1k,
+            model_max_tokens,
+            model_name,
+            model_output_pricing_per_1k,
+            reasoning_effort,
+            model_title,
+        ) = data.model.values()
+    else:
+        (
+            api_key,
+            model_input_pricing_per_1k,
+            model_max_tokens,
+            model_name,
+            model_output_pricing_per_1k,
+            model_title,
+        ) = data.model.values()
+        reasoning_effort = False
+        custom_print("warn", f'Parameter "reasoning_effort" for model {model_name} is missing from config.toml. Consult config.toml.sample for examples. Defaulting to False.')
 
     client = (
         openai.OpenAI(base_url="http://localhost:11434/v1", api_key=api_key)
@@ -33,6 +48,7 @@ def chat(console, data, managed_user_prompt) -> None:
     )
     conversation = data.conversation
     temperature = data.temperature
+
     cached = model_title.startswith("anthropic")
     tools = []
     if fetch_variable("features", "mcp_client"):
