@@ -1,7 +1,6 @@
 > Features:
 - [59c1d33] [Feature] Customize reasoning effort per model
 - [f6e15db] [Feature] Add Gemini 2.5 Flash
-- [3dabeac] [Feature] Add o3 and o4-mini
 
 > Improvements:
 - [d02c25a] [Improvement] Add reasoning to AI managed mode
