@@ -89,7 +89,10 @@ def get_client(assistant):
     Init the client
     :param assistant: Data from the config
     """
-    return UnifiedChatApi(api_key=assistant["api_key"])
+    assistant_params = {"api_key": assistant["api_key"]}
+    if assistant["base_url"]:
+        assistant_params["base_url"] = assistant["base_url"]
+    return UnifiedChatApi(**assistant_params)
 
 
 @sigint_wrapper

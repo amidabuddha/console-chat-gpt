@@ -21,6 +21,7 @@ def chat(console, data, managed_user_prompt) -> None:
     if "reasoning_effort" in data.model:
         (
             api_key,
+            base_url,
             model_input_pricing_per_1k,
             model_max_tokens,
             model_name,
@@ -31,6 +32,7 @@ def chat(console, data, managed_user_prompt) -> None:
     else:
         (
             api_key,
+            base_url,
             model_input_pricing_per_1k,
             model_max_tokens,
             model_name,
@@ -43,10 +45,14 @@ def chat(console, data, managed_user_prompt) -> None:
             f'Parameter "reasoning_effort" for model {model_name} is missing from config.toml. Consult config.toml.sample for examples. Defaulting to False.',
         )
 
+    client_params = {"api_key": api_key}
+    if base_url:
+        client_params["base_url"] = base_url
+
     client = (
-        openai.OpenAI(base_url="http://localhost:11434/v1", api_key=api_key)
+        openai.OpenAI(**client_params)
         if model_title == "ollama"
-        else UnifiedChatApi(api_key=api_key)
+        else UnifiedChatApi(**client_params)
     )
     conversation = data.conversation
     temperature = data.temperature
