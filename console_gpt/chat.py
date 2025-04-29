@@ -15,24 +15,30 @@ from mcp_servers.server_manager import ServerManager
 
 
 def chat(console, data, managed_user_prompt) -> None:
-    # Assign all variables at once via the Object returned by the menu
-
     # Handle out-of-date config.toml
-    try:
-        (
-            api_key,
-            base_url,
-            model_input_pricing_per_1k,
-            model_max_tokens,
-            model_name,
-            model_output_pricing_per_1k,
-            reasoning_effort,
-            model_title,
-        ) = data.model.values()
-    except ValueError:
+    model_data = data.model
+    api_key = model_data.get('api_key')
+    base_url = model_data.get('base_url')
+    # Unused anyway, no need to load them and waste time.
+    # model_input_pricing_per_1k = model_data.get('model_input_pricing_per_1k') 
+    # model_max_tokens = model_data.get('model_max_tokens')
+    # model_output_pricing_per_1k = model_data.get('model_output_pricing_per_1k')
+    model_name = model_data.get('model_name')
+    reasoning_effort = model_data.get('reasoning_effort')
+    model_title = model_data.get('model_title')
+    
+    required_values = {
+        "api_key": api_key,
+        "base_url": base_url,
+        "model_name": model_name,
+        "model_title": model_title,
+        "reasoning_effort": reasoning_effort
+    }
+    missing_keys = [key for key, value in required_values.items() if value is None]
+    if missing_keys:
         custom_print(
             "exit",
-            f"Required parameters for model are missing from config.toml. Consult config.toml.sample for examples.",
+            f"Required parameters for model are missing from config.toml (missing: {', '.join(missing_keys)}). Consult config.toml.sample for examples.",
             1,
         )
 

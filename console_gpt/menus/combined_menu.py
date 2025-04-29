@@ -34,7 +34,7 @@ def combined_menu() -> ChatObject | AssistantObject:
     """
 
     model = model_menu()
-    if model["api_key"] in api_key_placeholders:
+    if model.get("api_key") in api_key_placeholders:
         model = set_api_key(model)
     assistant = assistant_menu(model) if model["model_title"].lower().startswith(("gpt", "o1", "o3")) else None
     if assistant:
