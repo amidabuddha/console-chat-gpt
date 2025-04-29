@@ -32,7 +32,9 @@ def chat(console, data, managed_user_prompt) -> None:
     except ValueError:
         custom_print(
             "exit",
-            f'Required parameters for model are missing from config.toml. Consult config.toml.sample for examples.', 1)
+            f"Required parameters for model are missing from config.toml. Consult config.toml.sample for examples.",
+            1,
+        )
 
     client_params = {"api_key": api_key}
     if base_url:

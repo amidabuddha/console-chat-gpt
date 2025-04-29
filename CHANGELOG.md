@@ -4,6 +4,7 @@
 - [f6e15db] [Feature] Add Gemini 2.5 Flash
 
 > Improvements:
+- [116e98e] [Improvement] Catch out-of-date model data in config.toml
 - [d02c25a] [Improvement] Add reasoning to AI managed mode
 
 > Bug Fixes:
