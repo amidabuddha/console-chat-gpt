@@ -17,22 +17,22 @@ from mcp_servers.server_manager import ServerManager
 def chat(console, data, managed_user_prompt) -> None:
     # Handle out-of-date config.toml
     model_data = data.model
-    api_key = model_data.get('api_key')
-    base_url = model_data.get('base_url')
+    api_key = model_data.get("api_key")
+    base_url = model_data.get("base_url")
     # Unused anyway, no need to load them and waste time.
-    # model_input_pricing_per_1k = model_data.get('model_input_pricing_per_1k') 
+    # model_input_pricing_per_1k = model_data.get('model_input_pricing_per_1k')
     # model_max_tokens = model_data.get('model_max_tokens')
     # model_output_pricing_per_1k = model_data.get('model_output_pricing_per_1k')
-    model_name = model_data.get('model_name')
-    reasoning_effort = model_data.get('reasoning_effort')
-    model_title = model_data.get('model_title')
-    
+    model_name = model_data.get("model_name")
+    reasoning_effort = model_data.get("reasoning_effort")
+    model_title = model_data.get("model_title")
+
     required_values = {
         "api_key": api_key,
         "base_url": base_url,
         "model_name": model_name,
         "model_title": model_title,
-        "reasoning_effort": reasoning_effort
+        "reasoning_effort": reasoning_effort,
     }
     missing_keys = [key for key, value in required_values.items() if value is None]
     if missing_keys:

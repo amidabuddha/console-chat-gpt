@@ -1,7 +1,6 @@
 > Features:
 - [7d1e974] [Feature] Support custom base_url per model
 - [59c1d33] [Feature] Customize reasoning effort per model
-- [f6e15db] [Feature] Add Gemini 2.5 Flash
 
 > Improvements:
 - [116e98e] [Improvement] Catch out-of-date model data in config.toml
@@ -11,6 +10,7 @@
 - [62c451b] [BugFix] Get reasoning_effort value properly
 
 > Others:
+- [b4e8bbe] [Other] Handle config options in mixed order
 - [833b7ec] [Others] Remove unused import
 
 
