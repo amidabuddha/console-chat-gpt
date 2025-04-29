@@ -18,7 +18,7 @@ def chat(console, data, managed_user_prompt) -> None:
     # Assign all variables at once via the Object returned by the menu
 
     # Handle out-of-date config.toml
-    if "reasoning_effort" in data.model:
+    try:
         (
             api_key,
             base_url,
@@ -29,21 +29,10 @@ def chat(console, data, managed_user_prompt) -> None:
             reasoning_effort,
             model_title,
         ) = data.model.values()
-    else:
-        (
-            api_key,
-            base_url,
-            model_input_pricing_per_1k,
-            model_max_tokens,
-            model_name,
-            model_output_pricing_per_1k,
-            model_title,
-        ) = data.model.values()
-        reasoning_effort = False
+    except ValueError:
         custom_print(
-            "warn",
-            f'Parameter "reasoning_effort" for model {model_name} is missing from config.toml. Consult config.toml.sample for examples. Defaulting to False.',
-        )
+            "exit",
+            f'Required parameters for model are missing from config.toml. Consult config.toml.sample for examples.', 1)
 
     client_params = {"api_key": api_key}
     if base_url:
