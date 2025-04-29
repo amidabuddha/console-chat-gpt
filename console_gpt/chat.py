@@ -49,11 +49,7 @@ def chat(console, data, managed_user_prompt) -> None:
     if base_url:
         client_params["base_url"] = base_url
 
-    client = (
-        openai.OpenAI(**client_params)
-        if model_title == "ollama"
-        else UnifiedChatApi(**client_params)
-    )
+    client = openai.OpenAI(**client_params) if model_title == "ollama" else UnifiedChatApi(**client_params)
     conversation = data.conversation
     temperature = data.temperature
 
