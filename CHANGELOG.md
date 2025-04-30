@@ -1,8 +1,8 @@
 > Features:
 - [7d1e974] [Feature] Support custom base_url per model
-- [59c1d33] [Feature] Customize reasoning effort per model
 
 > Improvements:
+- [0fac833] [Improvement] Allow any OpenAI compatible model
 - [116e98e] [Improvement] Catch out-of-date model data in config.toml
 - [d02c25a] [Improvement] Add reasoning to AI managed mode
 
