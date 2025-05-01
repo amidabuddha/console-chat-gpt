@@ -9,7 +9,6 @@
 > Others:
 - [accc3b2] [Other] Patch markdownify due to vulnerability as per Dependabot #3
 - [b4e8bbe] [Other] Handle config options in mixed order
-- [833b7ec] [Others] Remove unused import
 
 
 ---
