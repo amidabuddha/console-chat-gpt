@@ -48,6 +48,7 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibab
 
 ## Features
 
+- :new: Run any OpenAI SDK compatible model - just add the model structure with the relevant `model_name` and `base_url` to the `config.toml` file. :new:
 - :star: Run [**Ollama**](https://ollama.com) hosted models locally. _Ollama should be installed and the selected models to be already downloaded_  :star:
 - :star: [**Anthropic Prompt caching**](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) Fully supported :star:
 - :star: [Model Context Protocol (MCP)](https://modelcontextprotocol.io) supported! If you are already using MCP servers just copy your `claude_desktop_config.json` to the root directory and rename to `mcp_config.json` to start using with any model! :star:
