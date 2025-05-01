@@ -5,7 +5,6 @@
 > Improvements:
 - [0fac833] [Improvement] Allow any OpenAI compatible model
 - [116e98e] [Improvement] Catch out-of-date model data in config.toml
-- [d02c25a] [Improvement] Add reasoning to AI managed mode
 
 > Others:
 - [accc3b2] [Other] Patch markdownify due to vulnerability as per Dependabot #3
