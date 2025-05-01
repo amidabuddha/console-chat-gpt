@@ -110,24 +110,6 @@ model_name = "gpt-4.1"
 model_output_pricing_per_1k = 0.008
 reasoning_effort = false
 
-[chat.models.o1-mini]
-api_key = "YOUR_OPENAI_API_KEY"
-base_url = ""
-model_input_pricing_per_1k = 0.0011
-model_max_tokens = 65536
-model_name = "o1-mini"
-model_output_pricing_per_1k = 0.0044
-reasoning_effort = "medium"
-
-[chat.models.o1-preview]
-api_key = "YOUR_OPENAI_API_KEY"
-base_url = ""
-model_input_pricing_per_1k = 0.015
-model_max_tokens = 32768
-model_name = "o1-preview"
-model_output_pricing_per_1k = 0.06
-reasoning_effort = "medium"
-
 [chat.models.o1]
 api_key = "YOUR_OPENAI_API_KEY"
 model_input_pricing_per_1k = 0.015
@@ -370,6 +352,15 @@ model_name = "qwen-max-latest"
 model_output_pricing_per_1k = 0.0064
 reasoning_effort = false
 
+[chat.models.qvq-max]
+api_key = "YOUR_ALIBABA_API_KEY"
+base_url = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+model_input_pricing_per_1k = 0.0008
+model_max_tokens = 8192
+model_name = "qvq-max-latest"
+model_output_pricing_per_1k = 0.0024
+reasoning_effort = false
+
 [chat.models.qwq-plus]
 api_key = "YOUR_ALIBABA_API_KEY"
 base_url = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
@@ -388,14 +379,5 @@ base_url = "https://api.inceptionlabs.ai/v1"
 model_input_pricing_per_1k = 0.00
 model_max_tokens = 32000
 model_name = "mercury-coder-small"
-model_output_pricing_per_1k = 0.00
-reasoning_effort = false
-
-[chat.models.mercury-coder-mini]
-api_key = "YOUR_MERCURY_API_KEY"
-base_url = "https://api.inceptionlabs.ai/v1"
-model_input_pricing_per_1k = 0.00
-model_max_tokens = 32000
-model_name = "mercury-coder-mini"
 model_output_pricing_per_1k = 0.00
 reasoning_effort = false
