@@ -355,10 +355,10 @@ reasoning_effort = false
 [chat.models.qvq-max]
 api_key = "YOUR_ALIBABA_API_KEY"
 base_url = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
-model_input_pricing_per_1k = 0.0008
+model_input_pricing_per_1k = 0.00
 model_max_tokens = 8192
-model_name = "qvq-max-latest"
-model_output_pricing_per_1k = 0.0024
+model_name = "qvq-max"
+model_output_pricing_per_1k = 0.00
 reasoning_effort = false
 
 [chat.models.qwq-plus]
