@@ -49,7 +49,7 @@ def get_models():
             MODELS_LIST["gemini_models"].append(model_name)
         elif "deepseek" in model:
             MODELS_LIST["deepseek_models"].append(model_name)
-        elif "qwen" in model or "qwq" in model:
+        elif "qwen" in model or "qwq" in model or "qvq" in model:
             MODELS_LIST["alibaba_models"].append(model_name)
         elif "mercury" in model:
             MODELS_LIST["inception_models"].append(model_name)
