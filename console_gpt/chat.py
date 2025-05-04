@@ -155,30 +155,33 @@ def chat(console, data, managed_user_prompt) -> None:
 
                 response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
 
-        if response not in ["interrupted", "error_appeared"] and streaming:
-            conversation = (
-                handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation))
-                if use_responses
-                else handle_with_exceptions(lambda: handle_streaming_completion(model_name, response, conversation))
-            )
+        if response not in ["interrupted", "error_appeared"]:
+            if streaming:
+                attempted_conversation = (
+                    handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation))
+                    if use_responses
+                    else handle_with_exceptions(lambda: handle_streaming_completion(model_name, response, conversation))
+                )
+                if attempted_conversation not in ["interrupted", "error_appeared"]:
+                    conversation = attempted_conversation
+                else:
+                    response = attempted_conversation # Replacing it with "response" so it can be automatically handled
 
-        if response not in ["interrupted", "error_appeared"] and not streaming:
-            conversation = (
-                handle_non_streaming_response(model_name, response, conversation)
-                if use_responses
-                else handle_non_streaming_completion(model_name, response, conversation)
-            )
+            else:
+                conversation = (
+                    handle_non_streaming_response(model_name, response, conversation)
+                    if use_responses
+                    else handle_non_streaming_completion(model_name, response, conversation)
+                )
 
-        elif response == "interrupted":
+        if response == "interrupted":
             last_user_index = next((i for i, msg in enumerate(reversed(conversation)) if msg["role"] == "user"), None)
 
             if last_user_index is not None:
                 conversation = conversation[: len(conversation) - 1 - last_user_index]
             continue
-        elif response == "error_appeared":
-            error_appeared = True
 
-        if error_appeared:
+        if response == "error_appeared":
             if model_title == "ollama":
                 custom_print("warn", "Restarting Ollama Server...")
                 start_ollama()
