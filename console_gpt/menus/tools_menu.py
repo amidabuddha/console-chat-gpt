@@ -1,3 +1,4 @@
+from unichat import UnifiedChatApi
 from console_gpt.menus.skeleton_menus import (base_multiselect_menu,
                                               preview_multiselect_menu)
 from mcp_servers.mcp_tcp_client import MCPClient
@@ -62,3 +63,14 @@ def transform_tools_selection(tools_selection, tools_definitions):
             result.append(transformed_tool)
 
     return result
+
+def response_tools(tools):
+    helper = UnifiedChatApi(api_key="")
+    transformed_tools = helper._api_helper.transform_tools(helper._api_helper.normalize_tools(tools))
+    opeanai_tools = []
+    for tool in transformed_tools:
+        opeanai_tools.append({
+            'type': tool['type'],
+            **tool['function']
+        })
+    return opeanai_tools

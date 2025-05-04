@@ -8,7 +8,7 @@ from console_gpt.prompts.assistant_prompt import assistance_reply
 from mcp_servers.mcp_tcp_client import MCPClient
 
 
-def handle_streaming_response(model_name, response_stream, conversation):
+def handle_streaming_completion(model_name, response_stream, conversation):
     """Handle streaming response and tool calls."""
     if (
         isinstance(conversation[-1], str)
@@ -109,8 +109,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
                 conversation.append(result)
     return conversation
 
-
-def handle_non_streaming_response(model_name, response, conversation):
+def handle_non_streaming_completion(model_name, response, conversation):
     """Handle non-streaming response and tool calls."""
     assistant_response = {
         "role": "assistant",
@@ -190,3 +189,93 @@ def handle_non_streaming_response(model_name, response, conversation):
                 conversation.append(result)
 
     return conversation
+
+def handle_streaming_response(model_name, response_stream, conversation):
+    """Handle streaming response and tool calls."""
+    if isinstance(conversation[-1], str) or conversation[-1].get("type") != "function_call_output":
+        assistance_reply("", model_name)
+
+    reasoning_content = ""
+    current_content = ""
+
+    with Live(refresh_per_second=10) as live:
+        for event in response_stream:
+
+            if event.type == "response.reasoning_summary_text.delta":
+                reasoning_content += event.delta
+                rmd = Markdown(reasoning_content, code_theme="dracula")
+                live.update(rmd)
+
+            if event.type == "response.reasoning_summary_text.done":
+                reasoning_content += "\n\n"
+
+            if event.type == "response.output_text.delta":
+                current_content += event.delta
+                formatted_content = (
+                    f"{reasoning_content}\n\n\n***** **REASONING END** *****\n\n\n{current_content}"
+                    if reasoning_content
+                    else current_content
+                )
+                md = Markdown(formatted_content, code_theme="dracula")
+                live.update(md)
+
+            if event.type == "response.completed":
+                conversation.extend(response_parser(event.response.output))
+
+    return conversation
+
+def handle_non_streaming_response(model_name, response, conversation):
+    """Handle non-streaming response and tool calls."""
+
+    for output in response.output:
+        # Handle reasoning content
+        if output.type == "reasoning":
+            assistance_reply("", f"{model_name} Reasoning")
+            for summary in output.summary:
+                markdown_print(summary.text)
+        if output.type == "message":
+            assistance_reply(output.content[0].text, model_name)
+
+    conversation.extend(response_parser(response.output))
+
+    return conversation
+
+def response_parser(output):
+    dict_output = []
+    reasoning_output = []
+    for o in output:
+        if o.type == "reasoning":
+            reasoning_output.append(o.to_dict())
+        if o.type == "message":
+            assistant_response = {
+                "role": "assistant",
+                "content": o.content[0].text,
+            }
+            dict_output.append(assistant_response)
+        if o.type == "function_call":
+            dict_output.extend(reasoning_output)
+            dict_output.append(o.model_dump())
+            tool_name = o.name
+            function_arguments = o.arguments
+            if function_arguments:
+                tool_arguments = json.loads(function_arguments)
+            else:
+                tool_arguments = {}
+            markdown_print(f"> Triggered: `{tool_name}`.")
+            try:
+                with MCPClient() as mcp:
+                    result = {
+                        "type": "function_call_output",
+                        "call_id": o.call_id,
+                        "output": str(mcp.call_tool(tool_name, tool_arguments)),
+                    }
+                    dict_output.append(result)
+            except Exception as e:
+                custom_print("error", f"Error calling tool: {e}")
+                result = {
+                    "type": "function_call_output",
+                    "call_id": o.call_id,
+                    "output": str(e),
+                }
+                dict_output.append(result)
+    return dict_output

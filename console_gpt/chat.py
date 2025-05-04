@@ -1,14 +1,16 @@
 from unichat import UnifiedChatApi
+from unichat import MODELS_LIST
 from unichat.api_helper import openai
 
 from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
+from console_gpt.menus.tools_menu import response_tools
 from console_gpt.ollama_helper import start_ollama
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
-from console_gpt.unichat_handler import (handle_non_streaming_response,
+from console_gpt.unichat_handler import (handle_non_streaming_completion, handle_non_streaming_response, handle_streaming_completion,
                                          handle_streaming_response)
 from mcp_servers.mcp_tcp_client import MCPClient
 from mcp_servers.server_manager import ServerManager
@@ -46,7 +48,11 @@ def chat(console, data, managed_user_prompt) -> None:
     if base_url:
         client_params["base_url"] = base_url
 
-    client = openai.OpenAI(**client_params) if model_title == "ollama" else UnifiedChatApi(**client_params)
+    use_responses = model_name in MODELS_LIST["openai_models"]
+    if use_responses:
+        client = openai.OpenAI(api_key=api_key)
+    else:
+        client = openai.OpenAI(**client_params) if model_title == "ollama" else UnifiedChatApi(**client_params)
     conversation = data.conversation
     temperature = data.temperature
 
@@ -75,18 +81,9 @@ def chat(console, data, managed_user_prompt) -> None:
         response = ""  # Adding this to satisfy the IDE
         error_appeared = False  # Used when the API returns an exception
         # Check if we're not in the middle of a tool call
-        if (
-            not conversation
-            or (
-                isinstance(conversation[-1], str)
-                or getattr(
-                    conversation[-1],
-                    "role",
-                    None if isinstance(conversation[-1], str) else conversation[-1].get("role", None),
-                )
-            )
-            != "tool"
-        ):
+        if (not conversation
+            or isinstance(conversation[-1], str)
+            or (conversation[-1].get("role") != "tool" and conversation[-1].get("type") != "function_call_output")):
             if managed_user_prompt:
                 user_input = managed_user_prompt
                 managed_user_prompt = False
@@ -120,25 +117,47 @@ def chat(console, data, managed_user_prompt) -> None:
         streaming = fetch_variable("features", "streaming")
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
-            params = {
-                "model": model_name,
-                "messages": conversation,
-                "temperature": temperature,
-                "tools": tools,
-                "stream": streaming,
-            }
-            if cached is not False:
-                params["cached"] = cached
-            if reasoning_effort:
-                params["reasoning_effort"] = reasoning_effort
+            if use_responses:
+                params = {
+                    "model": model_name,
+                    "input": conversation[1:] if conversation[0]["role"] == "system" else conversation,
+                    "stream": streaming,
+                }
+                if conversation[0]["role"] == "system":
+                    params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
+                if tools is not False:
+                    res_tools = response_tools(tools)
+                    # res_tools.append({"type": "web_search_preview"})
+                    params["tools"] = res_tools
+                    params["parallel_tool_calls"] = False
+                if reasoning_effort:
+                    params.setdefault("reasoning", {})["effort"] = reasoning_effort
+                    params["reasoning"]["summary"] = "detailed"
+                else:
+                    params["temperature"] = temperature
 
-            response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
+                response = handle_with_exceptions(lambda: client.responses.create(**params))
+            else:
+                params = {
+                    "model": model_name,
+                    "messages": conversation,
+                    "temperature": temperature,
+                    "tools": tools,
+                    "stream": streaming,
+                }
+                if cached is not False:
+                    params["cached"] = cached
+                if reasoning_effort:
+                    params["reasoning_effort"] = reasoning_effort
+
+                response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
 
         if response not in ["interrupted", "error_appeared"] and streaming:
-            conversation = handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation))
+            conversation = handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation)) if use_responses else handle_with_exceptions(lambda: handle_streaming_completion(model_name, response, conversation))
 
         if response not in ["interrupted", "error_appeared"] and not streaming:
-            conversation = handle_non_streaming_response(model_name, response, conversation)
+            conversation = handle_non_streaming_response(model_name, response, conversation) if use_responses else handle_non_streaming_completion(model_name, response, conversation)
+
         elif response == "interrupted":
             last_user_index = next((i for i, msg in enumerate(reversed(conversation)) if msg["role"] == "user"), None)
 
