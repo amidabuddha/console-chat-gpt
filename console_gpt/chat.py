@@ -1,5 +1,4 @@
-from unichat import UnifiedChatApi
-from unichat import MODELS_LIST
+from unichat import MODELS_LIST, UnifiedChatApi
 from unichat.api_helper import openai
 
 from console_gpt.catch_errors import handle_with_exceptions
@@ -10,7 +9,9 @@ from console_gpt.menus.tools_menu import response_tools
 from console_gpt.ollama_helper import start_ollama
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
-from console_gpt.unichat_handler import (handle_non_streaming_completion, handle_non_streaming_response, handle_streaming_completion,
+from console_gpt.unichat_handler import (handle_non_streaming_completion,
+                                         handle_non_streaming_response,
+                                         handle_streaming_completion,
                                          handle_streaming_response)
 from mcp_servers.mcp_tcp_client import MCPClient
 from mcp_servers.server_manager import ServerManager
@@ -81,9 +82,11 @@ def chat(console, data, managed_user_prompt) -> None:
         response = ""  # Adding this to satisfy the IDE
         error_appeared = False  # Used when the API returns an exception
         # Check if we're not in the middle of a tool call
-        if (not conversation
+        if (
+            not conversation
             or isinstance(conversation[-1], str)
-            or (conversation[-1].get("role") != "tool" and conversation[-1].get("type") != "function_call_output")):
+            or (conversation[-1].get("role") != "tool" and conversation[-1].get("type") != "function_call_output")
+        ):
             if managed_user_prompt:
                 user_input = managed_user_prompt
                 managed_user_prompt = False
@@ -153,10 +156,18 @@ def chat(console, data, managed_user_prompt) -> None:
                 response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
 
         if response not in ["interrupted", "error_appeared"] and streaming:
-            conversation = handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation)) if use_responses else handle_with_exceptions(lambda: handle_streaming_completion(model_name, response, conversation))
+            conversation = (
+                handle_with_exceptions(lambda: handle_streaming_response(model_name, response, conversation))
+                if use_responses
+                else handle_with_exceptions(lambda: handle_streaming_completion(model_name, response, conversation))
+            )
 
         if response not in ["interrupted", "error_appeared"] and not streaming:
-            conversation = handle_non_streaming_response(model_name, response, conversation) if use_responses else handle_non_streaming_completion(model_name, response, conversation)
+            conversation = (
+                handle_non_streaming_response(model_name, response, conversation)
+                if use_responses
+                else handle_non_streaming_completion(model_name, response, conversation)
+            )
 
         elif response == "interrupted":
             last_user_index = next((i for i, msg in enumerate(reversed(conversation)) if msg["role"] == "user"), None)

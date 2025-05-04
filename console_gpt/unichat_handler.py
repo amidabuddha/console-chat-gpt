@@ -109,6 +109,7 @@ def handle_streaming_completion(model_name, response_stream, conversation):
                 conversation.append(result)
     return conversation
 
+
 def handle_non_streaming_completion(model_name, response, conversation):
     """Handle non-streaming response and tool calls."""
     assistant_response = {
@@ -190,6 +191,7 @@ def handle_non_streaming_completion(model_name, response, conversation):
 
     return conversation
 
+
 def handle_streaming_response(model_name, response_stream, conversation):
     """Handle streaming response and tool calls."""
     if isinstance(conversation[-1], str) or conversation[-1].get("type") != "function_call_output":
@@ -224,6 +226,7 @@ def handle_streaming_response(model_name, response_stream, conversation):
 
     return conversation
 
+
 def handle_non_streaming_response(model_name, response, conversation):
     """Handle non-streaming response and tool calls."""
 
@@ -239,6 +242,7 @@ def handle_non_streaming_response(model_name, response, conversation):
     conversation.extend(response_parser(response.output))
 
     return conversation
+
 
 def response_parser(output):
     dict_output = []

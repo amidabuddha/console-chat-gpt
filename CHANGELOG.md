@@ -1,4 +1,5 @@
 > Features:
+- [f5136d5] [Feature] OpenAI Responses API
 - [ac8ec65] [Feature] Add Alibaba qwen-vl models
 - [7d1e974] [Feature] Support custom base_url per model
 
