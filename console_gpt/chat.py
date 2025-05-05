@@ -165,7 +165,7 @@ def chat(console, data, managed_user_prompt) -> None:
                 if attempted_conversation not in ["interrupted", "error_appeared"]:
                     conversation = attempted_conversation
                 else:
-                    response = attempted_conversation # Replacing it with "response" so it can be automatically handled
+                    response = attempted_conversation  # Replacing it with "response" so it can be automatically handled
 
             else:
                 conversation = (
