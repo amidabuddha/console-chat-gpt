@@ -1,4 +1,5 @@
 > Features:
+- [c10571d] [Feature] Add Mistral Medium 3
 - [f5136d5] [Feature] OpenAI Responses API
 - [ac8ec65] [Feature] Add Alibaba qwen-vl models
 
@@ -10,7 +11,6 @@
 
 > Others:
 - [accc3b2] [Other] Patch markdownify due to vulnerability as per Dependabot #3
-- [b4e8bbe] [Other] Handle config options in mixed order
 
 
 ---
