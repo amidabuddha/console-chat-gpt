@@ -165,6 +165,15 @@ model_name = "mistral-saba-latest"
 model_output_pricing_per_1k = 0.0006
 reasoning_effort = false
 
+[chat.models.mistral-medium]
+api_key = "YOUR_MISTRALAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.0004
+model_max_tokens = 128000
+model_name = "mistral-medium-latest"
+model_output_pricing_per_1k = 0.002
+reasoning_effort = false
+
 [chat.models.mistral-large]
 api_key = "YOUR_MISTRALAI_API_KEY"
 base_url = ""
