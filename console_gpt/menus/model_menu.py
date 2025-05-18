@@ -2,18 +2,12 @@ from typing import Dict, Union
 
 import toml
 
-from console_gpt.config_manager import (
-    CONFIG_PATH,
-    CONFIG_SAMPLE_PATH,
-    _load_toml,
-    fetch_variable,
-)
+from console_gpt.config_manager import (CONFIG_PATH, CONFIG_SAMPLE_PATH,
+                                        _load_toml, fetch_variable)
 from console_gpt.custom_stdout import custom_print
 from console_gpt.general_utils import use_emoji_maybe
-from console_gpt.menus.skeleton_menus import (
-    base_multiselect_menu,
-    preview_multiselect_menu,
-)
+from console_gpt.menus.skeleton_menus import (base_multiselect_menu,
+                                              preview_multiselect_menu)
 from console_gpt.ollama_helper import get_ollama
 
 """
@@ -51,9 +45,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
             custom_print("info", "No new models available to add from config.toml.sample.")
             return model_menu()
         # Show preview menu for adding models
-        menu_items = [
-            {"label": k, "preview": str(sample_models[k])} for k in add_candidates
-        ]
+        menu_items = [{"label": k, "preview": str(sample_models[k])} for k in add_candidates]
         selected = preview_multiselect_menu(menu_items, "Add model(s)", preview_title="Model details", select=False)
         if selected:
             config = _load_toml(CONFIG_PATH)
@@ -71,9 +63,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
             custom_print("info", "No models available to remove.")
             return model_menu()
         # Fetch defaults
-        menu_items = [
-            {"label": k, "preview": str(all_models[k])} for k in current_models
-        ]
+        menu_items = [{"label": k, "preview": str(all_models[k])} for k in current_models]
         selected = preview_multiselect_menu(menu_items, "Remove model(s)", preview_title="Model details")
         to_remove = set(selected or [])
         # Check for protected models
@@ -83,7 +73,9 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
             custom_print("warn", f"Cannot remove model set as default model: {protected_model}. It will be kept.")
             to_remove.discard(protected_model)
         if protected_assistant:
-            custom_print("warn", f"Cannot remove model set as default assistant: {protected_assistant}. It will be kept.")
+            custom_print(
+                "warn", f"Cannot remove model set as default assistant: {protected_assistant}. It will be kept."
+            )
             to_remove.discard(protected_assistant)
         if to_remove:
             config = _load_toml(CONFIG_PATH)
@@ -101,7 +93,9 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
             custom_print("info", "No models available to set as default.")
             return model_menu()
         menu_title = "{} Select a new default model:".format(use_emoji_maybe("\U0001f916"))
-        new_default = base_multiselect_menu("Change default model", current_models, menu_title, default_model, exit=False)
+        new_default = base_multiselect_menu(
+            "Change default model", current_models, menu_title, default_model, exit=False
+        )
         if new_default and new_default in current_models:
             config = _load_toml(CONFIG_PATH)
             config["chat"]["defaults"]["model"] = new_default

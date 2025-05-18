@@ -123,7 +123,7 @@ def preview_multiselect_menu(
     preview_title: str = "Preview",
     exit: bool = False,
     exit_message: str = "Goodbye! See you later!",
-    select: bool=True
+    select: bool = True,
 ) -> Union[List[str], None]:
     """
     Creates a menu where items can be selected/unselected and each item has a preview text.
