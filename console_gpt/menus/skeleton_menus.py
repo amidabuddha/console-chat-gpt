@@ -123,6 +123,7 @@ def preview_multiselect_menu(
     preview_title: str = "Preview",
     exit: bool = False,
     exit_message: str = "Goodbye! See you later!",
+    select: bool=True
 ) -> Union[List[str], None]:
     """
     Creates a menu where items can be selected/unselected and each item has a preview text.
@@ -147,7 +148,7 @@ def preview_multiselect_menu(
     def preview_command(label: str) -> str:
         return previews.get(label, "")
 
-    preselected = [label for label in labels if label not in ["Skip", "Exit"]]
+    preselected = [label for label in labels if label not in ["Skip", "Exit"]] if select else None
 
     # Create TerminalMenu with preview
     terminal_menu = TerminalMenu(
