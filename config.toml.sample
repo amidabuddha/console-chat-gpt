@@ -296,17 +296,8 @@ api_key = "YOUR_GEMINI_API_KEY"
 base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 model_input_pricing_per_1k = 0.00015
 model_max_tokens = 65536
-model_name = "gemini-2.5-flash-preview-04-17"
+model_name = "gemini-2.5-flash-preview-05-20"
 model_output_pricing_per_1k = 0.0006
-reasoning_effort = "medium"
-
-[chat.models.gemini-pro-exp]
-api_key = "YOUR_GEMINI_API_KEY"
-base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
-model_input_pricing_per_1k = 0.00
-model_max_tokens = 8192
-model_name = "gemini-2.5-pro-exp-03-25"
-model_output_pricing_per_1k = 0.00
 reasoning_effort = "medium"
 
 [chat.models.gemini-pro]
@@ -314,7 +305,7 @@ api_key = "YOUR_GEMINI_API_KEY"
 base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 model_input_pricing_per_1k = 0.00125
 model_max_tokens = 8192
-model_name = "gemini-2.5-pro-preview-03-25"
+model_name = "gemini-2.5-pro-preview-05-06"
 model_output_pricing_per_1k = 0.01
 reasoning_effort = "medium"
 
