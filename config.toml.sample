@@ -213,16 +213,16 @@ model_name = "claude-3-5-haiku-latest"
 model_output_pricing_per_1k = 0.004
 reasoning_effort = false
 
-[chat.models.anthropic-sonnet-legacy]
+[chat.models.anthropic-sonnet-3-legacy]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 base_url = ""
 model_input_pricing_per_1k = 0.003
-model_max_tokens = 8192
+model_max_tokens = 64000
 model_name = "claude-3-5-sonnet-latest"
 model_output_pricing_per_1k = 0.015
-reasoning_effort = false
+reasoning_effort = "medium"
 
-[chat.models.anthropic-sonnet]
+[chat.models.anthropic-sonnet-3]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 base_url = ""
 model_input_pricing_per_1k = 0.003
@@ -231,12 +231,21 @@ model_name = "claude-3-7-sonnet-latest"
 model_output_pricing_per_1k = 0.015
 reasoning_effort = "medium"
 
-[chat.models.anthropic-opus]
+[chat.models.anthropic-sonnet-4]
+api_key = "YOUR_ANTHROPIC_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.003
+model_max_tokens = 64000
+model_name = "claude-sonnet-4-0"
+model_output_pricing_per_1k = 0.015
+reasoning_effort = "medium"
+
+[chat.models.anthropic-opus-4]
 api_key = "YOUR_ANTHROPIC_API_KEY"
 base_url = ""
 model_input_pricing_per_1k = 0.015
 model_max_tokens = 4096
-model_name = "claude-3-opus-latest"
+model_name = "claude-opus-4-0"
 model_output_pricing_per_1k = 0.075
 reasoning_effort = false
 
