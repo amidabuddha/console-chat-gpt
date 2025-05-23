@@ -8,5 +8,8 @@
 > Bug Fixes:
 - [6d1599b] [Bugfix] Handle unhandled handle_with_exceptions
 
+> Others:
+- [2638a49] [Other] Adding Claude 4
+
 
 ---
