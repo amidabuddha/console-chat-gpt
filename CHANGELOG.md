@@ -9,6 +9,7 @@
 - [6d1599b] [Bugfix] Handle unhandled handle_with_exceptions
 
 > Others:
+- [92db35d] [Other] Bump unichat version
 - [8e127c3] [Other] Adjust thinking and token count
 - [2638a49] [Other] Adding Claude 4
 
