@@ -144,6 +144,15 @@ model_name = "o3"
 model_output_pricing_per_1k = 0.008
 reasoning_effort = "medium"
 
+[chat.models.o3-pro]
+api_key = "YOUR_OPENAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.00
+model_max_tokens = 100000
+model_name = "o3-pro"
+model_output_pricing_per_1k = 0.00
+reasoning_effort = "medium"
+
 [chat.models.o4-mini]
 api_key = "YOUR_OPENAI_API_KEY"
 base_url = ""
