@@ -138,10 +138,10 @@ reasoning_effort = "medium"
 [chat.models.o3]
 api_key = "YOUR_OPENAI_API_KEY"
 base_url = ""
-model_input_pricing_per_1k = 0.01
+model_input_pricing_per_1k = 0.002
 model_max_tokens = 100000
 model_name = "o3"
-model_output_pricing_per_1k = 0.04
+model_output_pricing_per_1k = 0.008
 reasoning_effort = "medium"
 
 [chat.models.o4-mini]
@@ -199,6 +199,15 @@ model_input_pricing_per_1k = 0.002
 model_max_tokens = 128000
 model_name = "pixtral-large-latest"
 model_output_pricing_per_1k = 0.006
+reasoning_effort = false
+
+[chat.models.magistral-medium]
+api_key = "YOUR_MISTRALAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.002
+model_max_tokens = 40000
+model_name = "magistral-medium-latest"
+model_output_pricing_per_1k = 0.005
 reasoning_effort = false
 
 # ==================================
