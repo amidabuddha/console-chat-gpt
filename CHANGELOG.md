@@ -5,10 +5,8 @@
 - [c10571d] [Feature] Add Mistral Medium 3
 
 > Improvements:
+- [a74d605] [Improvement] Replace o1 with o3
 - [daa8055] [Improvement] Model detection in helper
-
-> Bug Fixes:
-- [6d1599b] [Bugfix] Handle unhandled handle_with_exceptions
 
 > Others:
 - [2cc7745] [Other] Update Gemini Pro 2.5
