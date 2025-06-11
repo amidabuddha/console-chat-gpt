@@ -23,7 +23,7 @@ tools = [
             "properties": {
                 "model": {
                     "type": "string",
-                    "enum": ["gpt-41", "gpt-41-mini", "o1", "o4-mini"],
+                    "enum": ["gpt-41", "gpt-41-mini", "o3", "o4-mini"],
                     "description": "The selected AI model based on query analysis",
                 },
                 "messages": {

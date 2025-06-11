@@ -138,6 +138,8 @@ def chat(console, data, managed_user_prompt) -> None:
                     params["reasoning"]["summary"] = "detailed"
                 else:
                     params["temperature"] = temperature
+                if model_name == "o3-pro":
+                    params["background"] = True
 
                 response = handle_with_exceptions(lambda: client.responses.create(**params))
             else:
