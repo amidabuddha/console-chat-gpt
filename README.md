@@ -123,7 +123,7 @@ personalization, control, and convenience.
 | [chat.defaults]  | Main properties to generate a chat completion/response. |
 |-|-|
 | temperature  | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 more focused. |
-| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.role] section. |
+| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. |
 | model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. |
 
 | [chat.features] | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
