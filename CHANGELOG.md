@@ -12,7 +12,6 @@
 - [d27841e] [Other] Add config.toml variables description to README
 - [beacb22] [Other] Update default model
 - [2cc7745] [Other] Update Gemini Pro 2.5
-- [92db35d] [Other] Bump unichat version
 
 
 ---
