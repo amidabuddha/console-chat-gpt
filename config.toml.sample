@@ -14,7 +14,7 @@ fallback_char = "?"
 [chat.defaults]
 temperature = 1
 system_role = "assistant"
-model = "gemini-pro-exp"
+model = "gemini-pro"
 
 [chat.managed]
 assistant = "gpt-4o-mini"
@@ -322,7 +322,7 @@ reasoning_effort = "medium"
 api_key = "YOUR_GEMINI_API_KEY"
 base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 model_input_pricing_per_1k = 0.00125
-model_max_tokens = 8192
+model_max_tokens = 65536
 model_name = "gemini-2.5-pro"
 model_output_pricing_per_1k = 0.01
 reasoning_effort = "medium"

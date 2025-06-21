@@ -56,7 +56,7 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibab
 - Unified chat completion function separated as independent library to be used in any application for seamless cross-provider API experience. The source code is available in [Python](https://github.com/amidabuddha/unichat) and [TypeScript](https://github.com/amidabuddha/unichat-ts)
 - Streaming with all supported models, disabled by default, may be enabled in `settings` menu
 - [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported
-- **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
+- **AI Managed mode** Based on the complexity of the task, automatically determines which model to use. Prompt for each chat may be disabled in config.toml
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
   how the app works. Also supported in-app via the `settings` command.
 - **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
