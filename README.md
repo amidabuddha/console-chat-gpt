@@ -120,13 +120,13 @@ personalization, control, and convenience.
 
 ## Configurable Options in `config.toml`
 
-| chat.defaults  | Main properties to generate a chat completion/response. |
+| [chat.defaults]  | Main properties to generate a chat completion/response. |
 |-|-|
 | temperature  | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 more focused. |
-| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in chat.role section. |
-| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the chat.models section, with relevant parameters. |
+| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.role] section. |
+| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. |
 
-| chat.features | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
+| [chat.features] | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
 |-|-|
 | model_selector | A selection list of models available in section [chat.models] of `config.toml`. The list may be modified from within a chat session. |
 | adjust_temperature | Prompt to change the temperature for each chat session. |
@@ -134,20 +134,20 @@ personalization, control, and convenience.
 | save_chat_on_exit | Automatically save the chat session upon using the `exit` command in chat.|
 | continue_chat | Offers a list of previously saved chat sessions to be continued in a new session. The list may be modified from within a chat session via the `chats` command.|
 | ~~debug~~ | Application logging - not yet implemented. |
-| disable_intro_help_message | All chat commands available in `settings` are printed upon chat initialization. May be disabled by setting this to **false**. |
+| disable_intro_help_message | All chat commands available in `help` are printed upon chat initialization. Thsi is targeted at new users and may be disabled by setting this to **false**. |
 | assistant_mode | Enable **Open AI Assistants API** as an available selection upon chat initialization. |
 | ai_managed | Allow a model to automatically select the best model according to your prompt. Detailed settings below. |
 | streaming | If set to true, the model response data will be streamed to the client. |
 | mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
 
-| chat.managed | Settings dedicated to the AI managed mode. Not available to edit from within a chat session. |
+| [chat.managed] | Settings dedicated to the AI managed mode. *Not available to be edited from within a chat session*. |
 |-|-|
-| assistant | The preferred model that will evaluate your prompt and select the best available model out of the four configured below to handle it. Should be listed in the chat.models section, with relevant parameters. |
+| assistant | The preferred model that will evaluate your prompt and select the best available model out of the four configured below to handle it. Should be listed in the [chat.models] section, with relevant parameters. |
 | assistant_role | Custom instruction to the evaluation model. *Change this only if you know exactly what you are doing!* |
-| assistant_generalist | Your preferred general purpose model, typically the one you use the most for any type of queries. Should be listed in the chat.models section, with relevant parameters. |
-| assistant_fast | When speed is preferred to accuracy. Should be listed in the chat.models section, with relevant parameters. |
-| assistant_thinker | A reasoning model for complex tasks. Should be listed in the chat.models section, with relevant parameters. |
-| assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the chat.models section, with relevant parameters. |
+| assistant_generalist | Your preferred general purpose model, typically the one you use the most for any type of queries. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_fast | When speed is preferred to accuracy. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_thinker | A reasoning model for complex tasks. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the [chat.models] section, with relevant parameters. |
 | prompt |-|
 
 ---
