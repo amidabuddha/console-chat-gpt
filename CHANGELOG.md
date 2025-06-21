@@ -5,6 +5,7 @@
 - [c10571d] [Feature] Add Mistral Medium 3
 
 > Improvements:
+- [2c6a78a] [Improvement] Gemini Latest Stable
 - [a74d605] [Improvement] Replace o1 with o3
 - [daa8055] [Improvement] Model detection in helper
 
