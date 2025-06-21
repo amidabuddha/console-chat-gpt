@@ -122,22 +122,22 @@ personalization, control, and convenience.
 
 | [chat.defaults]  | Main properties to generate a chat completion/response. |
 |-|-|
-| temperature  | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 more focused. |
-| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. |
-| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. |
+| temperature  | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 more focused. May be set for each new chat session if `adjust_temperature` in [chat.features] is **true**. |
+| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. May be set for each new chat session if `model_selector` in [chat.features] is **true**. |
+| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. May be set for each new chat session if `role_selector` in [chat.features] is **true**. |
 
 | [chat.features] | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
 |-|-|
-| model_selector | A selection list of models available in section [chat.models] of `config.toml`. The list may be modified from within a chat session. |
-| adjust_temperature | Prompt to change the temperature for each chat session. |
-| role_selector | A selection list of roles available in section [chat.roles] of `config.toml`. The list may be modified from within a chat session. |
-| save_chat_on_exit | Automatically save the chat session upon using the `exit` command in chat.|
-| continue_chat | Offers a list of previously saved chat sessions to be continued in a new session. The list may be modified from within a chat session via the `chats` command.|
+| model_selector | A selection list of models available in section [chat.models] of `config.toml`. When **true** this list may be modified at the beginning of each new chat session. |
+| adjust_temperature | Prompt to change the temperature for each chat session. When **true** the temperature value may be modified at the beginning of each new chat session. |
+| role_selector | A selection list of roles available in section [chat.roles] of `config.toml`. When **true** this list may be modified at the beginning of each new chat session.|
+| save_chat_on_exit | When **true** automatically save the chat session upon using the `exit` command in chat.|
+| continue_chat | When **true** offers a list of previously saved chat sessions to be continued in a new session. The list may be modified from within a chat session via the `chats` command.|
 | ~~debug~~ | Application logging - not yet implemented. |
-| disable_intro_help_message | All chat commands available in `help` are printed upon chat initialization. Thsi is targeted at new users and may be disabled by setting this to **false**. |
+| disable_intro_help_message | All chat commands available in `help` are printed upon chat initialization. This is targeted at new users and may be disabled by setting to **false**. |
 | assistant_mode | Enable **Open AI Assistants API** as an available selection upon chat initialization. |
 | ai_managed | Enable **AI Managed mode** to allow a model to automatically select the best model according to your prompt. Detailed settings below. |
-| streaming | If set to true, the model response data will be streamed to the client. |
+| streaming | If set to **true**, the model response data will be streamed to the client. |
 | mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
 
 | [chat.managed] | Settings dedicated to the AI Managed mode. *Not available to be edited from within a chat session*. |
