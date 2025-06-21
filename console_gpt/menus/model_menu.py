@@ -26,7 +26,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
 
     # Fetches the default model
     default_model = fetch_variable("defaults", "model")
-    default_assistant = fetch_variable("defaults", "assistant")
+    default_assistant = fetch_variable("managed", "assistant")
     all_models = fetch_variable("models")
 
     # Add new options for model management

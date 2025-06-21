@@ -1,6 +1,8 @@
 import json
+from pyexpat import model
 from typing import Tuple
 
+from httpx import get
 from rich.console import Console
 from unichat import UnifiedChatApi
 
@@ -14,44 +16,12 @@ from console_gpt.menus.key_menu import set_api_key
 from console_gpt.prompts.temperature_prompt import temperature_prompt
 from console_gpt.prompts.user_prompt import chat_user_prompt
 
-tools = [
-    {
-        "name": "managed_prompt",
-        "description": "Selects optimal AI model and generates appropriate system instructions based on user query analysis",
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "model": {
-                    "type": "string",
-                    "enum": ["gpt-41", "gpt-41-mini", "o3", "o4-mini"],
-                    "description": "The selected AI model based on query analysis",
-                },
-                "messages": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "role": {
-                                "type": "string",
-                                "enum": ["system"],
-                                "description": "The role of the message, only system messages are allowed",
-                            },
-                            "content": {
-                                "type": "string",
-                                "description": "The system instruction for the selected AI model",
-                            },
-                        },
-                        "required": ["role", "content"],
-                    },
-                    "minItems": 1,
-                    "maxItems": 1,
-                },
-            },
-            "required": ["model", "messages"],
-        },
-    }
+MODEL_KEYS = [
+    "{{assistant_generalist}}",
+    "{{assistant_fast}}",
+    "{{assistant_thinker}}",
+    "{{assistant_coder}}",
 ]
-
 
 def managed_prompt() -> Tuple[ChatObject, str]:
     """
@@ -69,13 +39,14 @@ def managed_prompt() -> Tuple[ChatObject, str]:
 
 
 def configure_assistant():
-    assistant_model = fetch_variable("defaults", "assistant")
-    assistant_role = fetch_variable("defaults", "assistant_role")
+    assistant_model = fetch_variable("managed", "assistant")
+    assistant_role = fetch_variable("managed", "assistant_role")
+    replacements = {key: fetch_variable("managed", key.strip("{}")) for key in MODEL_KEYS}
+    for key, value in replacements.items():
+        assistant_role = assistant_role.replace(key, value)
     model_data = fetch_variable("models", assistant_model)
-    model_data.update(dict(model_title=assistant_model))
-    model_data.update(dict(role=assistant_role))
-    model_data = update_api_key_if_placeholder(model_data)
-    return model_data
+    model_data.update(model_title=assistant_model, role=assistant_role)
+    return update_api_key_if_placeholder(model_data)
 
 
 def update_api_key_if_placeholder(model_data):
@@ -95,6 +66,50 @@ def get_client(assistant):
     return UnifiedChatApi(**assistant_params)
 
 
+def get_tools_schema():
+    """
+    Dynamically generate the tools schema with the current model names from config.
+    """
+    model_names = [fetch_variable("managed", key.strip("{}")) for key in MODEL_KEYS]
+    return [
+        {
+            "name": "managed_prompt",
+            "description": "Selects optimal AI model and generates appropriate system instructions based on user query analysis",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "model": {
+                        "type": "string",
+                        "enum": model_names,
+                        "description": "The selected AI model based on query analysis",
+                    },
+                    "messages": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "role": {
+                                    "type": "string",
+                                    "enum": ["system"],
+                                    "description": "The role of the message, only system messages are allowed",
+                                },
+                                "content": {
+                                    "type": "string",
+                                    "description": "The system instruction for the selected AI model",
+                                },
+                            },
+                            "required": ["role", "content"],
+                        },
+                        "minItems": 1,
+                        "maxItems": 1,
+                    },
+                },
+                "required": ["model", "messages"],
+            },
+        }
+    ]
+
+
 @sigint_wrapper
 def send_request(client, assistant, conversation):
     if "reasoning_effort" in assistant:
@@ -107,7 +122,7 @@ def send_request(client, assistant, conversation):
         model=assistant["model_name"],
         messages=conversation,
         stream=False,
-        tools=tools,
+        tools=get_tools_schema(),
         reasoning_effort=reasoning_effort,
     )
     return response.choices[0].message.tool_calls
