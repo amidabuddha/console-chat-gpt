@@ -1,7 +1,6 @@
 > Features:
 - [f32de4d] [Feature] Configurable slections for AI Managed mode
 - [eb2368f] [Feature] Add Magistral
-- [67db94e] [Feature] Update Google AI models
 
 > Improvements:
 - [79267e7] [Improvement] Option to disable AI managed prompt with each chat
@@ -10,6 +9,7 @@
 - [daa8055] [Improvement] Model detection in helper
 
 > Others:
+- [beacb22] [Other] Update default model
 - [2cc7745] [Other] Update Gemini Pro 2.5
 - [92db35d] [Other] Bump unichat version
 - [8e127c3] [Other] Adjust thinking and token count
