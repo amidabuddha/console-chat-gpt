@@ -3,7 +3,6 @@
 
 > Improvements:
 - [79267e7] [Improvement] Option to disable AI managed prompt with each chat
-- [2c6a78a] [Improvement] Gemini Latest Stable
 
 > Others:
 - [1d7941d] [Other] Update README
