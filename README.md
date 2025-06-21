@@ -140,7 +140,7 @@ personalization, control, and convenience.
 | streaming | If set to true, the model response data will be streamed to the client. |
 | mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
 
-| [chat.managed] | Settings dedicated to the AI managed mode. *Not available to be edited from within a chat session*. |
+| [chat.managed] | Settings dedicated to the AI Managed mode. *Not available to be edited from within a chat session*. |
 |-|-|
 | assistant | The preferred model that will evaluate your prompt and select the best available model out of the four configured below to handle it. Should be listed in the [chat.models] section, with relevant parameters. |
 | assistant_role | Custom instruction to the evaluation model. *Change this only if you know exactly what you are doing!* |
@@ -148,7 +148,7 @@ personalization, control, and convenience.
 | assistant_fast | When speed is preferred to accuracy. Should be listed in the [chat.models] section, with relevant parameters. |
 | assistant_thinker | A reasoning model for complex tasks. Should be listed in the [chat.models] section, with relevant parameters. |
 | assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the [chat.models] section, with relevant parameters. |
-| prompt |-|
+| prompt | When **AI Managed mode** is used frequently the Y/N prompt may be disabled by changing this to **false**. |
 
 ---
 
