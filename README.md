@@ -136,7 +136,7 @@ personalization, control, and convenience.
 | ~~debug~~ | Application logging - not yet implemented. |
 | disable_intro_help_message | All chat commands available in `help` are printed upon chat initialization. Thsi is targeted at new users and may be disabled by setting this to **false**. |
 | assistant_mode | Enable **Open AI Assistants API** as an available selection upon chat initialization. |
-| ai_managed | Allow a model to automatically select the best model according to your prompt. Detailed settings below. |
+| ai_managed | Enable **AI Managed mode** to allow a model to automatically select the best model according to your prompt. Detailed settings below. |
 | streaming | If set to true, the model response data will be streamed to the client. |
 | mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
 
