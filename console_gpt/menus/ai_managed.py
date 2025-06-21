@@ -23,6 +23,7 @@ MODEL_KEYS = [
     "{{assistant_coder}}",
 ]
 
+
 def managed_prompt() -> Tuple[ChatObject, str]:
     """
     Use assistant help to determine the best model and fromat for the query

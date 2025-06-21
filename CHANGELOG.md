@@ -1,8 +1,8 @@
 > Features:
+- [f32de4d] [Feature] Configurable slections for AI Managed mode
 - [eb2368f] [Feature] Add Magistral
 - [67db94e] [Feature] Update Google AI models
 - [84f7f3c] [Feature] In-chat model management
-- [c10571d] [Feature] Add Mistral Medium 3
 
 > Improvements:
 - [2c6a78a] [Improvement] Gemini Latest Stable
