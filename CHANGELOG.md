@@ -13,7 +13,6 @@
 - [beacb22] [Other] Update default model
 - [2cc7745] [Other] Update Gemini Pro 2.5
 - [92db35d] [Other] Bump unichat version
-- [8e127c3] [Other] Adjust thinking and token count
 
 
 ---
