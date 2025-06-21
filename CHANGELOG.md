@@ -2,9 +2,9 @@
 - [f32de4d] [Feature] Configurable slections for AI Managed mode
 - [eb2368f] [Feature] Add Magistral
 - [67db94e] [Feature] Update Google AI models
-- [84f7f3c] [Feature] In-chat model management
 
 > Improvements:
+- [79267e7] [Improvement] Option to disable AI managed prompt with each chat
 - [2c6a78a] [Improvement] Gemini Latest Stable
 - [a74d605] [Improvement] Replace o1 with o3
 - [daa8055] [Improvement] Model detection in helper
