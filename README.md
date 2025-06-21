@@ -118,7 +118,7 @@ personalization, control, and convenience.
 
 ---
 
-## Configurable Options in `config.toml`
+### Configurable Options in `config.toml`
 
 | [chat.defaults]  | Main properties to generate a chat completion/response. |
 |-|-|
