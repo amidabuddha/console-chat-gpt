@@ -20,10 +20,13 @@ def console_gpt() -> None:
     while True:
         managed_user_prompt = False
         if fetch_variable("features", "ai_managed"):
-            managed = custom_input(
-                message="Would you like to continue in AI managed mode? (Y/N):",
-                validate=_validate_confirmation,
-            )
+            if fetch_variable("managed", "prompt") == True:
+                managed = custom_input(
+                    message="Would you like to continue in AI managed mode? (Y/N):",
+                    validate=_validate_confirmation,
+                )
+            else:
+                managed = "y"
             if managed in ["y", "yes"]:
                 data, managed_user_prompt = (
                     managed_prompt()

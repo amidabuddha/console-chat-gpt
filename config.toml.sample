@@ -23,6 +23,7 @@ assistant_generalist = "gpt-41"
 assistant_fast = "gpt-41-mini"
 assistant_thinker = "o3"
 assistant_coder = "o4-mini"
+prompt = true
 
 [chat.features]
 model_selector = true
