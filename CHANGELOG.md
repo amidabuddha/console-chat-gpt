@@ -1,6 +1,3 @@
-> Features:
-- [f32de4d] [Feature] Configurable slections for AI Managed mode
-
 > Improvements:
 - [79267e7] [Improvement] Option to disable AI managed prompt with each chat
 
