@@ -123,8 +123,8 @@ personalization, control, and convenience.
 | [chat.defaults]  | Main properties to generate a chat completion/response. |
 |-|-|
 | temperature  | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 more focused. May be set for each new chat session if `adjust_temperature` in [chat.features] is **true**. |
-| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. May be set for each new chat session if `model_selector` in [chat.features] is **true**. |
-| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. May be set for each new chat session if `role_selector` in [chat.features] is **true**. |
+| system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. May be set for each new chat session if `role_selector` in [chat.features] is **true**. |
+| model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. May be set for each new chat session if `model_selector` in [chat.features] is **true**. |
 
 | [chat.features] | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
 |-|-|
