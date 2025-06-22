@@ -1,8 +1,6 @@
 import json
-from pyexpat import model
 from typing import Tuple
 
-from httpx import get
 from rich.console import Console
 from unichat import UnifiedChatApi
 
