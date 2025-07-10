@@ -261,6 +261,15 @@ reasoning_effort = "medium"
 # ==================================
 # xAI models
 # ==================================
+[chat.models.grok-4]
+api_key = "YOUR_GROK_API_KEY"
+base_url = "https://api.x.ai/v1"
+model_input_pricing_per_1k = 0.003
+model_max_tokens = 256000
+model_name = "grok-4-latest"
+model_output_pricing_per_1k = 0.015
+reasoning_effort = false
+
 [chat.models.grok-3]
 api_key = "YOUR_GROK_API_KEY"
 base_url = "https://api.x.ai/v1"
