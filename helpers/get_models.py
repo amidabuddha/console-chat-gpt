@@ -21,6 +21,7 @@ def get_models():
         "deepseek_models": [],
         "alibaba_models": [],
         "inception_models": [],
+        "moonshot_models": [],
     }
 
     MODELS_MAX_TOKEN = {}
@@ -53,5 +54,7 @@ def get_models():
             MODELS_LIST["alibaba_models"].append(model_name)
         elif "mercury" in model:
             MODELS_LIST["inception_models"].append(model_name)
+        elif "kimi" in model:
+            MODELS_LIST["moonshot_models"].append(model_name)
 
     return MODELS_LIST, MODELS_MAX_TOKEN
