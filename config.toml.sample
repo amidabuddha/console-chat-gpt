@@ -438,6 +438,15 @@ reasoning_effort = false
 # ==================================
 # Moonshot AI models
 # ==================================
+[chat.models.kimi-latest]
+api_key = "YOUR_MOONSHOTAI_API_KEY"
+base_url = "https://api.moonshot.ai/v1"
+model_input_pricing_per_1k = 0.002
+model_max_tokens = 131072
+model_name = "kimi-k2-0711-preview"
+model_output_pricing_per_1k = 0.005
+reasoning_effort = false
+
 [chat.models.kimi-k2]
 api_key = "YOUR_MOONSHOTAI_API_KEY"
 base_url = "https://api.moonshot.ai/v1"
@@ -445,4 +454,13 @@ model_input_pricing_per_1k = 0.0006
 model_max_tokens = 131072
 model_name = "kimi-k2-0711-preview"
 model_output_pricing_per_1k = 0.0025
+reasoning_effort = false
+
+[chat.models.kimi-thinking]
+api_key = "YOUR_MOONSHOTAI_API_KEY"
+base_url = "https://api.moonshot.ai/v1"
+model_input_pricing_per_1k = 0.03
+model_max_tokens = 131072
+model_name = "kimi-thinking-preview"
+model_output_pricing_per_1k = 0.03
 reasoning_effort = false
