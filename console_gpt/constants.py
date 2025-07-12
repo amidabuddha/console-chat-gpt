@@ -41,5 +41,5 @@ api_key_placeholders = {
     "YOUR_DEEPSEEK_API_KEY",
     "YOUR_ALIBABA_API_KEY",
     "YOUR_MERCURY_API_KEY",
-    "YOUR_MOONSHOTAI_API_KEY"
+    "YOUR_MOONSHOTAI_API_KEY",
 }
