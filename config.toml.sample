@@ -443,7 +443,7 @@ api_key = "YOUR_MOONSHOTAI_API_KEY"
 base_url = "https://api.moonshot.ai/v1"
 model_input_pricing_per_1k = 0.002
 model_max_tokens = 131072
-model_name = "kimi-k2-0711-preview"
+model_name = "kimi-latest"
 model_output_pricing_per_1k = 0.005
 reasoning_effort = false
 
