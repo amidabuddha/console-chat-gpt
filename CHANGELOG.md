@@ -6,8 +6,5 @@
 > Bug Fixes:
 - [edfebc4] [Bugfix] Add moonshot to helper
 
-> Others:
-- [1d7941d] [Other] Update README
-
 
 ---
