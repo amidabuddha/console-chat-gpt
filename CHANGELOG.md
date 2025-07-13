@@ -7,6 +7,7 @@
 - [41ab109] [Improvement] Update Inception AI models
 
 > Bug Fixes:
+- [d211316] [BugFix] Model menu setting
 - [edfebc4] [Bugfix] Add moonshot to helper
 
 
