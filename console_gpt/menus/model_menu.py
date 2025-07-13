@@ -29,6 +29,15 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     default_assistant = fetch_variable("managed", "assistant")
     all_models = fetch_variable("models")
 
+    if default_model not in all_models:
+        default_model = list(all_models.keys())[0]
+        _show_menu = True
+
+    if not _show_menu:
+        model_data = all_models[default_model]
+        model_data.update(dict(model_title=default_model))
+        return model_data
+
     # Add new options for model management
     menu_data = list(all_models.keys())
     menu_data.extend(["ollama", "Add model(s)", "Remove model(s)", "Change default model"])
@@ -103,15 +112,6 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
                 toml.dump(config, f)
             custom_print("ok", f"Default model changed to: {new_default}")
         return model_menu()
-
-    if default_model not in all_models:
-        default_model = list(all_models.keys())[0]
-        _show_menu = True
-
-    if not _show_menu:
-        model_data = all_models[default_model]
-        model_data.update(dict(model_title=default_model))
-        return model_data
 
     if selection == "ollama":
         models = get_ollama()
