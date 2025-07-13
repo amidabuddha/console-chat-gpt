@@ -8,7 +8,7 @@ console-chat-gpt v6
 
 **Your Ultimate CLI Companion for Chatting with AI Models**
 
-_Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xAI**, **Google AI**, **DeepSeek**, **Alibaba**, **Inception** or **Ollama**-hosted models directly from your command line. </br>Elevate your chat experience with efficiency and ease._
+_Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xAI**, **Google AI**, **DeepSeek**, **Alibaba**, **Inception**, **Moonshot AI** or **Ollama**-hosted models directly from your command line. </br>Elevate your chat experience with efficiency and ease._
 
 <h3>
 
@@ -41,8 +41,7 @@ _Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xA
 ---
 
 **DISCLAIMER:**
-The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI, Google AI, DeepSeek, Alibaba, Inception, or any other related parties. There is no affiliation
-or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibaba, Inception or their subsidiaries in any form.
+The intention and implementation of this code are entirely unconnected and unrelated to OpenAI, MistralAI, Anthropic, xAI, Google AI, DeepSeek, Alibaba, Inception, Moonshot AI or any other related parties. There is no affiliation or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibaba, Inception, Moonshot AI or their subsidiaries in any form.
 
 ---
 
@@ -55,7 +54,7 @@ or relationship with OpenAI, MistralAI, Anthropic, xAI, Google, DeepSeek, Alibab
 - :star: [Model Context Protocol (MCP)](https://modelcontextprotocol.io) supported! If you are already using MCP servers just copy your `claude_desktop_config.json` to the root directory and rename to `mcp_config.json` to start using with any model! :star:
 - Unified chat completion function separated as independent library to be used in any application for seamless cross-provider API experience. The source code is available in [Python](https://github.com/amidabuddha/unichat) and [TypeScript](https://github.com/amidabuddha/unichat-ts)
 - Streaming with all supported models, disabled by default, may be enabled in `settings` menu
-- [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) fully supported
+- [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) supported
 - **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
 - **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
   how the app works. Also supported in-app via the `settings` command.
@@ -99,7 +98,7 @@ personalization, control, and convenience.
    python3 -m pip install -r requirements.txt
    ```
 
-4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), [DeepSeek](https://platform.deepseek.com/api_keys), [Alibaba](https://bailian.console.alibabacloud.com/?apiKey=1#/api-key), [Inception](https://platform.inceptionlabs.ai/dashboard/api-keys) depending on your selected LLM.
+4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), [DeepSeek](https://platform.deepseek.com/api_keys), [Alibaba](https://bailian.console.alibabacloud.com/?apiKey=1#/api-key), [Inception](https://platform.inceptionlabs.ai/dashboard/api-keys), [Moonshot AI](https://platform.moonshot.ai/console/api-keys) depending on your selected LLM.
 
 5. The `config.toml.sample` will be automatically copied into `config.toml` upon first run, with a prompt to enter your API key/s. Feel free to change any of the other defaults that are not available in the `settings` in-app menu as per your needs.
 

@@ -426,13 +426,22 @@ reasoning_effort = false
 # ==================================
 # Inception Lab models
 # ==================================
-[chat.models.mercury-coder-small]
+[chat.models.mercury]
 api_key = "YOUR_MERCURY_API_KEY"
 base_url = "https://api.inceptionlabs.ai/v1"
-model_input_pricing_per_1k = 0.00
+model_input_pricing_per_1k = 0.00025
 model_max_tokens = 32000
-model_name = "mercury-coder-small"
-model_output_pricing_per_1k = 0.00
+model_name = "mercury"
+model_output_pricing_per_1k = 0.001
+reasoning_effort = false
+
+[chat.models.mercury-coder]
+api_key = "YOUR_MERCURY_API_KEY"
+base_url = "https://api.inceptionlabs.ai/v1"
+model_input_pricing_per_1k = 0.00025
+model_max_tokens = 32000
+model_name = "mercury-coder"
+model_output_pricing_per_1k = 0.001
 reasoning_effort = false
 
 # ==================================
