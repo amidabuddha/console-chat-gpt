@@ -33,7 +33,7 @@ def _read_file(file_path: str) -> Optional[str]:
     """
 
     expanded_path = str(Path(file_path).expanduser())
-    
+
     if expanded_path.endswith(".pdf"):
         try:
             with open(expanded_path, "rb") as file:

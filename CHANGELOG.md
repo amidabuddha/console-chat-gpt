@@ -5,6 +5,7 @@
 - [d9cd94b] [Feature] Add Grok-4
 
 > Improvements:
+- [978b0e5] [Improvement] Support ~/ in path
 - [987edb5] [Improvement] More pythonic model detection
 - [41ab109] [Improvement] Update Inception AI models
 
