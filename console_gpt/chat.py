@@ -130,10 +130,9 @@ def chat(console, data, managed_user_prompt) -> None:
                     params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
                 if tools is not False:
                     res_tools = response_tools(tools)
-                    res_tools.extend([
-                        {"type": "web_search_preview"},
-                        {"type": "code_interpreter", "container": {"type": "auto"}}
-                    ])
+                    res_tools.extend(
+                        [{"type": "web_search_preview"}, {"type": "code_interpreter", "container": {"type": "auto"}}]
+                    )
                     if model_name == "o3" or model_name.startswith("gpt-4"):
                         res_tools.append({"type": "image_generation", "input_fidelity": "high"})
                     params["tools"] = res_tools

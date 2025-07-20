@@ -1,13 +1,13 @@
 import base64
 import os
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, Union
 
 from PIL import Image
-from pathlib import Path
-from datetime import datetime
 
-from console_gpt.constants import style
 from console_gpt.config_manager import IMAGES_PATH
+from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.prompts.file_prompt import browser_files
@@ -60,10 +60,12 @@ def upload_image(model_title) -> Union[Dict, None]:
             if not image_path:
                 break
             encoded_image = _encode_image(image_path)
-            images_data.append({
-                "type": "input_image",
-                "image_url": f"data:image/jpeg;base64,{encoded_image}",
-            })
+            images_data.append(
+                {
+                    "type": "input_image",
+                    "image_url": f"data:image/jpeg;base64,{encoded_image}",
+                }
+            )
             # Ask if user wants to add another image
             add_more = custom_input(
                 auto_exit=False,
@@ -99,13 +101,14 @@ def upload_image(model_title) -> Union[Dict, None]:
     if additional_data is None:
         custom_print("info", "Cancelled. Continuing normally!")
         return None
-    
+
     if openai_model:
         additional_data = {"type": "input_text", "text": additional_data}
         return additional_data, *data
     else:
         additional_data = {"type": "text", "text": additional_data}
         return additional_data, data
+
 
 def save_image(image_base64):
     base_name = "image"
