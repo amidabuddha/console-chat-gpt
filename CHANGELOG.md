@@ -2,7 +2,6 @@
 - [482ed68] [Feature] Image generation via OpenAI Responses API
 - [150ae1a] [Feature] More kimi
 - [1b4a63d] [Feature] Add kimi-k2
-- [d9cd94b] [Feature] Add Grok-4
 
 > Improvements:
 - [978b0e5] [Improvement] Support ~/ in path
