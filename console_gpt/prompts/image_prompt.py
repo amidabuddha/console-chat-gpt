@@ -50,8 +50,7 @@ def upload_image(model_title) -> Union[Dict, None]:
     if not image_path:
         return None
 
-    openai_model = "gpt" in model_title or "o3" in model_title or "o4" in model_title 
-        
+    openai_model = any(sub in model_title for sub in ("gpt", "o3", "o4"))
     encoded_image = _encode_image(image_path)
 
     if model_title.startswith("anthropic"):
