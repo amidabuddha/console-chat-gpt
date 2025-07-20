@@ -10,3 +10,4 @@ test*
 assistants
 app-data/local_*
 venv
+images

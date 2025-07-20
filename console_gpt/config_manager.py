@@ -88,6 +88,7 @@ CONFIG_VERSION_PATH_LOCAL = os.path.join(BASE_PATH, "app-data", "local_version.t
 
 CHATS_PATH = _join_and_check(BASE_PATH, "chats", create="folder")
 ASSISTANTS_PATH = _join_and_check(BASE_PATH, "assistants", create="folder")
+IMAGES_PATH = _join_and_check(BASE_PATH, "images", create="folder")
 
 
 def write_to_config(*args, new_value: Any, group: bool = False) -> None:

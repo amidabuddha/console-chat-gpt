@@ -5,6 +5,7 @@ from rich.markdown import Markdown
 
 from console_gpt.custom_stdout import custom_print, markdown_print
 from console_gpt.prompts.assistant_prompt import assistance_reply
+from console_gpt.prompts.image_prompt import save_image
 from mcp_servers.mcp_tcp_client import MCPClient
 
 
@@ -282,4 +283,7 @@ def response_parser(output):
                     "output": str(e),
                 }
                 dict_output.append(result)
+        if o.type == "image_generation_call":
+            image_base64 = o.result
+            save_image(image_base64)
     return dict_output

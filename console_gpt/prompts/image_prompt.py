@@ -1,10 +1,13 @@
 import base64
+import os
 from typing import Dict, Union
 
 from PIL import Image
 from pathlib import Path
+from datetime import datetime
 
 from console_gpt.constants import style
+from console_gpt.config_manager import IMAGES_PATH
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print
 from console_gpt.prompts.file_prompt import browser_files
@@ -43,28 +46,48 @@ def _encode_image(image_path) -> str:
 
 def upload_image(model_title) -> Union[Dict, None]:
     """
-    Allows uploading images to GPT by converting them to Base64 and encode them
+    Allows uploading multiple images to GPT by converting them to Base64 and encoding them
     :return: None if SIGINT or the whole request body
     """
-    image_path = browser_files("Select an image:", "Image selection cancelled.", _is_image)
-    if not image_path:
-        return None
-
     openai_model = any(sub in model_title for sub in ("gpt", "o3", "o4"))
-    encoded_image = _encode_image(image_path)
 
-    if model_title.startswith("anthropic"):
-        data = {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": encoded_image}}
-    elif openai_model:
-        data = {
-            "type": "input_image",
-            "image_url": f"data:image/jpeg;base64,{encoded_image}",
-        }
+    if openai_model:
+        images_data = []
+        while True:
+            image_path = browser_files(
+                f"Select an image ({len(images_data)+1}):", "Image selection cancelled.", _is_image
+            )
+            if not image_path:
+                break
+            encoded_image = _encode_image(image_path)
+            images_data.append({
+                "type": "input_image",
+                "image_url": f"data:image/jpeg;base64,{encoded_image}",
+            })
+            # Ask if user wants to add another image
+            add_more = custom_input(
+                auto_exit=False,
+                message="Add another image? (y/N):",
+                style=style,
+                qmark="❯",
+            )
+            if not add_more or add_more.lower() != "y":
+                break
+        if not images_data:
+            return None
+        data = images_data
     else:
-        data = {
-            "type": "image_url",
-            "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
-        }
+        image_path = browser_files("Select an image:", "Image selection cancelled.", _is_image)
+        if not image_path:
+            return None
+        encoded_image = _encode_image(image_path)
+        if model_title.startswith("anthropic"):
+            data = {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": encoded_image}}
+        else:
+            data = {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
+            }
 
     additional_data = custom_input(
         auto_exit=False,
@@ -79,7 +102,16 @@ def upload_image(model_title) -> Union[Dict, None]:
     
     if openai_model:
         additional_data = {"type": "input_text", "text": additional_data}
+        return additional_data, *data
     else:
         additional_data = {"type": "text", "text": additional_data}
+        return additional_data, data
 
-    return additional_data, data
+def save_image(image_base64):
+    base_name = "image"
+    timestamp = datetime.now().strftime("%Y_%m_%d_%H%M%S")
+    image_name = f"{base_name}_{timestamp}.png"
+    full_path = os.path.join(IMAGES_PATH, image_name)
+    with open(full_path, "wb") as file:
+        file.write(base64.b64decode(image_base64))
+    custom_print("info", f"Successfully saved to - {full_path}")
