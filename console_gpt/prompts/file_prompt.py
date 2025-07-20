@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any, Callable, Optional, Tuple
 
 from pypdf import PdfReader
@@ -17,9 +18,9 @@ def _validate_file(file_path: str) -> str | bool:
     :param file_path: Path to file
     :return: Either an error message or True represented as string for compatibility
     """
-    if os.path.isfile(file_path):
+    if os.path.isfile(Path(file_path).expanduser()):
         return True
-    if os.path.isdir(file_path):
+    if os.path.isdir(Path(file_path).expanduser()):
         return f"{file_path} is a directory"
     return "No such file!"
 
@@ -30,10 +31,12 @@ def _read_file(file_path: str) -> Optional[str]:
     :param file_path: Path to the file
     :return: The content or None if empty or unsupported file type
     """
-    print(file_path)
-    if file_path.endswith(".pdf"):
+
+    expanded_path = str(Path(file_path).expanduser())
+    
+    if expanded_path.endswith(".pdf"):
         try:
-            with open(file_path, "rb") as file:
+            with open(expanded_path, "rb") as file:
                 pdf_reader = PdfReader(file)
                 text = []
                 for page in pdf_reader.pages:
@@ -43,16 +46,16 @@ def _read_file(file_path: str) -> Optional[str]:
         except Exception as e:
             custom_print("error", f"Failed to read PDF file: {e}")
             return None
-    elif file_path.endswith(".txt"):
+    elif expanded_path.endswith(".txt"):
         try:
-            with open(file_path, "r") as file:
+            with open(expanded_path, "r") as file:
                 content = file.read().strip()
                 return content if content else None
         except Exception as e:
             custom_print("error", f"Failed to read text file: {e}")
             return None
     else:
-        custom_print("error", f"Unsupported file type: {file_path}")
+        custom_print("error", f"Unsupported file type: {expanded_path}")
         return None
 
 
