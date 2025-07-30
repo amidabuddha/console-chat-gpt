@@ -1,9 +1,9 @@
 > Features:
 - [482ed68] [Feature] Image generation via OpenAI Responses API
 - [150ae1a] [Feature] More kimi
-- [1b4a63d] [Feature] Add kimi-k2
 
 > Improvements:
+- [33d338b] [Improvement] Fix Ollama tool calling
 - [978b0e5] [Improvement] Support ~/ in path
 - [987edb5] [Improvement] More pythonic model detection
 - [41ab109] [Improvement] Update Inception AI models

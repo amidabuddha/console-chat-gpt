@@ -4,6 +4,7 @@ from console_gpt.menus.skeleton_menus import (base_multiselect_menu,
                                               preview_multiselect_menu)
 from mcp_servers.mcp_tcp_client import MCPClient
 
+
 # Tools in-chat menu
 def tools_menu(tools):
     parent_menu_items = ["Disable all tools", "Select some tools", "Return without changes"]
@@ -25,6 +26,7 @@ def tools_menu(tools):
         ]
         selected_tools = preview_multiselect_menu(menu_items, "Tools menu", preview_title="Tool description")
         return [tool for tool in tools if tool["name"] in selected_tools] if selected_tools else []
+
 
 # OpenAI Assistants API
 def transform_tools_selection(tools_selection, tools_definitions):
@@ -65,10 +67,12 @@ def transform_tools_selection(tools_selection, tools_definitions):
 
     return result
 
+
 # OpenAI Chat Completions API
 def openai_completion_tools(tools):
     helper = UnifiedChatApi(api_key="")
     return helper._api_helper.transform_tools(helper._api_helper.normalize_tools(tools))
+
 
 # OpenAI Responses API
 def openai_response_tools(tools):
@@ -77,4 +81,3 @@ def openai_response_tools(tools):
     for tool in transformed_tools:
         opeanai_response_tools.append({"type": tool["type"], **tool["function"]})
     return opeanai_response_tools
-

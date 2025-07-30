@@ -5,7 +5,8 @@ from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.command_handler import command_handler
-from console_gpt.menus.tools_menu import openai_completion_tools, openai_response_tools
+from console_gpt.menus.tools_menu import (openai_completion_tools,
+                                          openai_response_tools)
 from console_gpt.ollama_helper import start_ollama
 from console_gpt.prompts.save_chat_prompt import save_chat
 from console_gpt.prompts.user_prompt import chat_user_prompt
@@ -67,7 +68,11 @@ def chat(console, data, managed_user_prompt) -> None:
                         "error", "Could not establish connection to MCP server. Chat functionality may be limited."
                     )
                 else:
-                    tools = openai_completion_tools(mcp.get_available_tools()) if model_title == "ollama" else mcp.get_available_tools()
+                    tools = (
+                        openai_completion_tools(mcp.get_available_tools())
+                        if model_title == "ollama"
+                        else mcp.get_available_tools()
+                    )
                     custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
         except KeyboardInterrupt:
             ready = False
