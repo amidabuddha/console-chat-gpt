@@ -1,4 +1,5 @@
 > Features:
+- [fdcc64c] [Feature] Add Horizon by OpenRouter
 - [482ed68] [Feature] Image generation via OpenAI Responses API
 - [150ae1a] [Feature] More kimi
 
@@ -11,7 +12,6 @@
 > Bug Fixes:
 - [039ff4d] [BugFix] Image imput to OpenAI Response API
 - [d211316] [BugFix] Model menu setting
-- [edfebc4] [Bugfix] Add moonshot to helper
 
 
 ---
