@@ -59,7 +59,7 @@ def chat(console, data, managed_user_prompt) -> None:
     temperature = data.temperature
 
     cached = model_title.startswith("anthropic")
-    tools = []
+    tools = False
     if fetch_variable("features", "mcp_client"):
         try:
             with MCPClient() as mcp:
@@ -106,7 +106,10 @@ def chat(console, data, managed_user_prompt) -> None:
             match handled_user_input:
                 case ("continue", new_tools):
                     tools = new_tools
-                    custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
+                    if tools is False:
+                        custom_print("info", "Tools are disabled. Continuing without tools.")
+                    else:
+                        custom_print("info", f"Total tools initialized: {len(tools)}", start="\n")
                     continue
                 case "continue" | None:
                     continue

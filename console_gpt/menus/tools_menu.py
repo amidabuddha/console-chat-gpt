@@ -11,7 +11,7 @@ def tools_menu(tools):
     parent_selection = base_multiselect_menu("Main Tools Menu", parent_menu_items, "Tool Selection Options", exit=False)
 
     if "Disable all tools" in parent_selection:
-        return []
+        return False
     elif "Return without changes" in parent_selection:
         return tools
     elif "Select some tools" in parent_selection:

@@ -10,7 +10,7 @@ import subprocess
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
-from mcp import ClientSession, StdioServerParameters, Tool
+from mcp import ClientSession, StdioServerParameters, Tool, types
 from mcp.client.stdio import stdio_client
 from mcp_errors import (CommandNotFoundError, ConfigError, MCPError,
                         ServerInitError, ToolExecutionError)
@@ -393,7 +393,14 @@ class MCPTCPServer:
 
                         else:
                             result = await server.session.call_tool(tool_name, arguments)
-                            response = {"status": "success", "result": str(result)}
+                            output = ""
+                            if result.structuredContent:
+                                output = json.dumps(result.structuredContent)
+                            elif result.content:
+                                for content_item in result.content:
+                                    if isinstance(content_item, types.TextContent):
+                                        output += content_item.text
+                            response = {"status": "success", "result": output}
 
                     elif command == "get_tools":
                         tools = []

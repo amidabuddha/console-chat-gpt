@@ -249,7 +249,8 @@ def response_parser(output):
     dict_output = []
     reasoning_output = []
     for o in output:
-        if o.type == "reasoning":
+        if o.type not in ("message", "function_call", "image_generation_call"):
+            markdown_print(f"> Triggered: `{o.type}`.")
             reasoning_output.append(o.to_dict())
         if o.type == "message":
             assistant_response = {
@@ -259,6 +260,7 @@ def response_parser(output):
             dict_output.append(assistant_response)
         if o.type == "function_call":
             dict_output.extend(reasoning_output)
+            reasoning_output = []
             dict_output.append(o.model_dump())
             tool_name = o.name
             function_arguments = o.arguments
