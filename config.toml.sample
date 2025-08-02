@@ -430,7 +430,7 @@ reasoning_effort = false
 api_key = "YOUR_MERCURY_API_KEY"
 base_url = "https://api.inceptionlabs.ai/v1"
 model_input_pricing_per_1k = 0.00025
-model_max_tokens = 32000
+model_max_tokens = 128000
 model_name = "mercury"
 model_output_pricing_per_1k = 0.001
 reasoning_effort = false
@@ -439,7 +439,7 @@ reasoning_effort = false
 api_key = "YOUR_MERCURY_API_KEY"
 base_url = "https://api.inceptionlabs.ai/v1"
 model_input_pricing_per_1k = 0.00025
-model_max_tokens = 32000
+model_max_tokens = 128000
 model_name = "mercury-coder"
 model_output_pricing_per_1k = 0.001
 reasoning_effort = false
@@ -465,6 +465,15 @@ model_name = "kimi-k2-0711-preview"
 model_output_pricing_per_1k = 0.0025
 reasoning_effort = false
 
+[chat.models.kimi-k2-turbo]
+api_key = "YOUR_MOONSHOTAI_API_KEY"
+base_url = "https://api.moonshot.ai/v1"
+model_input_pricing_per_1k = 0.0012
+model_max_tokens = 131072
+model_name = "kimi-k2-turbo-preview"
+model_output_pricing_per_1k = 0.005
+reasoning_effort = false
+
 [chat.models.kimi-thinking]
 api_key = "YOUR_MOONSHOTAI_API_KEY"
 base_url = "https://api.moonshot.ai/v1"
@@ -472,4 +481,16 @@ model_input_pricing_per_1k = 0.03
 model_max_tokens = 131072
 model_name = "kimi-thinking-preview"
 model_output_pricing_per_1k = 0.03
+reasoning_effort = false
+
+# ==================================
+# OpenRouter AI models
+# ==================================
+[chat.models.openrouter-horizon]
+api_key = "YOUR_OPENROUTER_API_KEY"
+base_url = "https://openrouter.ai/api/v1"
+model_input_pricing_per_1k = 0.00
+model_max_tokens = 256000
+model_name = "openrouter/horizon-beta"
+model_output_pricing_per_1k = 0.00
 reasoning_effort = false

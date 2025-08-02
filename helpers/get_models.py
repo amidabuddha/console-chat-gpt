@@ -22,6 +22,7 @@ def get_models():
         "alibaba_models": [],
         "inception_models": [],
         "moonshot_models": [],
+        "openrouter_models": [],
     }
 
     MODELS_MAX_TOKEN = {}
@@ -56,5 +57,7 @@ def get_models():
             MODELS_LIST["inception_models"].append(model_name)
         elif "kimi" in model:
             MODELS_LIST["moonshot_models"].append(model_name)
+        elif "openrouter" in model:
+            MODELS_LIST["openrouter_models"].append(model_name)
 
     return MODELS_LIST, MODELS_MAX_TOKEN
