@@ -1,9 +1,9 @@
 > Features:
 - [fdcc64c] [Feature] Add Horizon by OpenRouter
 - [482ed68] [Feature] Image generation via OpenAI Responses API
-- [150ae1a] [Feature] More kimi
 
 > Improvements:
+- [cd6e52e] [Improvement] Refine tools handling
 - [33d338b] [Improvement] Fix Ollama tool calling
 - [978b0e5] [Improvement] Support ~/ in path
 - [987edb5] [Improvement] More pythonic model detection
