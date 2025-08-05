@@ -10,9 +10,9 @@
 - [987edb5] [Improvement] More pythonic model detection
 
 > Bug Fixes:
+- [ca787d9] [BugFix] Empty tools as list, not boolean
 - [e14e953] [BugFix] Revert Claude max tokens due to API error
 - [039ff4d] [BugFix] Image imput to OpenAI Response API
-- [d211316] [BugFix] Model menu setting
 
 
 ---
