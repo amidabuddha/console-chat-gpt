@@ -1,4 +1,5 @@
 > Features:
+- [aaafb05] [Feature] Add Claude Opus 4.1
 - [fdcc64c] [Feature] Add Horizon by OpenRouter
 - [482ed68] [Feature] Image generation via OpenAI Responses API
 
