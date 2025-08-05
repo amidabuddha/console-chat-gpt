@@ -159,7 +159,7 @@ def chat(console, data, managed_user_prompt) -> None:
                     "model": model_name,
                     "messages": conversation,
                     "temperature": temperature,
-                    "tools": tools,
+                    "tools": tools if tools is not False else [],
                     "stream": streaming,
                 }
                 if cached is not False:
