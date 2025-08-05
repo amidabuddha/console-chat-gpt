@@ -8,9 +8,9 @@
 - [33d338b] [Improvement] Fix Ollama tool calling
 - [978b0e5] [Improvement] Support ~/ in path
 - [987edb5] [Improvement] More pythonic model detection
-- [41ab109] [Improvement] Update Inception AI models
 
 > Bug Fixes:
+- [e14e953] [BugFix] Revert Claude max tokens due to API error
 - [039ff4d] [BugFix] Image imput to OpenAI Response API
 - [d211316] [BugFix] Model menu setting
 
