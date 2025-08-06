@@ -4,6 +4,7 @@
 - [482ed68] [Feature] Image generation via OpenAI Responses API
 
 > Improvements:
+- [c77acf1] [Improvement] Fix Reasoning with Ollama
 - [cd6e52e] [Improvement] Refine tools handling
 - [33d338b] [Improvement] Fix Ollama tool calling
 - [978b0e5] [Improvement] Support ~/ in path
@@ -12,7 +13,6 @@
 > Bug Fixes:
 - [ca787d9] [BugFix] Empty tools as list, not boolean
 - [e14e953] [BugFix] Revert Claude max tokens due to API error
-- [039ff4d] [BugFix] Image imput to OpenAI Response API
 
 
 ---

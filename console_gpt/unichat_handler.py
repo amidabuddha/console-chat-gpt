@@ -36,7 +36,7 @@ def handle_streaming_completion(model_name, response_stream, conversation):
                 reasoning_content += delta.reasoning_content
                 rmd = Markdown(reasoning_content, code_theme="dracula")
                 live.update(rmd)
-            
+
             if hasattr(delta, "reasoning") and delta.reasoning:
                 reasoning_content += delta.reasoning
                 rmd = Markdown(reasoning_content, code_theme="dracula")
