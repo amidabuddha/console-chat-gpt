@@ -36,6 +36,11 @@ def handle_streaming_completion(model_name, response_stream, conversation):
                 reasoning_content += delta.reasoning_content
                 rmd = Markdown(reasoning_content, code_theme="dracula")
                 live.update(rmd)
+            
+            if hasattr(delta, "reasoning") and delta.reasoning:
+                reasoning_content += delta.reasoning
+                rmd = Markdown(reasoning_content, code_theme="dracula")
+                live.update(rmd)
 
             if hasattr(delta, "content") and delta.content:
                 current_content += delta.content
@@ -129,6 +134,10 @@ def handle_non_streaming_completion(model_name, response, conversation):
     reasoning_content = getattr(message, "reasoning_content", None)
     if reasoning_content:
         assistance_reply(reasoning_content, f"{model_name} Reasoning")
+
+    reasoning = getattr(message, "reasoning", None)
+    if reasoning:
+        assistance_reply(reasoning, f"{model_name} Reasoning")
 
     # Handle content
     content = getattr(message, "content", None)
