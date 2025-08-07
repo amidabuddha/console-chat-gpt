@@ -53,6 +53,7 @@ def chat(console, data, managed_user_prompt) -> None:
     use_responses = model_name in MODELS_LIST["openai_models"]
     if use_responses:
         client = openai.OpenAI(api_key=api_key)
+        verbosity = model_data.get("verbosity")
     else:
         client = openai.OpenAI(**client_params) if model_title == "ollama" else UnifiedChatApi(**client_params)
     conversation = data.conversation
@@ -150,6 +151,8 @@ def chat(console, data, managed_user_prompt) -> None:
                     params["reasoning"]["summary"] = "detailed"
                 else:
                     params["temperature"] = temperature
+                if verbosity:
+                    params.setdefault("text", {})["verbosity"] = verbosity
                 if model_name == "o3-pro":
                     params["background"] = True
 

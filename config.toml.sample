@@ -14,15 +14,15 @@ fallback_char = "?"
 [chat.defaults]
 temperature = 1
 system_role = "assistant"
-model = "gemini-pro"
+model = "gpt-5"
 
 [chat.managed]
-assistant = "gpt-4o-mini"
+assistant = "gpt-5-mini"
 assistant_role = "<instructions>\nInstructions for AI Assistant:\n\n- Select the optimal AI model to answer user questions based on their complexity and nature.\n- Provide your response only in JSON format, strictly following the example below.\n- The \"system\" message should contain clear, guiding instructions for the selected AI model, without sharing your reasoning or including your own answer or opinion.\n\n<example>\n{\n    \"model\": \"{{selected_model}}\",\n    \"messages\": [\n        {\"role\": \"system\", \"content\": \"{{system_instruction_to_ai_model}}\"}\n    ]\n}\n</example>\n\nEvaluation Criteria:\n\n1. Analyze the user's question based on topic, required depth of knowledge, and length.\n2. Select the most suitable model from the options, considering capabilities and cost-effectiveness.\n3. Use the tables below to guide your model selection.\n\n<table1>\n| Model Name | Cost | Remarks |\n|-|-|-|-|\n| {{assistant_generalist}} | Highest | High-intelligence model for complex, multi-step tasks. |\n| {{assistant_fast}} | Cheapest | Affordable, intelligent model for fast, lightweight tasks. |\n| {{assistant_thinker}} | Highest | Advanced reasoning model for solving hard problems across domains. |\n| {{assistant_coder}} | Medium | Efficient reasoning in coding, math, and science. |\n</table1>\n\nModels are ranked from highest to lowest capability. Only suggest the best-fitting model.\n\n<table2>\n| Category | Model to Consider |\n|-|-|\n| Math, Science, Coding | {{assistant_coder}} |\n| One-shot (deep reasoning with context) | {{assistant_thinker}} |\n| Multi-turn, complex conversations with reasoning | {{assistant_generalist}} |\n| Complex tasks, problem solving across domains. | {{assistant_generalist}} |\n| Common Tasks, General Topics | {{assistant_fast}} |\n</table2>\n\nNotes:\n\n- Do not include explanations or clarifications outside the JSON response.\n- Optimize query handling, model capability, and cost in your decision.\n</instructions>"
-assistant_generalist = "gpt-41"
-assistant_fast = "gpt-41-mini"
-assistant_thinker = "o3"
-assistant_coder = "o4-mini"
+assistant_generalist = "gpt-5-chat"
+assistant_fast = "gpt-5-mini"
+assistant_thinker = "gpt-5"
+assistant_coder = "gpt-5"
 prompt = true
 
 [chat.features]
@@ -62,6 +62,7 @@ model_max_tokens = 1047576
 model_name = "gpt-4.1-nano"
 model_output_pricing_per_1k = 0.0004
 reasoning_effort = false
+verbosity = false
 
 [chat.models.gpt-41-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -71,6 +72,7 @@ model_max_tokens = 1047576
 model_name = "gpt-4.1-mini"
 model_output_pricing_per_1k = 0.0016
 reasoning_effort = false
+verbosity = false
 
 [chat.models.gpt-4o-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -80,6 +82,7 @@ model_max_tokens = 200000
 model_name = "gpt-4o-mini"
 model_output_pricing_per_1k = 0.0006
 reasoning_effort = false
+verbosity = false
 
 [chat.models.gpt-4o]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -89,6 +92,7 @@ model_max_tokens = 128000
 model_name = "gpt-4o"
 model_output_pricing_per_1k = 0.01
 reasoning_effort = false
+verbosity = false
 
 [chat.models.gpt-4o-latest]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -98,6 +102,7 @@ model_max_tokens = 128000
 model_name = "gpt-4o-2024-11-20"
 model_output_pricing_per_1k = 0.01
 reasoning_effort = false
+verbosity = false
 
 [chat.models.gpt-4o-chatgpt]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -107,6 +112,7 @@ model_max_tokens = 128000
 model_name = "chatgpt-4o-latest"
 model_output_pricing_per_1k = 0.015
 reasoning_effort = false
+verbosity = false
 
 [chat.models.gpt-41]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -116,6 +122,7 @@ model_max_tokens = 1047576
 model_name = "gpt-4.1"
 model_output_pricing_per_1k = 0.008
 reasoning_effort = false
+verbosity = false
 
 [chat.models.o3-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -125,6 +132,7 @@ model_max_tokens = 200000
 model_name = "o3-mini"
 model_output_pricing_per_1k = 0.0044
 reasoning_effort = "medium"
+verbosity = false
 
 [chat.models.o3]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -134,6 +142,7 @@ model_max_tokens = 200000
 model_name = "o3"
 model_output_pricing_per_1k = 0.008
 reasoning_effort = "medium"
+verbosity = false
 
 [chat.models.o3-pro]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -143,6 +152,7 @@ model_max_tokens = 200000
 model_name = "o3-pro"
 model_output_pricing_per_1k = 0.08
 reasoning_effort = "medium"
+verbosity = false
 
 [chat.models.o4-mini]
 api_key = "YOUR_OPENAI_API_KEY"
@@ -152,6 +162,47 @@ model_max_tokens = 200000
 model_name = "o4-mini"
 model_output_pricing_per_1k = 0.0044
 reasoning_effort = "medium"
+verbosity = false
+
+[chat.models.gpt-5-nano]
+api_key = "YOUR_OPENAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.00005
+model_max_tokens = 400000
+model_name = "gpt-5-nano"
+model_output_pricing_per_1k = 0.0004
+reasoning_effort = "medium"
+verbosity = "low"
+
+[chat.models.gpt-5-mini]
+api_key = "YOUR_OPENAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.00025
+model_max_tokens = 400000
+model_name = "gpt-5-mini"
+model_output_pricing_per_1k = 0.002
+reasoning_effort = "medium"
+verbosity = "low"
+
+[chat.models.gpt-5]
+api_key = "YOUR_OPENAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.00125
+model_max_tokens = 400000
+model_name = "gpt-5"
+model_output_pricing_per_1k = 0.01
+reasoning_effort = "medium"
+verbosity = "low"
+
+[chat.models.gpt-5-chat]
+api_key = "YOUR_OPENAI_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.00125
+model_max_tokens = 400000
+model_name = "gpt-5-chat-latest"
+model_output_pricing_per_1k = 0.01
+reasoning_effort = "medium"
+verbosity = "low"
 
 # ==================================
 # Mistral models
