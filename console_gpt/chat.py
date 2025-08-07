@@ -137,7 +137,7 @@ def chat(console, data, managed_user_prompt) -> None:
                 }
                 if conversation[0]["role"] == "system":
                     params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
-                if tools is not False:
+                if tools is not False and model_name != "gpt-5-chat-latest":
                     res_tools = openai_response_tools(tools)
                     res_tools.extend(
                         [{"type": "web_search_preview"}, {"type": "code_interpreter", "container": {"type": "auto"}}]

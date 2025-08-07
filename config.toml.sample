@@ -201,8 +201,8 @@ model_input_pricing_per_1k = 0.00125
 model_max_tokens = 400000
 model_name = "gpt-5-chat-latest"
 model_output_pricing_per_1k = 0.01
-reasoning_effort = "medium"
-verbosity = "low"
+reasoning_effort = false
+verbosity = false
 
 # ==================================
 # Mistral models
