@@ -23,7 +23,7 @@ class ServerManager:
         try:
             with socket.create_connection((self.host, self.port), timeout=1):
                 return True
-        except (ConnectionRefusedError, socket.timeout, OSError) as e:
+        except (ConnectionRefusedError, socket.timeout, OSError):
             return False
 
     def is_process_running(self) -> bool:
@@ -62,13 +62,15 @@ class ServerManager:
             if os.name == "nt":  # Windows
                 self.server_process = subprocess.Popen(
                     [sys.executable, self.server_script],
-                    stdout=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                     creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
                 )
             else:  # Unix-like systems
                 self.server_process = subprocess.Popen(
                     [sys.executable, self.server_script],
-                    stdout=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                     start_new_session=True,
                 )
 
@@ -79,7 +81,7 @@ class ServerManager:
                 if self.server_process.poll() is not None:
                     # Process has exited
                     if self.server_process.returncode != 0:
-                        return False, "Server failed to start: Pelase check your mcp_config.json file"
+                        return False, "Server failed to start: Please check your mcp_config.json file"
                 if self.is_port_open():
                     custom_print("info", "Server is accepting connections.")
                     return True, "Server process started successfully"

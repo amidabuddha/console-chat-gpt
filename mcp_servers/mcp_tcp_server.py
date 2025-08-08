@@ -31,9 +31,10 @@ stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.INFO)  # Only log INFO and above to the console
 stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
-# Add both handlers to the logger
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+# Add both handlers to the logger (avoid duplicates if imported multiple times)
+if not logger.handlers:
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
 
 # Get configurations from mcp_config.json
 MCP_PATH = os.path.join(os.path.dirname(os.path.realpath(f"{__file__}/..")), "mcp_config.json")
@@ -123,10 +124,22 @@ class MCPTCPServer:
                     if not isinstance(arg, str):
                         raise ConfigError(f"Argument {i} in server '{server_name}' must be a string", MCP_PATH)
 
+            # Check env field if present
+            if "env" in server_config:
+                if not isinstance(server_config["env"], dict):
+                    raise ConfigError(f"Field 'env' must be a dictionary in server '{server_name}'", MCP_PATH)
+                for k, v in server_config["env"].items():
+                    if not isinstance(k, str) or not isinstance(v, str):
+                        raise ConfigError(
+                            f"Environment overrides must be string key/value pairs in server '{server_name}'",
+                            MCP_PATH,
+                        )
+
     @staticmethod
     def tool_to_dict(tool: Tool) -> Dict[str, Any]:
         """Convert a Tool object to a dictionary with the specified schema."""
-        return {
+        # Align with MCP Tool schema: include optional title and outputSchema when available
+        tool_dict: Dict[str, Any] = {
             "name": tool.name,
             "description": tool.description,
             "inputSchema": (
@@ -135,6 +148,14 @@ class MCPTCPServer:
                 else {"type": "object", "properties": {}, "required": []}
             ),
         }
+
+        # Optional fields supported by newer MCP specs/SDKs
+        if hasattr(tool, "title") and getattr(tool, "title"):
+            tool_dict["title"] = tool.title
+        if hasattr(tool, "outputSchema") and getattr(tool, "outputSchema"):
+            tool_dict["outputSchema"] = tool.outputSchema
+
+        return tool_dict
 
     @staticmethod
     def get_executable_path(command: str) -> str:
@@ -151,11 +172,11 @@ class MCPTCPServer:
                 os.path.expanduser(f"~/.npm-global/bin/{cmd}"),
                 os.path.expanduser(f"~/.local/bin/{cmd}"),
             ]
-            return next((path for path in common_paths if os.path.isfile(path)), None)
+            return next((path for path in common_paths if os.path.isfile(path) and os.access(path, os.X_OK)), None)
 
         try:
             # Check if it's a full path
-            if os.path.sep in command and os.path.isfile(command):
+            if os.path.sep in command and os.path.isfile(command) and os.access(command, os.X_OK):
                 return command
 
             # Try using shutil.which first
@@ -222,17 +243,6 @@ class MCPTCPServer:
 
             server_params = StdioServerParameters(command=command_path, args=server_config.get("args", []), env=env)
 
-            # Start the server process
-            process = subprocess.Popen(
-                [command_path] + server_config.get("args", []),
-                env=env,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-
-            self.server_processes[server_name] = process
-
             server.client = stdio_client(server_params)
             read_stream, write_stream = await server.client.__aenter__()
             server.client_entered = True  # Mark client context as entered
@@ -251,18 +261,6 @@ class MCPTCPServer:
                 self.logger.warning(f"Server initialization for {server_name} was cancelled.")
             else:
                 self.logger.error(f"Server initialization for {server_name} failed: {e}")
-
-            # Terminate the subprocess if it's still running
-            if server_name in self.server_processes:
-                process = self.server_processes[server_name]
-                if process.poll() is None:  # Check if the process is still running
-                    self.logger.info(f"Terminating subprocess for server {server_name}")
-                    process.terminate()
-                    try:
-                        process.wait(timeout=5)  # Wait for process to terminate with a timeout
-                    except subprocess.TimeoutExpired:
-                        self.logger.warning(f"Forcefully killing subprocess for server {server_name}")
-                        process.kill()
 
             # Clean up resources
             await server.cleanup()
@@ -332,11 +330,16 @@ class MCPTCPServer:
                 initialization_errors.append(error)
                 return []
 
-        tasks = [init_with_timeout(name, config) for name, config in config.items()]
+        tasks = [init_with_timeout(name, server_cfg) for name, server_cfg in config.items()]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Flatten the results list and filter out empty lists and exceptions
         all_tools = [tool for sublist in results if isinstance(sublist, list) for tool in sublist]
+
+        # Also capture any unexpected exceptions bubbled up from gather
+        for item in results:
+            if isinstance(item, Exception):
+                initialization_errors.append(item)
 
         return all_tools, initialization_errors
 
@@ -344,13 +347,15 @@ class MCPTCPServer:
         """Handle individual TCP client connections."""
         try:
             while True:
-                length_bytes = await reader.read(4)
-                if not length_bytes:
+                try:
+                    length_bytes = await reader.readexactly(4)
+                except asyncio.IncompleteReadError:
                     break
 
                 msg_length = int.from_bytes(length_bytes, "big")
-                data = await reader.read(msg_length)
-                if not data:
+                try:
+                    data = await reader.readexactly(msg_length)
+                except asyncio.IncompleteReadError:
                     break
 
                 request = json.loads(data.decode())
@@ -368,27 +373,7 @@ class MCPTCPServer:
                             None,
                         )
 
-                        # Check if server failed to initialize
-                        failed_server = next(
-                            (
-                                s
-                                for s in self.servers.values()
-                                if isinstance(s, Exception) and not isinstance(s, MCPServer) and s == server
-                            ),
-                            None,
-                        )
-
-                        if failed_server:
-                            # Return the initialization error
-                            if isinstance(failed_server, CommandNotFoundError):
-                                response = {"status": "error", "error": failed_server.to_dict()}
-                            else:
-                                response = {
-                                    "status": "error",
-                                    "error": MCPError("SERVER_ERROR", "Server initialization failed").to_dict(),
-                                }
-
-                        elif not server:
+                        if not server:
                             raise ToolExecutionError(f"Tool not found", tool_name, arguments)
 
                         else:

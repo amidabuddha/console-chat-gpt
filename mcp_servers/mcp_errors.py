@@ -13,7 +13,9 @@ class MCPError(Exception):
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "MCPError":
-        return cls(error_type=data["error_type"], message=data["message"], details=data.get("details", {}))
+        # Be tolerant to different error key names ("error_type" preferred, fallback to "type")
+        error_type = data.get("error_type", data.get("type", "UNKNOWN_ERROR"))
+        return cls(error_type=error_type, message=data.get("message", ""), details=data.get("details", {}))
 
 
 class ConfigError(MCPError):
