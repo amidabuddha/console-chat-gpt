@@ -4,6 +4,7 @@
 - [fdcc64c] [Feature] Add Horizon by OpenRouter
 
 > Improvements:
+- [1b3b541] [Improvement] Cleanup MCP servers
 - [20746cf] [Improvement] Disable unsupported parameters with gpt-5-chat-latest
 - [c77acf1] [Improvement] Fix Reasoning with Ollama
 - [cd6e52e] [Improvement] Refine tools handling
