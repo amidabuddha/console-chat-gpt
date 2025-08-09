@@ -10,30 +10,6 @@ from console_gpt.custom_stdout import colored, custom_print
 CreateType = Literal["folder", "config.toml", "mcp_config.json"]
 
 
-def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optional[CreateType] = None) -> str:
-    """
-    Join path presented by `paths` (separate args) and check if exists.
-    The path can be created if it doesn't exist and create is enabled
-    :param paths: paths to join
-    :param create: whether to create path if it doesn't exist
-    :param target: the file that would be created if this path exist (for sample files)
-    :return: joined path
-    """
-    q_path = os.path.join(*paths)
-    if not os.path.exists(q_path):
-        if create == "folder":
-            os.mkdir(q_path)
-            custom_print("ok", f"Created the folder - {paths[-1]}")
-        elif create in ("config.toml", "mcp_config.json"):
-            shutil.copy(q_path + ".sample", q_path)
-            custom_print("ok", f'"{create}" created from sample')
-        elif target and not os.path.exists(os.path.join(paths[0], target)):
-            custom_print("error", f'"{target}.sample" is either missing or renamed, please update from source.', 2)
-        elif not target:
-            custom_print("error", f'No such file or directory: "{q_path}', 2)
-    return str(q_path)
-
-
 def _load_toml(conf_path: str) -> Optional[Dict]:
     """
     Load config from file
@@ -51,6 +27,83 @@ def _load_toml(conf_path: str) -> Optional[Dict]:
             f"Empty values and/or duplicates are NOT allowed in the config file [ {colored_error} ]",
             1,
         )
+
+
+def _prune_models(conf_path: str) -> None:
+    """Trim models in a freshly created config.toml to only the ones referenced elsewhere.
+
+    Keeps:
+      - defaults.model
+      - managed.assistant
+      - managed.assistant_{generalist,fast,thinker,coder}
+    The large master list remains in config.toml.sample and can still be used via the
+    model add menu. This keeps the initial user config concise.
+    """
+    config = _load_toml(conf_path)
+    if not config or "chat" not in config or "models" not in config["chat"]:
+        return
+    chat = config["chat"]
+    models = chat.get("models", {})
+    managed = chat.get("managed", {})
+    defaults = chat.get("defaults", {})
+
+    required_keys = set()
+    # defaults
+    default_model = defaults.get("model")
+    if isinstance(default_model, str):
+        required_keys.add(default_model)
+    # managed variants
+    for k in ("assistant", "assistant_generalist", "assistant_fast", "assistant_thinker", "assistant_coder"):
+        val = managed.get(k)
+        if isinstance(val, str):
+            required_keys.add(val)
+
+    # Safety: if required set empty or any key missing from models skip pruning
+    if not required_keys:
+        return
+    existing_required = [k for k in models.keys() if k in required_keys]
+    if not existing_required:
+        return
+    # If nothing to prune (already minimal) skip
+    if len(existing_required) == len(models):
+        return
+    # Preserve original order
+    pruned_models = {k: models[k] for k in models if k in required_keys}
+    if pruned_models:
+        chat["models"] = pruned_models
+        with open(conf_path, "w") as f:
+            toml.dump(config, f)
+        custom_print("ok", f"Trimmed models list to required model(s): {', '.join(pruned_models.keys())}")
+
+
+def _join_and_check(*paths, create: Optional[CreateType] = None, target: Optional[CreateType] = None) -> str:
+    """
+    Join path presented by `paths` (separate args) and check if exists.
+    The path can be created if it doesn't exist and create is enabled
+    :param paths: paths to join
+    :param create: whether to create path if it doesn't exist
+    :param target: the file that would be created if this path exist (for sample files)
+    :return: joined path
+    """
+    q_path = os.path.join(*paths)
+    if not os.path.exists(q_path):
+        if create == "folder":
+            os.mkdir(q_path)
+            custom_print("ok", f"Created the folder - {paths[-1]}")
+        elif create in ("config.toml", "mcp_config.json"):
+            shutil.copy(q_path + ".sample", q_path)
+            custom_print("ok", f'"{create}" created from sample')
+            # After first-time creation of config.toml prune the models list to only the required ones
+            if create == "config.toml":
+                try:
+                    _prune_models(q_path)
+                except Exception as e:  # pragma: no cover - non critical
+                    custom_print("warn", f"Model pruning skipped: {e}")
+        elif target and not os.path.exists(os.path.join(paths[0], target)):
+            custom_print("error", f'"{target}.sample" is either missing or renamed, please update from source.', 2)
+        elif not target:
+            custom_print("error", f'No such file or directory: "{q_path}', 2)
+    return str(q_path)
 
 
 def __var_error(data: Iterable[Any], auto_exit) -> Union[None, bool]:
