@@ -26,7 +26,14 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
 
     # Fetches the default model
     default_model = fetch_variable("defaults", "model")
-    default_assistant = fetch_variable("managed", "assistant")
+    # Fetch all managed assistant model mappings (assistant, assistant_generalist, etc.)
+    managed_section = fetch_variable("managed")
+    managed_assistant_models = {
+        v
+        for k, v in managed_section.items()
+        if isinstance(v, str)
+        and k in {"assistant", "assistant_generalist", "assistant_fast", "assistant_thinker", "assistant_coder"}
+    }
     all_models = fetch_variable("models")
 
     if default_model not in all_models:
@@ -76,16 +83,13 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
         selected = preview_multiselect_menu(menu_items, "Remove model(s)", preview_title="Model details")
         to_remove = set(selected or [])
         # Check for protected models
-        protected_model = default_model if default_model in to_remove else None
-        protected_assistant = default_assistant if default_assistant in to_remove else None
-        if protected_model:
-            custom_print("warn", f"Cannot remove model set as default model: {protected_model}. It will be kept.")
-            to_remove.discard(protected_model)
-        if protected_assistant:
-            custom_print(
-                "warn", f"Cannot remove model set as default assistant: {protected_assistant}. It will be kept."
-            )
-            to_remove.discard(protected_assistant)
+        # Protected models: default model + all managed assistant mapped models
+        protected_models = {default_model} | managed_assistant_models
+        intersect = protected_models & to_remove
+        for pm in intersect:
+            reason = "default model" if pm == default_model else "managed assistant model"
+            custom_print("warn", f"Cannot remove {reason}: {pm}. It will be kept.")
+            to_remove.discard(pm)
         if to_remove:
             config = _load_toml(CONFIG_PATH)
             for k in to_remove:
