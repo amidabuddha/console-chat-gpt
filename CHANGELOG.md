@@ -1,9 +1,9 @@
 > Features:
 - [6c2a667] [Feature] GPT-5
 - [aaafb05] [Feature] Add Claude Opus 4.1
-- [fdcc64c] [Feature] Add Horizon by OpenRouter
 
 > Improvements:
+- [fa85959] [Improvement] Add managed models to protected
 - [7b1d682] [Improvement] Have only required models in config on first run
 - [1b3b541] [Improvement] Cleanup MCP servers
 - [20746cf] [Improvement] Disable unsupported parameters with gpt-5-chat-latest
