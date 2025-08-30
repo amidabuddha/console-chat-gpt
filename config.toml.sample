@@ -321,6 +321,15 @@ reasoning_effort = "medium"
 # ==================================
 # xAI models
 # ==================================
+[chat.models.grok-code-fast]
+api_key = "YOUR_GROK_API_KEY"
+base_url = "https://api.x.ai/v1"
+model_input_pricing_per_1k = 0.0002
+model_max_tokens = 256000
+model_name = "grok-code-fast"
+model_output_pricing_per_1k = 0.0015
+reasoning_effort = false
+
 [chat.models.grok-4]
 api_key = "YOUR_GROK_API_KEY"
 base_url = "https://api.x.ai/v1"
@@ -339,15 +348,6 @@ model_name = "grok-3-latest"
 model_output_pricing_per_1k = 0.015
 reasoning_effort = false
 
-[chat.models.grok-3-fast]
-api_key = "YOUR_GROK_API_KEY"
-base_url = "https://api.x.ai/v1"
-model_input_pricing_per_1k = 0.005
-model_max_tokens = 131072
-model_name = "grok-3-fast-latest"
-model_output_pricing_per_1k = 0.025
-reasoning_effort = false
-
 [chat.models.grok-3-mini]
 api_key = "YOUR_GROK_API_KEY"
 base_url = "https://api.x.ai/v1"
@@ -356,24 +356,6 @@ model_max_tokens = 131072
 model_name = "grok-3-mini-latest"
 model_output_pricing_per_1k = 0.0005
 reasoning_effort = "medium"
-
-[chat.models.grok-3-mini-fast]
-api_key = "YOUR_GROK_API_KEY"
-base_url = "https://api.x.ai/v1"
-model_input_pricing_per_1k = 0.0006
-model_max_tokens = 131072
-model_name = "grok-3-mini-fast-latest"
-model_output_pricing_per_1k = 0.004
-reasoning_effort = "medium"
-
-[chat.models.grok-2-vision]
-api_key = "YOUR_GROK_API_KEY"
-base_url = "https://api.x.ai/v1"
-model_input_pricing_per_1k = 0.002
-model_max_tokens = 32768
-model_name = "grok-2-vision-latest"
-model_output_pricing_per_1k = 0.01
-reasoning_effort = false
 
 # ==================================
 # Google models
