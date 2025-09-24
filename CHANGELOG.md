@@ -1,8 +1,8 @@
 > Features:
 - [6c2a667] [Feature] GPT-5
-- [aaafb05] [Feature] Add Claude Opus 4.1
 
 > Improvements:
+- [67a3d1f] [Improvement] Update models
 - [2fbe524] [Improvement] Update xAI models
 - [fa85959] [Improvement] Add managed models to protected
 - [7b1d682] [Improvement] Have only required models in config on first run
