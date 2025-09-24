@@ -57,23 +57,17 @@ The intention and implementation of this code are entirely unconnected and unrel
 - Streaming with all supported models, disabled by default, may be enabled in `settings` menu
 - [**OpenAI Assistants Beta**](https://platform.openai.com/docs/assistants/overview) supported
 - **AI Managed mode** Based on the complexity of the task, automatically determines which model to use.
-- **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over
-  how the app works. Also supported in-app via the `settings` command.
-- **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and
-  interactive experience.
-- **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the
-  conversation.
+- **Configuration File**: Easily customize the app's settings through the `config.toml` file for complete control over how the app works. Also supported in-app via the `settings` command.
+- **Role selection**: Users can define the role of the AI in the conversation, allowing for a more personalized and interactive experience.
+- **Temperature Control**: Adjust the temperature of generated responses to control creativity and randomness in the conversation.
 - **Command Handling**: The app responds to various commands entered by the user for easy and intuitive interaction.
 - **Image input**: with selected models.
 - **Error Handling**: Clear and helpful error messages to easily understand and resolve any issues.
-- **Conversation History**: Review previous interactions and save conversations for future reference, providing context
-  and continuity.
-- **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of
-  progress.
+- **Conversation History**: Review previous interactions and save conversations for future reference, providing context and continuity.
+- **Graceful Exit**: Smoothly handle interruptions, ensuring conversations are saved before exiting to avoid loss of progress.
 - **A nice team**: Actively adding features, open for ideas and fixing bugs.
 
-Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance
-personalization, control, and convenience.
+Overall, this app focuses on providing a user-friendly and customizable experience with features that enhance personalization, control, and convenience.
 
 ---
 
@@ -149,8 +143,9 @@ personalization, control, and convenience.
 | assistant_thinker | A reasoning model for complex tasks. Should be listed in the [chat.models] section, with relevant parameters. |
 | assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the [chat.models] section, with relevant parameters. |
 | prompt | When **AI Managed mode** is used frequently the Y/N prompt may be disabled by changing this to **false**. |
+
 ### Adding your OpenAI SDK supported model
-Add an entry at the end of your `config.toml` file
+Add an entry at the end of your `config.toml` file.
 Use the following example structure:
 ```toml
 [chat.models.{{model name that makes sense to you}}]
