@@ -12,7 +12,6 @@
 
 > Bug Fixes:
 - [ca787d9] [BugFix] Empty tools as list, not boolean
-- [e14e953] [BugFix] Revert Claude max tokens due to API error
 
 
 ---
