@@ -18,11 +18,6 @@ def get_models():
         "openai_models": [],
         "grok_models": [],
         "gemini_models": [],
-        "deepseek_models": [],
-        "alibaba_models": [],
-        "inception_models": [],
-        "moonshot_models": [],
-        "openrouter_models": [],
     }
 
     MODELS_MAX_TOKEN = {}
@@ -49,15 +44,5 @@ def get_models():
             MODELS_LIST["grok_models"].append(model_name)
         elif "gemini" in model:
             MODELS_LIST["gemini_models"].append(model_name)
-        elif "deepseek" in model:
-            MODELS_LIST["deepseek_models"].append(model_name)
-        elif any(sub in model for sub in ("qwen", "qwq", "qvq")):
-            MODELS_LIST["alibaba_models"].append(model_name)
-        elif "mercury" in model:
-            MODELS_LIST["inception_models"].append(model_name)
-        elif "kimi" in model:
-            MODELS_LIST["moonshot_models"].append(model_name)
-        elif "openrouter" in model:
-            MODELS_LIST["openrouter_models"].append(model_name)
 
     return MODELS_LIST, MODELS_MAX_TOKEN
