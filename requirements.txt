@@ -1,14 +1,14 @@
 unichat~=4.1.30
 questionary~=2.0.1
 rich~=13.7.0
-pillow~=11.1.0
+pillow~=12.1.1
 simple_term_menu~=1.6.4
 termcolor~=2.4.0
 toml~=0.10.2
 requests~=2.32.0
 beautifulsoup4~=4.12.3
 markdownify~=1.1.0
-pypdf~=5.4.0
-mcp~=1.12.3
+pypdf~=6.6.2
+mcp~=1.23.0
 psutil~=6.1.1
 textual~=1.0.0
