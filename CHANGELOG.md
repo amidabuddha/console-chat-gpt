@@ -1,6 +1,5 @@
 > Features:
 - [eb71ba6] [Feature] Claude Sonnet 4.5
-- [6c2a667] [Feature] GPT-5
 
 > Improvements:
 - [67a3d1f] [Improvement] Update models
@@ -12,6 +11,9 @@
 
 > Bug Fixes:
 - [f2efd51] [BugFix] Anthropic max_tokens refers to output, not context
+
+> Others:
+- [4c86e4b] [Other] Patch vulnerable packages
 
 
 ---
