@@ -12,7 +12,13 @@ def get_models():
     data = toml.load(config_path)
 
     # Initialize the structures
-    MODELS_LIST = {"anthropic_models": [], "openai_models": []}
+    MODELS_LIST = {
+        "anthropic_models": [],
+        "mistral_models": [],
+        "openai_models": [],
+        "grok_models": [],
+        "gemini_models": [],
+    }
 
     MODELS_MAX_TOKEN = {}
 
@@ -30,7 +36,13 @@ def get_models():
         # Fill MODELS_LIST
         if "anthropic" in model:
             MODELS_LIST["anthropic_models"].append(model_name)
+        elif "tral" in model:
+            MODELS_LIST["mistral_models"].append(model_name)
         elif any(sub in model for sub in ("gpt", "o3", "o4")):
             MODELS_LIST["openai_models"].append(model_name)
+        elif "grok" in model:
+            MODELS_LIST["grok_models"].append(model_name)
+        elif "gemini" in model:
+            MODELS_LIST["gemini_models"].append(model_name)
 
     return MODELS_LIST, MODELS_MAX_TOKEN
