@@ -2,6 +2,7 @@ import base64
 import io
 import re
 import select
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -15,7 +16,12 @@ from unichat.api_helper import openai
 from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
+from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
+                                       start_ollama)
 from mcp_servers.server_manager import ServerManager
+
+
+REQUEST_TIMEOUT_SECONDS = 120
 
 
 def _telegram_api(token: str, method: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -148,6 +154,79 @@ def _reset_session_conversation(session: Dict[str, Any]) -> None:
     session["conversation"] = [{"role": "system", "content": _default_system_role_content()}]
 
 
+def _is_ollama_model(model_data: Dict[str, Any]) -> bool:
+    model_title = str(model_data.get("model_title", "")).lower()
+    api_key = str(model_data.get("api_key", "")).lower()
+    base_url = str(model_data.get("base_url", "")).lower()
+
+    if model_title == "ollama" or model_title.startswith("ollama/"):
+        return True
+    if api_key == "ollama":
+        return True
+    return "localhost:11434" in base_url or "127.0.0.1:11434" in base_url
+
+
+def _unload_ollama_model(model_data: Optional[Dict[str, Any]]) -> None:
+    """Best-effort unload of Ollama model weights from RAM while keeping service alive."""
+    if not model_data or not _is_ollama_model(model_data):
+        return
+
+    model_name = str(model_data.get("model_name", "")).strip()
+    if not model_name:
+        return
+
+    try:
+        result = subprocess.run(["ollama", "stop", model_name], capture_output=True, text=True)
+        if result.returncode == 0:
+            custom_print("info", f"Unloaded Ollama model from RAM: {model_name}")
+    except Exception:
+        # Non-fatal cleanup path.
+        pass
+
+
+def _unload_ollama_models_in_sessions(sessions: Dict[int, Dict[str, Any]]) -> None:
+    seen_models = set()
+    for session in sessions.values():
+        model_data = session.get("model", {})
+        if not _is_ollama_model(model_data):
+            continue
+        model_name = str(model_data.get("model_name", "")).strip()
+        if not model_name or model_name in seen_models:
+            continue
+        seen_models.add(model_name)
+        _unload_ollama_model(model_data)
+
+
+def _build_model_catalog() -> Dict[str, Dict[str, Any]]:
+    configured_models = fetch_variable("models")
+    catalog: Dict[str, Dict[str, Any]] = {}
+
+    for model_key, model_data in configured_models.items():
+        catalog[model_key] = dict(model_data)
+        catalog[model_key]["model_title"] = model_key
+
+    try:
+        ollama_models = list_ollama_models()
+    except Exception:
+        ollama_models = []
+
+    for ollama_model in ollama_models:
+        model_key = f"ollama/{ollama_model}"
+        catalog[model_key] = {
+            "api_key": "ollama",
+            "base_url": "http://localhost:11434/v1",
+            "model_input_pricing_per_1k": 0,
+            "model_max_tokens": 0,
+            "model_name": ollama_model,
+            "model_output_pricing_per_1k": 0,
+            "reasoning_effort": False,
+            "verbosity": False,
+            "model_title": model_key,
+        }
+
+    return catalog
+
+
 def _indexed_model_keys(models: Dict[str, Any]) -> List[str]:
     return sorted(models.keys())
 
@@ -204,6 +283,24 @@ def _uses_responses_api(model_name: Optional[str]) -> bool:
     return model_name in MODELS_LIST["openai_models"]
 
 
+def _execute_model_action(with_timeout_action, fallback_action):
+    """Execute model request with timeout support and compatibility fallback."""
+    try:
+        return with_timeout_action()
+    except TypeError:
+        # Some API client wrappers may not support request-level timeout kwargs.
+        return fallback_action()
+    except KeyboardInterrupt:
+        return "interrupted"
+    except Exception as e:
+        error_text = str(e).lower()
+        if "timed out" in error_text or "timeout" in error_text:
+            custom_print("warn", f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s.")
+            return "request_timeout"
+        custom_print("error", f"Model request failed: {e}")
+        return "error_appeared"
+
+
 def _request_model_reply(session: Dict[str, Any]) -> str:
     model_data = session["model"]
     model_name = model_data.get("model_name")
@@ -218,7 +315,14 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
     if base_url:
         client_params["base_url"] = base_url
 
-    use_responses = _uses_responses_api(model_name)
+    ollama_model = _is_ollama_model(model_data)
+    if ollama_model and not is_ollama_running():
+        custom_print("info", "Ollama is not running. Starting it now...")
+        start_ollama()
+        if not is_ollama_running():
+            return "Ollama is unavailable. Start Ollama and try again."
+
+    use_responses = _uses_responses_api(model_name) and not ollama_model
     if use_responses:
         client = openai.OpenAI(**client_params)
         params = {
@@ -234,7 +338,12 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
         else:
             params["temperature"] = temperature
 
-        response = handle_with_exceptions(lambda: client.responses.create(**params))
+        response = _execute_model_action(
+            lambda: client.responses.create(**params, timeout=REQUEST_TIMEOUT_SECONDS),
+            lambda: client.responses.create(**params),
+        )
+        if response == "request_timeout":
+            return f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s. Try a smaller prompt or another model."
         if response in ("interrupted", "error_appeared"):
             return "The model request failed. Please try again."
 
@@ -243,7 +352,7 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
             conversation.extend(parsed)
         return assistant_text or "(No text content returned by model.)"
 
-    client = openai.OpenAI(**client_params) if model_title == "ollama" else UnifiedChatApi(**client_params)
+    client = openai.OpenAI(**client_params) if ollama_model else UnifiedChatApi(**client_params)
     params = {
         "model": model_name,
         "messages": conversation,
@@ -253,7 +362,12 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
     if reasoning_effort:
         params["reasoning_effort"] = reasoning_effort
 
-    response = handle_with_exceptions(lambda: client.chat.completions.create(**params))
+    response = _execute_model_action(
+        lambda: client.chat.completions.create(**params, timeout=REQUEST_TIMEOUT_SECONDS),
+        lambda: client.chat.completions.create(**params),
+    )
+    if response == "request_timeout":
+        return f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s. Try a smaller prompt or another model."
     if response in ("interrupted", "error_appeared"):
         return "The model request failed. Please try again."
 
@@ -345,7 +459,7 @@ def _handle_command(
             chat_id,
             "Commands:\n"
             "/new - reset current conversation\n"
-            "/models - list available config models\n"
+            "/models - list available models (config + Ollama, if available)\n"
             "/model - show active model for this chat\n"
             "/model set <name> - switch active model for this chat\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
@@ -365,7 +479,7 @@ def _handle_command(
         return True, False
 
     if command == "/models":
-        models = fetch_variable("models")
+        models = _build_model_catalog()
         session = sessions.setdefault(chat_id, _build_default_session())
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
@@ -376,7 +490,7 @@ def _handle_command(
         parts = text.split(maxsplit=2)
 
         if len(parts) >= 2 and parts[1].lower() in ("list", "ls"):
-            models = fetch_variable("models")
+            models = _build_model_catalog()
             active_model = session["model"].get("model_title", "")
             _send_message(token, chat_id, _render_models_list(models, active_model))
             return True, False
@@ -387,7 +501,7 @@ def _handle_command(
                 return True, False
 
             model_selector = parts[2].strip()
-            models = fetch_variable("models")
+            models = _build_model_catalog()
             indexed_keys = _indexed_model_keys(models)
 
             target_model_key = model_selector
@@ -406,8 +520,13 @@ def _handle_command(
                 )
                 return True, False
 
+            previous_model = dict(session.get("model", {}))
             session["model"] = dict(models[target_model_key])
-            session["model"]["model_title"] = target_model_key
+            if _is_ollama_model(previous_model) and previous_model.get("model_name") != session["model"].get(
+                "model_name"
+            ):
+                _unload_ollama_model(previous_model)
+
             _reset_session_conversation(session)
             model_name = session["model"].get("model_name", "unknown")
             _send_message(token, chat_id, f"Switched model to {target_model_key} ({model_name}). Conversation reset.")
@@ -557,5 +676,6 @@ def run_telegram_bot() -> None:
         except KeyboardInterrupt:
             pass
     finally:
+        _unload_ollama_models_in_sessions(sessions)
         _stop_mcp_server_if_running()
         custom_print("exit", "Telegram bot stopped.", 130)
