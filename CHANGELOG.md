@@ -5,9 +5,9 @@
 > Improvements:
 - [67a3d1f] [Improvement] Update models
 - [2fbe524] [Improvement] Update xAI models
-- [fa85959] [Improvement] Add managed models to protected
 
 > Bug Fixes:
+- [28db2f1] [BugFix] Prevent lopping /shutdown from Telegram
 - [f2efd51] [BugFix] Anthropic max_tokens refers to output, not context
 
 > Others:
