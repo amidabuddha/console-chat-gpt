@@ -50,9 +50,10 @@ def chat(console, data, managed_user_prompt) -> None:
     if base_url:
         client_params["base_url"] = base_url
 
-    use_responses = model_name in MODELS_LIST["openai_models"]
+    response_models = MODELS_LIST["openai_models"] + MODELS_LIST["grok_models"]
+    use_responses = model_name in response_models
     if use_responses:
-        client = openai.OpenAI(api_key=api_key)
+        client = openai.OpenAI(**client_params)
         verbosity = model_data.get("verbosity")
     else:
         client = openai.OpenAI(**client_params) if model_title == "ollama" else UnifiedChatApi(**client_params)
@@ -60,6 +61,10 @@ def chat(console, data, managed_user_prompt) -> None:
     temperature = data.temperature
 
     cached = model_title.startswith("anthropic")
+    telegram_mode_enabled = bool(fetch_variable("telegram", "enabled", auto_exit=False))
+    if telegram_mode_enabled and fetch_variable("features", "streaming"):
+        custom_print("warn", "Streaming is disabled while Telegram mode is enabled.")
+
     tools = False
     if fetch_variable("features", "mcp_client"):
         try:
@@ -126,7 +131,7 @@ def chat(console, data, managed_user_prompt) -> None:
             conversation.append(user_input)
 
         # Get chat completion
-        streaming = fetch_variable("features", "streaming")
+        streaming = False if telegram_mode_enabled else fetch_variable("features", "streaming")
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             if use_responses:

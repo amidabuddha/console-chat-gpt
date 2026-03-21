@@ -9,12 +9,16 @@ from console_gpt.menus.ai_managed import managed_prompt
 from console_gpt.menus.combined_menu import (AssistantObject, ChatObject,
                                              combined_menu)
 from console_gpt.prompts.save_chat_prompt import _validate_confirmation
+from console_gpt.telegram_bot import run_telegram_bot
 
 
 def console_gpt() -> None:
     console = Console()  # Used for the status bar
     set_locale()
     check_config_version()
+    if fetch_variable("telegram", "enabled", auto_exit=False):
+        run_telegram_bot()
+        return
     intro_message()
     # Outer loop
     while True:
