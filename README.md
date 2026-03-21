@@ -47,6 +47,7 @@ The intention and implementation of this code are entirely unconnected and unrel
 
 ## Features
 
+- :new: Support conversations via a Telegram bot. How to create one: [From BotFather to 'Hello World'](https://core.telegram.org/bots/tutorial) :new:
 - :new: [**OpenAI image generation via Responses API**](https://platform.openai.com/docs/guides/image-generation?image-generation-model=gpt-image-1). :new:
 - :star: [**OpenAI Responses API**](https://platform.openai.com/docs/api-reference/responses) supported. :star:
 - :star: Run any OpenAI SDK compatible  - just add the model structure with the relevant `model_name` and `base_url` to the `config.toml` file. :star:
@@ -120,6 +121,16 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | system_role  | A system (or developer) message inserted into the model's context. Should be one of the listed in [chat.roles] section. May be set for each new chat session if `role_selector` in [chat.features] is **true**. |
 | model        | Model ID used to generate the chat completion/response, like gpt-4o or o3. Should be listed in the [chat.models] section, with relevant parameters. May be set for each new chat session if `model_selector` in [chat.features] is **true**. |
 
+| [chat.managed] | Settings dedicated to the AI Managed mode. *Not available to be edited from within a chat session*. |
+|-|-|
+| assistant | The preferred model that will evaluate your prompt and select the best available model out of the four configured below to handle it. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_role | Custom instruction to the evaluation model. *Change this only if you know exactly what you are doing!* |
+| assistant_generalist | Your preferred general purpose model, typically the one you use the most for any type of queries. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_fast | When speed is preferred to accuracy. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_thinker | A reasoning model for complex tasks. Should be listed in the [chat.models] section, with relevant parameters. |
+| assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the [chat.models] section, with relevant parameters. |
+| prompt | When **AI Managed mode** is used frequently the Y/N prompt may be disabled by changing this to **false**. |
+
 | [chat.features] | Configurable options of the chat application. Some are accessible from within a chat session via the `settings` command.|
 |-|-|
 | model_selector | A selection list of models available in section [chat.models] of `config.toml`. When **true** this list may be modified at the beginning of each new chat session. |
@@ -134,15 +145,12 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | streaming | If set to **true**, the model response data will be streamed to the client. |
 | mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
 
-| [chat.managed] | Settings dedicated to the AI Managed mode. *Not available to be edited from within a chat session*. |
+| [chat.telegram] | Enable Telegram UI for cnversations. |
 |-|-|
-| assistant | The preferred model that will evaluate your prompt and select the best available model out of the four configured below to handle it. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_role | Custom instruction to the evaluation model. *Change this only if you know exactly what you are doing!* |
-| assistant_generalist | Your preferred general purpose model, typically the one you use the most for any type of queries. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_fast | When speed is preferred to accuracy. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_thinker | A reasoning model for complex tasks. Should be listed in the [chat.models] section, with relevant parameters. |
-| assistant_coder | Your preferred model to handle Coding and Math questions. Should be listed in the [chat.models] section, with relevant parameters. |
-| prompt | When **AI Managed mode** is used frequently the Y/N prompt may be disabled by changing this to **false**. |
+| enabled | If set to **true**, starts Telegram bot polling loop instead of the terminal chat UI. |
+| bot_token | Telegram bot token from BotFather, in the format `<digits>:<token>`. |
+| allowed_chat_ids | List of chat IDs allowed to use the bot. Leave empty to allow all chats. |
+| admin_chat_ids | List of chat IDs allowed to run admin-only commands such as `/shutdown`. |
 
 ### Adding your OpenAI SDK supported model
 Add an entry at the end of your `config.toml` file.
