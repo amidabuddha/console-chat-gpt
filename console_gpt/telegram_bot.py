@@ -394,6 +394,8 @@ def run_telegram_bot() -> None:
 
     sessions: Dict[int, Dict[str, Any]] = {}
     offset = 0
+    process_start_ts = int(time.time())
+    shutdown_requested = False
 
     try:
         while True:
@@ -425,10 +427,18 @@ def run_telegram_bot() -> None:
 
                 text = (message.get("text") or "").strip()
                 if text.startswith("/"):
+                    command = text.split()[0].lower()
+                    if command == "/shutdown":
+                        message_ts = int(message.get("date") or 0)
+                        # Ignore stale shutdown commands that were sent before this bot process started.
+                        if message_ts and message_ts < process_start_ts:
+                            custom_print("info", f"Ignored stale /shutdown from chat_id={chat_id}.")
+                            continue
                     handled, should_shutdown = _handle_command(text, chat_id, token, sessions, admin_chat_ids)
                     if should_shutdown:
                         custom_print("info", f"Remote shutdown requested by chat_id={chat_id}.")
-                        return
+                        shutdown_requested = True
+                        break
                     if handled:
                         continue
 
@@ -446,6 +456,19 @@ def run_telegram_bot() -> None:
                 _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
                 reply = _request_model_reply(session)
                 _send_message(token, chat_id, reply)
+
+            if shutdown_requested:
+                # Confirm processed updates (including /shutdown) without flushing newer pending messages.
+                _telegram_api(
+                    token,
+                    "getUpdates",
+                    {
+                        "offset": offset,
+                        "timeout": 0,
+                        "allowed_updates": ["message", "edited_message"],
+                    },
+                )
+                break
     except KeyboardInterrupt:
         custom_print("info", "Telegram bot interrupted. Stopping...")
     except Exception as e:
