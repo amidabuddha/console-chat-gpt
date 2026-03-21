@@ -20,7 +20,6 @@ from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
                                        start_ollama)
 from mcp_servers.server_manager import ServerManager
 
-
 REQUEST_TIMEOUT_SECONDS = 120
 
 

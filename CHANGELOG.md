@@ -3,6 +3,7 @@
 - [eb71ba6] [Feature] Claude Sonnet 4.5
 
 > Improvements:
+- [9821aa6] [Improvement] Add Ollama models to Telegram coversations
 - [673b563] [Improvement] Change configured models from Telegram
 
 > Bug Fixes:
