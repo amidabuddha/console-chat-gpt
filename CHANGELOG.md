@@ -7,7 +7,6 @@
 - [2fbe524] [Improvement] Update xAI models
 - [fa85959] [Improvement] Add managed models to protected
 - [7b1d682] [Improvement] Have only required models in config on first run
-- [1b3b541] [Improvement] Cleanup MCP servers
 
 > Bug Fixes:
 - [f2efd51] [BugFix] Anthropic max_tokens refers to output, not context
