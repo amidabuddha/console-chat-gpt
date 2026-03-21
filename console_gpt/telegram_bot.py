@@ -138,6 +138,30 @@ def _build_default_session() -> Dict[str, Any]:
     }
 
 
+def _default_system_role_content() -> str:
+    role_key = fetch_variable("defaults", "system_role")
+    role_data = fetch_variable("roles")
+    return role_data.get(role_key, "Deliver precise and informative virtual assistance.")
+
+
+def _reset_session_conversation(session: Dict[str, Any]) -> None:
+    session["conversation"] = [{"role": "system", "content": _default_system_role_content()}]
+
+
+def _indexed_model_keys(models: Dict[str, Any]) -> List[str]:
+    return sorted(models.keys())
+
+
+def _render_models_list(models: Dict[str, Any], active_model: str) -> str:
+    lines = ["Available models (active marked with *):"]
+    indexed_keys = _indexed_model_keys(models)
+    for idx, model_key in enumerate(indexed_keys, start=1):
+        marker = "*" if model_key == active_model else " "
+        lines.append(f"{idx}. [{marker}] {model_key}")
+    lines.append("Use: /model set <index> or /model set <name>")
+    return "\n".join(lines)
+
+
 def _extract_responses_text(response: Any) -> Tuple[str, List[Dict[str, Any]]]:
     assistant_chunks: List[str] = []
     parsed_output: List[Dict[str, Any]] = []
@@ -311,7 +335,7 @@ def _handle_command(
             token,
             chat_id,
             "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            "Commands: /help, /new, /model, /shutdown",
+            "Commands: /help, /new, /models, /model, /shutdown",
         )
         return True, False
 
@@ -321,7 +345,9 @@ def _handle_command(
             chat_id,
             "Commands:\n"
             "/new - reset current conversation\n"
-            "/model - show active model\n"
+            "/models - list available config models\n"
+            "/model - show active model for this chat\n"
+            "/model set <name> - switch active model for this chat\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
             "/help - show this message\n\n"
             "You can also send:\n"
@@ -332,15 +358,64 @@ def _handle_command(
         return True, False
 
     if command == "/new":
-        sessions[chat_id] = _build_default_session()
-        _send_message(token, chat_id, "Started a new conversation.")
+        session = sessions.setdefault(chat_id, _build_default_session())
+        _reset_session_conversation(session)
+        model_title = session["model"].get("model_title", "unknown")
+        _send_message(token, chat_id, f"Started a new conversation with model: {model_title}")
+        return True, False
+
+    if command == "/models":
+        models = fetch_variable("models")
+        session = sessions.setdefault(chat_id, _build_default_session())
+        active_model = session["model"].get("model_title", "")
+        _send_message(token, chat_id, _render_models_list(models, active_model))
         return True, False
 
     if command == "/model":
         session = sessions.setdefault(chat_id, _build_default_session())
+        parts = text.split(maxsplit=2)
+
+        if len(parts) >= 2 and parts[1].lower() in ("list", "ls"):
+            models = fetch_variable("models")
+            active_model = session["model"].get("model_title", "")
+            _send_message(token, chat_id, _render_models_list(models, active_model))
+            return True, False
+
+        if len(parts) >= 2 and parts[1].lower() == "set":
+            if len(parts) < 3 or not parts[2].strip():
+                _send_message(token, chat_id, "Usage: /model set <name>")
+                return True, False
+
+            model_selector = parts[2].strip()
+            models = fetch_variable("models")
+            indexed_keys = _indexed_model_keys(models)
+
+            target_model_key = model_selector
+            if model_selector.isdigit():
+                model_index = int(model_selector)
+                if model_index < 1 or model_index > len(indexed_keys):
+                    _send_message(token, chat_id, f"Invalid model index '{model_index}'. Use /models to list valid indexes.")
+                    return True, False
+                target_model_key = indexed_keys[model_index - 1]
+
+            if target_model_key not in models:
+                _send_message(token, chat_id, f"Unknown model '{model_selector}'. Use /models to list available models.")
+                return True, False
+
+            session["model"] = dict(models[target_model_key])
+            session["model"]["model_title"] = target_model_key
+            _reset_session_conversation(session)
+            model_name = session["model"].get("model_name", "unknown")
+            _send_message(token, chat_id, f"Switched model to {target_model_key} ({model_name}). Conversation reset.")
+            return True, False
+
         model_name = session["model"].get("model_name", "unknown")
         model_title = session["model"].get("model_title", "unknown")
-        _send_message(token, chat_id, f"Active model: {model_title} ({model_name})")
+        _send_message(
+            token,
+            chat_id,
+            f"Active model: {model_title} ({model_name})\nUse /models to list available models or /model set <name> to switch.",
+        )
         return True, False
 
     if command == "/shutdown":

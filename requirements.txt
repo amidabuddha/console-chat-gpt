@@ -1,4 +1,4 @@
-unichat~=4.1.32
+unichat~=4.1.33
 questionary~=2.0.1
 rich~=13.7.0
 pillow~=12.1.1
