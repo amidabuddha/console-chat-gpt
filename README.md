@@ -48,7 +48,7 @@ The intention and implementation of this code are entirely unconnected and unrel
 ## Features
 
 - :new: Support conversations via a Telegram bot. How to create one: [From BotFather to 'Hello World'](https://core.telegram.org/bots/tutorial) :new:
-- :new: [**OpenAI image generation via Responses API**](https://platform.openai.com/docs/guides/image-generation?image-generation-model=gpt-image-1). :new:
+- :star: [**OpenAI image generation via Responses API**](https://platform.openai.com/docs/guides/image-generation?image-generation-model=gpt-image-1). :star:
 - :star: [**OpenAI Responses API**](https://platform.openai.com/docs/api-reference/responses) supported. :star:
 - :star: Run any OpenAI SDK compatible  - just add the model structure with the relevant `model_name` and `base_url` to the `config.toml` file. :star:
 - :star: Run [**Ollama**](https://ollama.com) hosted models locally. _Ollama should be installed and the selected models already downloaded_  :star:

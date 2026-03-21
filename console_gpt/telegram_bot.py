@@ -177,8 +177,7 @@ def _extract_completion_text(response: Any) -> Tuple[str, Dict[str, Any]]:
 
 
 def _uses_responses_api(model_name: Optional[str]) -> bool:
-    response_models = MODELS_LIST["openai_models"] + MODELS_LIST["grok_models"]
-    return model_name in response_models
+    return model_name in MODELS_LIST["openai_models"]
 
 
 def _request_model_reply(session: Dict[str, Any]) -> str:
