@@ -12,10 +12,7 @@ def get_models():
     data = toml.load(config_path)
 
     # Initialize the structures
-    MODELS_LIST = {
-        "anthropic_models": [],
-        "openai_models": []
-    }
+    MODELS_LIST = {"anthropic_models": [], "openai_models": []}
 
     MODELS_MAX_TOKEN = {}
 

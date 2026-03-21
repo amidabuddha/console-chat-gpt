@@ -394,12 +394,16 @@ def _handle_command(
             if model_selector.isdigit():
                 model_index = int(model_selector)
                 if model_index < 1 or model_index > len(indexed_keys):
-                    _send_message(token, chat_id, f"Invalid model index '{model_index}'. Use /models to list valid indexes.")
+                    _send_message(
+                        token, chat_id, f"Invalid model index '{model_index}'. Use /models to list valid indexes."
+                    )
                     return True, False
                 target_model_key = indexed_keys[model_index - 1]
 
             if target_model_key not in models:
-                _send_message(token, chat_id, f"Unknown model '{model_selector}'. Use /models to list available models.")
+                _send_message(
+                    token, chat_id, f"Unknown model '{model_selector}'. Use /models to list available models."
+                )
                 return True, False
 
             session["model"] = dict(models[target_model_key])
