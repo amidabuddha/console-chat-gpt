@@ -749,15 +749,14 @@ def _build_user_content_from_message(
         encoded_image = base64.b64encode(image_bytes).decode("utf-8")
 
         if model_title.startswith("anthropic"):
-            content: List[Dict[str, Any]] = []
-            if caption:
-                content.append({"type": "text", "text": caption})
-            content.append(
+            content: List[Dict[str, Any]] = [
                 {
                     "type": "image",
                     "source": {"type": "base64", "media_type": "image/jpeg", "data": encoded_image},
                 }
-            )
+            ]
+            if caption:
+                content.append({"type": "text", "text": caption})
             return content
 
         content = []
