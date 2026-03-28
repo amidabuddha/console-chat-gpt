@@ -204,9 +204,10 @@ def _build_default_session() -> Dict[str, Any]:
         "model": model_data,
         "role_key": role_key,
         "temperature": temperature,
-        "mode": "chat",
-        "anthropic_web_search_enabled": True,
-        "anthropic_web_fetch_enabled": True,
+        "reasoning_effort_override": None,
+        "mode": "message",
+        "anthropic_web_search_enabled": False,
+        "anthropic_web_fetch_enabled": False,
         "cached": model_key.startswith("anthropic"),
         "conversation": [{"role": "system", "content": system_role}],
     }
@@ -249,6 +250,40 @@ def _clear_session_runtime_client(session: Dict[str, Any]) -> None:
 
 def _reset_session_conversation(session: Dict[str, Any]) -> None:
     _set_session_role(session, str(session.get("role_key") or fetch_variable("defaults", "system_role")), False)
+
+
+def _should_enable_prompt_cache(session: Dict[str, Any]) -> bool:
+    model_title = str(session.get("model", {}).get("model_title", "")).lower()
+    mode = str(session.get("mode", "message")).lower()
+    return model_title.startswith("anthropic") and mode != "message"
+
+
+def _sync_session_prompt_cache(session: Dict[str, Any]) -> None:
+    session["cached"] = _should_enable_prompt_cache(session)
+
+
+def _effective_reasoning_effort(session: Dict[str, Any]) -> Any:
+    override = session.get("reasoning_effort_override", None)
+    if override is not None:
+        return override
+    return session.get("model", {}).get("reasoning_effort", False)
+
+
+def _format_reasoning_effort(value: Any) -> str:
+    if value is False or value is None:
+        return "off"
+    return str(value)
+
+
+def _parse_reasoning_effort_selector(raw_value: str) -> Tuple[bool, Optional[Any], str]:
+    value = raw_value.strip().lower()
+    if value in ("default", "config", "inherit"):
+        return True, None, "default"
+    if value in ("off", "false", "0"):
+        return True, False, "off"
+    if value in ("none", "low", "medium", "high", "max"):
+        return True, value, value
+    return False, None, ""
 
 
 def _is_ollama_model(model_data: Dict[str, Any]) -> bool:
@@ -406,6 +441,27 @@ def _debug_conversation_snapshot(session: Dict[str, Any], chat_id: int, stage: s
     )
 
 
+def _debug_session_settings_snapshot(session: Dict[str, Any], chat_id: int, stage: str) -> None:
+    model = session.get("model", {}) or {}
+    mode = str(session.get("mode", "message")).lower()
+    role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
+    reasoning_override = session.get("reasoning_effort_override", None)
+    reasoning_effective = _effective_reasoning_effort(session)
+    cached = bool(session.get("cached", False))
+    web_search_enabled = bool(session.get("anthropic_web_search_enabled", False))
+    web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
+    custom_print(
+        "info",
+        (
+            f"[TG DEBUG] stage={stage} chat_id={chat_id} "
+            f"model={model.get('model_title', 'unknown')} mode={mode} role={role_key} "
+            f"reasoning_effective={_format_reasoning_effort(reasoning_effective)} "
+            f"reasoning_override={_format_reasoning_effort(reasoning_override)} "
+            f"cached={cached} web_search={web_search_enabled} web_fetch={web_fetch_enabled}"
+        ),
+    )
+
+
 def _uses_responses_api(model_name: Optional[str]) -> bool:
     return model_name in MODELS_LIST["openai_models"]
 
@@ -466,12 +522,14 @@ def _execute_model_action(with_timeout_action, fallback_action):
 
 
 def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, chat_id: int = 0) -> str:
+    _sync_session_prompt_cache(session)
+
     model_data = session["model"]
     model_name = model_data.get("model_name")
     model_title = str(model_data.get("model_title", "")).lower()
     api_key = model_data.get("api_key")
     base_url = model_data.get("base_url")
-    reasoning_effort = model_data.get("reasoning_effort")
+    reasoning_effort = _effective_reasoning_effort(session)
     temperature = session["temperature"]
     conversation = session["conversation"]
     cached = session.get("cached", False)
@@ -504,7 +562,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         }
         if conversation[0]["role"] == "system":
             params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
-        if reasoning_effort:
+        if reasoning_effort in ("low", "medium", "high"):
             params.setdefault("reasoning", {})["effort"] = reasoning_effort
             params["reasoning"]["summary"] = "detailed"
         else:
@@ -548,8 +606,8 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
     }
     if model_title.startswith("anthropic"):
         anthropic_tools: List[Dict[str, Any]] = []
-        web_search_enabled = bool(session.get("anthropic_web_search_enabled", True))
-        web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", True))
+        web_search_enabled = bool(session.get("anthropic_web_search_enabled", False))
+        web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
 
         if web_search_enabled:
             anthropic_tools.append(
@@ -664,6 +722,7 @@ def _handle_command(
     token: str,
     sessions: Dict[int, Dict[str, Any]],
     admin_chat_ids: List[int],
+    debug_context: bool = False,
 ) -> Tuple[bool, bool]:
     command = text.split()[0].lower()
     if command == "/start":
@@ -671,7 +730,7 @@ def _handle_command(
             token,
             chat_id,
             "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            "Commands: /help, /new, /mode, /model, /role, /websearch, /webfetch, /shutdown",
+            "Commands: /help, /new, /mode, /model, /role, /reasoning, /websearch, /webfetch, /shutdown",
         )
         return True, False
 
@@ -688,6 +747,8 @@ def _handle_command(
             "/model set <name|index> - switch active model for this chat\n"
             "/role - list available roles\n"
             "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
+            "/reasoning - show effective reasoning effort for this chat\n"
+            "/reasoning <default|off|none|low|medium|high|max> - set session reasoning effort override\n"
             "/websearch - show Anthropic web search status\n"
             "/websearch [on|off] - toggle Anthropic web search tool\n"
             "/webfetch - show Anthropic web fetch status\n"
@@ -710,7 +771,7 @@ def _handle_command(
         parts = text.split(maxsplit=1)
 
         if len(parts) == 1 or not parts[1].strip():
-            current = bool(session.get(setting_key, True))
+            current = bool(session.get(setting_key, False))
             _send_message(
                 token,
                 chat_id,
@@ -725,13 +786,15 @@ def _handle_command(
 
         enabled = value == "on"
         session[setting_key] = enabled
+        if debug_context:
+            _debug_session_settings_snapshot(session, chat_id, f"{command}_set")
         _send_message(token, chat_id, f"Anthropic {tool_label} is now {'ON' if enabled else 'OFF'} for this chat.")
         return True, False
 
     if command == "/mode":
         session = sessions.setdefault(chat_id, _build_default_session())
         parts = text.split(maxsplit=1)
-        current_mode = str(session.get("mode", "chat")).lower()
+        current_mode = str(session.get("mode", "message")).lower()
 
         if len(parts) == 1 or not parts[1].strip():
             _send_message(
@@ -753,8 +816,11 @@ def _handle_command(
             return True, False
 
         session["mode"] = target_mode
+        _sync_session_prompt_cache(session)
         if target_mode == "message":
             _reset_session_conversation(session)
+            if debug_context:
+                _debug_session_settings_snapshot(session, chat_id, "mode_set_message")
             _send_message(
                 token,
                 chat_id,
@@ -763,6 +829,8 @@ def _handle_command(
             return True, False
 
         conversation_len = len(session.get("conversation", []))
+        if debug_context:
+            _debug_session_settings_snapshot(session, chat_id, "mode_set_chat")
         if conversation_len > 1:
             _send_message(
                 token,
@@ -777,10 +845,51 @@ def _handle_command(
             )
         return True, False
 
+    if command == "/reasoning":
+        session = sessions.setdefault(chat_id, _build_default_session())
+        parts = text.split(maxsplit=1)
+
+        if len(parts) == 1 or not parts[1].strip():
+            effective = _effective_reasoning_effort(session)
+            override = session.get("reasoning_effort_override", None)
+            source = "session override" if override is not None else "model config"
+            _send_message(
+                token,
+                chat_id,
+                "Reasoning effort: "
+                f"{_format_reasoning_effort(effective)} ({source}).\n"
+                "Use /reasoning <default|off|none|low|medium|high|max> to change it.",
+            )
+            return True, False
+
+        is_valid, parsed_value, parsed_label = _parse_reasoning_effort_selector(parts[1])
+        if not is_valid:
+            _send_message(token, chat_id, "Usage: /reasoning <default|off|none|low|medium|high|max>")
+            return True, False
+
+        session["reasoning_effort_override"] = parsed_value
+        if parsed_value is None:
+            effective = _effective_reasoning_effort(session)
+            if debug_context:
+                _debug_session_settings_snapshot(session, chat_id, "reasoning_reset")
+            _send_message(
+                token,
+                chat_id,
+                f"Reasoning effort override cleared. Using model config: {_format_reasoning_effort(effective)}.",
+            )
+            return True, False
+
+        if debug_context:
+            _debug_session_settings_snapshot(session, chat_id, "reasoning_set")
+        _send_message(token, chat_id, f"Reasoning effort override set to {parsed_label} for this chat.")
+        return True, False
+
     if command == "/new":
         session = sessions.setdefault(chat_id, _build_default_session())
         session["role_key"] = fetch_variable("defaults", "system_role")
         _reset_session_conversation(session)
+        if debug_context:
+            _debug_session_settings_snapshot(session, chat_id, "new")
         model_title = session["model"].get("model_title", "unknown")
         _send_message(token, chat_id, f"Started a new conversation with model: {model_title}")
         return True, False
@@ -836,13 +945,15 @@ def _handle_command(
 
             previous_model = dict(session.get("model", {}))
             session["model"] = dict(models[target_model_key])
-            session["cached"] = str(target_model_key).startswith("anthropic")
+            _sync_session_prompt_cache(session)
             if _is_ollama_model(previous_model) and previous_model.get("model_name") != session["model"].get(
                 "model_name"
             ):
                 _unload_ollama_model(previous_model)
 
             _reset_session_conversation(session)
+            if debug_context:
+                _debug_session_settings_snapshot(session, chat_id, "model_set")
             model_name = session["model"].get("model_name", "unknown")
             _send_message(token, chat_id, f"Switched model to {target_model_key} ({model_name}). Conversation reset.")
             return True, False
@@ -893,6 +1004,8 @@ def _handle_command(
                 return True, False
 
             _set_session_role(session, target_role_key, preserve_history=True)
+            if debug_context:
+                _debug_session_settings_snapshot(session, chat_id, "role_set")
             _send_message(token, chat_id, f"Switched role to {target_role_key}. Conversation kept.")
             return True, False
 
@@ -1001,7 +1114,14 @@ def run_telegram_bot() -> None:
                         if message_ts and message_ts < process_start_ts:
                             custom_print("info", f"Ignored stale /shutdown from chat_id={chat_id}.")
                             continue
-                    handled, should_shutdown = _handle_command(text, chat_id, token, sessions, admin_chat_ids)
+                    handled, should_shutdown = _handle_command(
+                        text,
+                        chat_id,
+                        token,
+                        sessions,
+                        admin_chat_ids,
+                        debug_context=telegram_debug_context,
+                    )
                     if should_shutdown:
                         custom_print("info", f"Remote shutdown requested by chat_id={chat_id}.")
                         shutdown_requested = True
@@ -1020,7 +1140,7 @@ def run_telegram_bot() -> None:
                     continue
 
                 # In message mode, each incoming message starts from a fresh conversation context.
-                if str(session.get("mode", "chat")).lower() == "message":
+                if str(session.get("mode", "message")).lower() == "message":
                     _reset_session_conversation(session)
 
                 session["conversation"].append({"role": "user", "content": user_content})
