@@ -1,8 +1,8 @@
 > Features:
 - [fc801fa] [Feature] Support conversations through a Telegram bot
-- [eb71ba6] [Feature] Claude Sonnet 4.5
 
 > Improvements:
+- [8b8b202] [Improvement] Better message parsing in Telegram
 - [9821aa6] [Improvement] Add Ollama models to Telegram coversations
 - [673b563] [Improvement] Change configured models from Telegram
 
