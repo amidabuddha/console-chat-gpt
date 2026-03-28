@@ -196,6 +196,7 @@ def _build_default_session() -> Dict[str, Any]:
     temperature = fetch_variable("defaults", "temperature")
     return {
         "model": model_data,
+        "role_key": role_key,
         "temperature": temperature,
         "mode": "chat",
         "cached": model_key.startswith("anthropic"),
@@ -209,15 +210,37 @@ def _default_system_role_content() -> str:
     return role_data.get(role_key, "Deliver precise and informative virtual assistance.")
 
 
+def _session_system_role_content(session: Dict[str, Any]) -> str:
+    role_data = fetch_variable("roles")
+    role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
+    return role_data.get(role_key, _default_system_role_content())
+
+
+def _set_session_role(session: Dict[str, Any], role_key: str, preserve_history: bool) -> None:
+    session["role_key"] = role_key
+    system_content = _session_system_role_content(session)
+
+    if preserve_history:
+        conversation = session.setdefault("conversation", [])
+        if conversation and isinstance(conversation[0], dict) and conversation[0].get("role") == "system":
+            conversation[0]["content"] = system_content
+        else:
+            conversation.insert(0, {"role": "system", "content": system_content})
+        # Ensure subsequent requests use the updated role/system context.
+        _clear_session_runtime_client(session)
+        return
+
+    session["conversation"] = [{"role": "system", "content": system_content}]
+    _clear_session_runtime_client(session)
+
+
 def _clear_session_runtime_client(session: Dict[str, Any]) -> None:
     session.pop("_runtime_client", None)
     session.pop("_runtime_client_key", None)
 
 
 def _reset_session_conversation(session: Dict[str, Any]) -> None:
-    session["conversation"] = [{"role": "system", "content": _default_system_role_content()}]
-    # Clear provider-side runtime state so resets are honored consistently.
-    _clear_session_runtime_client(session)
+    _set_session_role(session, str(session.get("role_key") or fetch_variable("defaults", "system_role")), False)
 
 
 def _is_ollama_model(model_data: Dict[str, Any]) -> bool:
@@ -301,6 +324,24 @@ def _render_models_list(models: Dict[str, Any], active_model: str) -> str:
         marker = "*" if model_key == active_model else " "
         lines.append(f"{idx}. [{marker}] {model_key}")
     lines.append("Use: /model set <index> or /model set <name>")
+    return "\n".join(lines)
+
+
+def _build_roles_catalog() -> Dict[str, str]:
+    return dict(fetch_variable("roles"))
+
+
+def _indexed_role_keys(roles: Dict[str, str]) -> List[str]:
+    return sorted(roles.keys())
+
+
+def _render_roles_list(roles: Dict[str, str], active_role: str) -> str:
+    lines = ["Available roles (active marked with *):"]
+    indexed_keys = _indexed_role_keys(roles)
+    for idx, role_key in enumerate(indexed_keys, start=1):
+        marker = "*" if role_key == active_role else " "
+        lines.append(f"{idx}. [{marker}] {role_key}")
+    lines.append("Use: /role set <index> or /role set <name>")
     return "\n".join(lines)
 
 
@@ -554,7 +595,7 @@ def _handle_command(
             token,
             chat_id,
             "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            "Commands: /help, /new, /mode, /models, /model, /shutdown",
+            "Commands: /help, /new, /mode, /models, /model, /roles, /role, /shutdown",
         )
         return True, False
 
@@ -564,11 +605,13 @@ def _handle_command(
             chat_id,
             "Commands:\n"
             "/new - reset current conversation\n"
-            "/mode - show current mode (chat or single)\n"
+            "/mode - show current mode (chat or message)\n"
             "/mode chat - keep multi-turn context\n"
-            "/mode single - one question/one answer per message\n"
+            "/mode message - one question/one answer per message\n"
             "/models - list available models (config + Ollama, if available)\n"
             "/model set <name> - switch active model for this chat\n"
+            "/roles - list available roles\n"
+            "/role set <name> - switch active role for this chat (keeps conversation)\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
             "/help - show this message\n\n"
             "You can also send:\n"
@@ -589,13 +632,13 @@ def _handle_command(
                 chat_id,
                 "Current mode: "
                 f"{current_mode}\n"
-                "Use /mode single for one-question/one-answer behavior or /mode chat for multi-turn context.",
+                "Use /mode message for one-question/one-answer behavior or /mode chat for multi-turn context.",
             )
             return True, False
 
         target_mode = parts[1].strip().lower()
-        if target_mode not in ("chat", "single"):
-            _send_message(token, chat_id, "Usage: /mode [chat|single]")
+        if target_mode not in ("chat", "message"):
+            _send_message(token, chat_id, "Usage: /mode [chat|message]")
             return True, False
 
         if target_mode == current_mode:
@@ -603,12 +646,12 @@ def _handle_command(
             return True, False
 
         session["mode"] = target_mode
-        if target_mode == "single":
+        if target_mode == "message":
             _reset_session_conversation(session)
             _send_message(
                 token,
                 chat_id,
-                "Switched to single mode. Each new message starts a fresh one-turn exchange.",
+                "Switched to message mode. Each new message starts a fresh one-turn exchange.",
             )
             return True, False
 
@@ -629,6 +672,7 @@ def _handle_command(
 
     if command == "/new":
         session = sessions.setdefault(chat_id, _build_default_session())
+        session["role_key"] = fetch_variable("defaults", "system_role")
         _reset_session_conversation(session)
         model_title = session["model"].get("model_title", "unknown")
         _send_message(token, chat_id, f"Started a new conversation with model: {model_title}")
@@ -639,6 +683,13 @@ def _handle_command(
         session = sessions.setdefault(chat_id, _build_default_session())
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
+        return True, False
+
+    if command == "/roles":
+        roles = _build_roles_catalog()
+        session = sessions.setdefault(chat_id, _build_default_session())
+        active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
+        _send_message(token, chat_id, _render_roles_list(roles, active_role))
         return True, False
 
     if command == "/model":
@@ -687,6 +738,49 @@ def _handle_command(
             token,
             chat_id,
             "Usage: /model set <name|index>\nUse /models to view available models and active selection.",
+        )
+        return True, False
+
+    if command == "/role":
+        session = sessions.setdefault(chat_id, _build_default_session())
+        parts = text.split(maxsplit=2)
+
+        if len(parts) >= 2 and parts[1].lower() == "set":
+            if len(parts) < 3 or not parts[2].strip():
+                _send_message(token, chat_id, "Usage: /role set <name|index>")
+                return True, False
+
+            role_selector = parts[2].strip()
+            roles = _build_roles_catalog()
+            indexed_keys = _indexed_role_keys(roles)
+
+            target_role_key = role_selector
+            if role_selector.isdigit():
+                role_index = int(role_selector)
+                if role_index < 1 or role_index > len(indexed_keys):
+                    _send_message(
+                        token, chat_id, f"Invalid role index '{role_index}'. Use /roles to list valid indexes."
+                    )
+                    return True, False
+                target_role_key = indexed_keys[role_index - 1]
+
+            if target_role_key not in roles:
+                _send_message(token, chat_id, f"Unknown role '{role_selector}'. Use /roles to list available roles.")
+                return True, False
+
+            current_role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
+            if target_role_key == current_role_key:
+                _send_message(token, chat_id, f"Role is already '{current_role_key}'.")
+                return True, False
+
+            _set_session_role(session, target_role_key, preserve_history=True)
+            _send_message(token, chat_id, f"Switched role to {target_role_key}. Conversation kept.")
+            return True, False
+
+        _send_message(
+            token,
+            chat_id,
+            "Usage: /role set <name|index>\nUse /roles to view available roles and active selection.",
         )
         return True, False
 
@@ -806,8 +900,8 @@ def run_telegram_bot() -> None:
                     _send_message(token, chat_id, "Unsupported input. Send text, an image, or a .txt/.pdf document.")
                     continue
 
-                # In single mode, each incoming message starts from a fresh conversation context.
-                if str(session.get("mode", "chat")).lower() == "single":
+                # In message mode, each incoming message starts from a fresh conversation context.
+                if str(session.get("mode", "chat")).lower() == "message":
                     _reset_session_conversation(session)
 
                 session["conversation"].append({"role": "user", "content": user_content})
