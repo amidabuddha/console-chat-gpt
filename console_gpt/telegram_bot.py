@@ -27,6 +27,7 @@ ANTHROPIC_WEB_FETCH_MAX_CONTENT_TOKENS = 50000
 
 ANTHROPIC_WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
 ANTHROPIC_WEB_FETCH_TOOL_TYPE = "web_fetch_20260209"
+OPENAI_WEB_SEARCH_TOOL_TYPE = "web_search"
 
 
 def _telegram_api(token: str, method: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -206,6 +207,7 @@ def _build_default_session() -> Dict[str, Any]:
         "temperature": temperature,
         "reasoning_effort_override": None,
         "mode": "message",
+        "web_search_enabled": False,
         "anthropic_web_search_enabled": False,
         "anthropic_web_fetch_enabled": False,
         "cached": model_key.startswith("anthropic"),
@@ -260,6 +262,18 @@ def _should_enable_prompt_cache(session: Dict[str, Any]) -> bool:
 
 def _sync_session_prompt_cache(session: Dict[str, Any]) -> None:
     session["cached"] = _should_enable_prompt_cache(session)
+
+
+def _is_web_search_enabled(session: Dict[str, Any]) -> bool:
+    if "web_search_enabled" in session:
+        return bool(session.get("web_search_enabled", False))
+    return bool(session.get("anthropic_web_search_enabled", False))
+
+
+def _set_web_search_enabled(session: Dict[str, Any], enabled: bool) -> None:
+    # Keep legacy key in sync for compatibility with existing serialized sessions.
+    session["web_search_enabled"] = enabled
+    session["anthropic_web_search_enabled"] = enabled
 
 
 def _get_or_create_session(
@@ -466,7 +480,7 @@ def _debug_session_settings_snapshot(session: Dict[str, Any], chat_id: int, stag
     reasoning_override = session.get("reasoning_effort_override", None)
     reasoning_effective = _effective_reasoning_effort(session)
     cached = bool(session.get("cached", False))
-    web_search_enabled = bool(session.get("anthropic_web_search_enabled", False))
+    web_search_enabled = _is_web_search_enabled(session)
     web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
     custom_print(
         "info",
@@ -489,7 +503,7 @@ def _debug_startup_default_settings_snapshot() -> None:
     reasoning_override = session.get("reasoning_effort_override", None)
     reasoning_effective = _effective_reasoning_effort(session)
     cached = bool(session.get("cached", False))
-    web_search_enabled = bool(session.get("anthropic_web_search_enabled", False))
+    web_search_enabled = _is_web_search_enabled(session)
     web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
     custom_print(
         "info",
@@ -603,6 +617,8 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         }
         if conversation[0]["role"] == "system":
             params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
+        if _is_web_search_enabled(session):
+            params["tools"] = [{"type": OPENAI_WEB_SEARCH_TOOL_TYPE}]
         if reasoning_effort in ("low", "medium", "high"):
             params.setdefault("reasoning", {})["effort"] = reasoning_effort
             params["reasoning"]["summary"] = "detailed"
@@ -647,7 +663,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
     }
     if model_title.startswith("anthropic"):
         anthropic_tools: List[Dict[str, Any]] = []
-        web_search_enabled = bool(session.get("anthropic_web_search_enabled", False))
+        web_search_enabled = _is_web_search_enabled(session)
         web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
 
         if web_search_enabled:
@@ -790,8 +806,8 @@ def _handle_command(
             "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
             "/reasoning - show effective reasoning effort for this chat\n"
             "/reasoning <default|off|none|low|medium|high|max> - set session reasoning effort override\n"
-            "/websearch - show Anthropic web search status\n"
-            "/websearch [on|off] - toggle Anthropic web search tool\n"
+            "/websearch - show web search status (Anthropic + OpenAI Responses)\n"
+            "/websearch [on|off] - toggle web search tool (Anthropic + OpenAI Responses)\n"
             "/webfetch - show Anthropic web fetch status\n"
             "/webfetch [on|off] - toggle Anthropic web fetch tool\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
@@ -807,16 +823,16 @@ def _handle_command(
     if command in ("/websearch", "/webfetch"):
         session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         is_search_command = command == "/websearch"
-        setting_key = "anthropic_web_search_enabled" if is_search_command else "anthropic_web_fetch_enabled"
+        setting_key = "web_search_enabled" if is_search_command else "anthropic_web_fetch_enabled"
         tool_label = "web search" if is_search_command else "web fetch"
         parts = text.split(maxsplit=1)
 
         if len(parts) == 1 or not parts[1].strip():
-            current = bool(session.get(setting_key, False))
+            current = _is_web_search_enabled(session) if is_search_command else bool(session.get(setting_key, False))
             _send_message(
                 token,
                 chat_id,
-                f"Anthropic {tool_label} is {'ON' if current else 'OFF'} for this chat. Use /{command[1:]} [on|off] to change it.",
+                f"{tool_label.title()} is {'ON' if current else 'OFF'} for this chat. Use /{command[1:]} [on|off] to change it.",
             )
             return True, False
 
@@ -826,10 +842,13 @@ def _handle_command(
             return True, False
 
         enabled = value == "on"
-        session[setting_key] = enabled
+        if is_search_command:
+            _set_web_search_enabled(session, enabled)
+        else:
+            session[setting_key] = enabled
         if debug_context:
             _debug_session_settings_snapshot(session, chat_id, f"{command}_set")
-        _send_message(token, chat_id, f"Anthropic {tool_label} is now {'ON' if enabled else 'OFF'} for this chat.")
+        _send_message(token, chat_id, f"{tool_label.title()} is now {'ON' if enabled else 'OFF'} for this chat.")
         return True, False
 
     if command == "/mode":
