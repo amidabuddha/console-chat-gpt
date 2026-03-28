@@ -208,7 +208,6 @@ def _build_default_session() -> Dict[str, Any]:
         "reasoning_effort_override": None,
         "mode": "message",
         "web_search_enabled": False,
-        "anthropic_web_search_enabled": False,
         "anthropic_web_fetch_enabled": False,
         "cached": model_key.startswith("anthropic"),
         "conversation": [{"role": "system", "content": system_role}],
@@ -265,15 +264,11 @@ def _sync_session_prompt_cache(session: Dict[str, Any]) -> None:
 
 
 def _is_web_search_enabled(session: Dict[str, Any]) -> bool:
-    if "web_search_enabled" in session:
-        return bool(session.get("web_search_enabled", False))
-    return bool(session.get("anthropic_web_search_enabled", False))
+    return bool(session.get("web_search_enabled", False))
 
 
 def _set_web_search_enabled(session: Dict[str, Any], enabled: bool) -> None:
-    # Keep legacy key in sync for compatibility with existing serialized sessions.
     session["web_search_enabled"] = enabled
-    session["anthropic_web_search_enabled"] = enabled
 
 
 def _get_or_create_session(
@@ -304,6 +299,8 @@ def _effective_reasoning_effort(session: Dict[str, Any]) -> Any:
 def _format_reasoning_effort(value: Any) -> str:
     if value is False or value is None:
         return "off"
+    if isinstance(value, str) and value.lower() in ("off", "none"):
+        return "off"
     return str(value)
 
 
@@ -311,9 +308,9 @@ def _parse_reasoning_effort_selector(raw_value: str) -> Tuple[bool, Optional[Any
     value = raw_value.strip().lower()
     if value in ("default", "config", "inherit"):
         return True, None, "default"
-    if value in ("off", "false", "0"):
-        return True, False, "off"
-    if value in ("none", "low", "medium", "high", "max"):
+    if value in ("off", "false", "0", "none"):
+        return True, "off", "off"
+    if value in ("low", "medium", "high", "max"):
         return True, value, value
     return False, None, ""
 
@@ -585,6 +582,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
     api_key = model_data.get("api_key")
     base_url = model_data.get("base_url")
     reasoning_effort = _effective_reasoning_effort(session)
+    verbosity = model_data.get("verbosity")
     temperature = session["temperature"]
     conversation = session["conversation"]
     cached = session.get("cached", False)
@@ -619,11 +617,27 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
             params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
         if _is_web_search_enabled(session):
             params["tools"] = [{"type": OPENAI_WEB_SEARCH_TOOL_TYPE}]
-        if reasoning_effort in ("low", "medium", "high"):
-            params.setdefault("reasoning", {})["effort"] = reasoning_effort
+
+        model_lower = str(model_name or "").lower()
+        responses_reasoning_effort: Optional[str] = None
+        normalized_effort = str(reasoning_effort).strip().lower() if reasoning_effort not in (None, False) else ""
+        if model_lower.startswith("gpt-5.4"):
+            if normalized_effort in ("", "off", "none"):
+                responses_reasoning_effort = "none"
+            elif normalized_effort == "max":
+                responses_reasoning_effort = "xhigh"
+            elif normalized_effort in ("low", "medium", "high", "xhigh"):
+                responses_reasoning_effort = normalized_effort
+
+        if responses_reasoning_effort is not None:
+            params.setdefault("reasoning", {})["effort"] = responses_reasoning_effort
             params["reasoning"]["summary"] = "detailed"
-        else:
+
+        # For GPT-5.4, temperature is valid only when reasoning effort is none.
+        if (not model_lower.startswith("gpt-5.4")) or responses_reasoning_effort == "none":
             params["temperature"] = temperature
+        if isinstance(verbosity, str) and verbosity.lower() in ("low", "medium", "high"):
+            params.setdefault("text", {})["verbosity"] = verbosity.lower()
 
         if debug_context:
             input_len = len(params.get("input", []) or [])
@@ -690,8 +704,18 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
             params["tools"] = anthropic_tools
     if cached is not False:
         params["cached"] = cached
-    if reasoning_effort:
-        params["reasoning_effort"] = reasoning_effort
+
+    anthropic_reasoning_effort: Optional[str] = None
+    if reasoning_effort not in (None, False):
+        normalized_effort = str(reasoning_effort).strip().lower()
+        if normalized_effort in ("off", "none"):
+            anthropic_reasoning_effort = "none"
+        elif normalized_effort == "xhigh":
+            anthropic_reasoning_effort = "max"
+        elif normalized_effort in ("low", "medium", "high", "max"):
+            anthropic_reasoning_effort = normalized_effort
+    if anthropic_reasoning_effort:
+        params["reasoning_effort"] = anthropic_reasoning_effort
 
     if debug_context:
         custom_print(
@@ -805,7 +829,7 @@ def _handle_command(
             "/role - list available roles\n"
             "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
             "/reasoning - show effective reasoning effort for this chat\n"
-            "/reasoning <default|off|none|low|medium|high|max> - set session reasoning effort override\n"
+            "/reasoning <default|off|low|medium|high|max> - set session reasoning effort override\n"
             "/websearch - show web search status (Anthropic + OpenAI Responses)\n"
             "/websearch [on|off] - toggle web search tool (Anthropic + OpenAI Responses)\n"
             "/webfetch - show Anthropic web fetch status\n"
@@ -918,13 +942,13 @@ def _handle_command(
                 chat_id,
                 "Reasoning effort: "
                 f"{_format_reasoning_effort(effective)} ({source}).\n"
-                "Use /reasoning <default|off|none|low|medium|high|max> to change it.",
+                "Use /reasoning <default|off|low|medium|high|max> to change it.",
             )
             return True, False
 
         is_valid, parsed_value, parsed_label = _parse_reasoning_effort_selector(parts[1])
         if not is_valid:
-            _send_message(token, chat_id, "Usage: /reasoning <default|off|none|low|medium|high|max>")
+            _send_message(token, chat_id, "Usage: /reasoning <default|off|low|medium|high|max>")
             return True, False
 
         session["reasoning_effort_override"] = parsed_value
