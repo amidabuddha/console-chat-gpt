@@ -21,6 +21,12 @@ from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
 from mcp_servers.server_manager import ServerManager
 
 REQUEST_TIMEOUT_SECONDS = 120
+ANTHROPIC_WEB_SEARCH_MAX_USES = 5
+ANTHROPIC_WEB_FETCH_MAX_USES = 5
+ANTHROPIC_WEB_FETCH_MAX_CONTENT_TOKENS = 50000
+
+ANTHROPIC_WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
+ANTHROPIC_WEB_FETCH_TOOL_TYPE = "web_fetch_20260209"
 
 
 def _telegram_api(token: str, method: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -199,6 +205,8 @@ def _build_default_session() -> Dict[str, Any]:
         "role_key": role_key,
         "temperature": temperature,
         "mode": "chat",
+        "anthropic_web_search_enabled": True,
+        "anthropic_web_fetch_enabled": True,
         "cached": model_key.startswith("anthropic"),
         "conversation": [{"role": "system", "content": system_role}],
     }
@@ -402,6 +410,41 @@ def _uses_responses_api(model_name: Optional[str]) -> bool:
     return model_name in MODELS_LIST["openai_models"]
 
 
+def _is_anthropic_server_tool(tool: Dict[str, Any]) -> bool:
+    tool_type = tool.get("type")
+    if not isinstance(tool_type, str):
+        return False
+    return tool_type.startswith("web_search_") or tool_type.startswith("web_fetch_") or tool_type.startswith(
+        "code_execution_"
+    )
+
+
+def _patch_unichat_tool_normalizer_for_server_tools(client: Any) -> None:
+    api_helper = getattr(client, "_api_helper", None)
+    if api_helper is None or getattr(api_helper, "_server_tools_passthrough_patch", False):
+        return
+
+    original_normalize_tools = api_helper.normalize_tools
+
+    def _patched_normalize_tools(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        if not isinstance(tools, list):
+            return original_normalize_tools(tools)
+
+        if not any(isinstance(tool, dict) and _is_anthropic_server_tool(tool) for tool in tools):
+            return original_normalize_tools(tools)
+
+        normalized_tools: List[Dict[str, Any]] = []
+        for tool in tools:
+            if isinstance(tool, dict) and _is_anthropic_server_tool(tool):
+                normalized_tools.append(dict(tool))
+            else:
+                normalized_tools.extend(original_normalize_tools([tool]))
+        return normalized_tools
+
+    api_helper.normalize_tools = _patched_normalize_tools
+    setattr(api_helper, "_server_tools_passthrough_patch", True)
+
+
 def _execute_model_action(with_timeout_action, fallback_action):
     """Execute model request with timeout support and compatibility fallback."""
     try:
@@ -423,6 +466,7 @@ def _execute_model_action(with_timeout_action, fallback_action):
 def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, chat_id: int = 0) -> str:
     model_data = session["model"]
     model_name = model_data.get("model_name")
+    model_title = str(model_data.get("model_title", "")).lower()
     api_key = model_data.get("api_key")
     base_url = model_data.get("base_url")
     reasoning_effort = model_data.get("reasoning_effort")
@@ -491,12 +535,42 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         session["_runtime_client"] = openai.OpenAI(**client_params) if ollama_model else UnifiedChatApi(**client_params)
         session["_runtime_client_key"] = client_key
     client = session["_runtime_client"]
+    if model_title.startswith("anthropic") and not ollama_model:
+        _patch_unichat_tool_normalizer_for_server_tools(client)
+
     params = {
         "model": model_name,
         "messages": conversation,
         "temperature": temperature,
         "stream": False,
     }
+    if model_title.startswith("anthropic"):
+        anthropic_tools: List[Dict[str, Any]] = []
+        web_search_enabled = bool(session.get("anthropic_web_search_enabled", True))
+        web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", True))
+
+        if web_search_enabled:
+            anthropic_tools.append(
+                {
+                    "type": ANTHROPIC_WEB_SEARCH_TOOL_TYPE,
+                    "name": "web_search",
+                    "max_uses": ANTHROPIC_WEB_SEARCH_MAX_USES,
+                }
+            )
+
+        if web_fetch_enabled:
+            anthropic_tools.append(
+                {
+                    "type": ANTHROPIC_WEB_FETCH_TOOL_TYPE,
+                    "name": "web_fetch",
+                    "max_uses": ANTHROPIC_WEB_FETCH_MAX_USES,
+                    "max_content_tokens": ANTHROPIC_WEB_FETCH_MAX_CONTENT_TOKENS,
+                    "citations": {"enabled": True},
+                }
+            )
+
+        if anthropic_tools:
+            params["tools"] = anthropic_tools
     if cached is not False:
         params["cached"] = cached
     if reasoning_effort:
@@ -595,7 +669,7 @@ def _handle_command(
             token,
             chat_id,
             "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            "Commands: /help, /new, /mode, /models, /model, /roles, /role, /shutdown",
+            "Commands: /help, /new, /mode, /model, /role, /websearch, /webfetch, /shutdown",
         )
         return True, False
 
@@ -608,17 +682,48 @@ def _handle_command(
             "/mode - show current mode (chat or message)\n"
             "/mode chat - keep multi-turn context\n"
             "/mode message - one question/one answer per message\n"
-            "/models - list available models (config + Ollama, if available)\n"
+            "/model - list available models (config + Ollama, if available)\n"
             "/model set <name> - switch active model for this chat\n"
-            "/roles - list available roles\n"
+            "/role - list available roles\n"
             "/role set <name> - switch active role for this chat (keeps conversation)\n"
+            "/websearch - show Anthropic web search status\n"
+            "/websearch [on|off] - toggle Anthropic web search tool\n"
+            "/webfetch - show Anthropic web fetch status\n"
+            "/webfetch [on|off] - toggle Anthropic web fetch tool\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
             "/help - show this message\n\n"
+            "Aliases: /models -> /model, /roles -> /role\n\n"
             "You can also send:\n"
             "- plain text\n"
             "- photos (with optional caption)\n"
             "- .txt or .pdf documents (with optional caption)",
         )
+        return True, False
+
+    if command in ("/websearch", "/webfetch"):
+        session = sessions.setdefault(chat_id, _build_default_session())
+        is_search_command = command == "/websearch"
+        setting_key = "anthropic_web_search_enabled" if is_search_command else "anthropic_web_fetch_enabled"
+        tool_label = "web search" if is_search_command else "web fetch"
+        parts = text.split(maxsplit=1)
+
+        if len(parts) == 1 or not parts[1].strip():
+            current = bool(session.get(setting_key, True))
+            _send_message(
+                token,
+                chat_id,
+                f"Anthropic {tool_label} is {'ON' if current else 'OFF'} for this chat. Use /{command[1:]} [on|off] to change it.",
+            )
+            return True, False
+
+        value = parts[1].strip().lower()
+        if value not in ("on", "off"):
+            _send_message(token, chat_id, f"Usage: /{command[1:]} [on|off]")
+            return True, False
+
+        enabled = value == "on"
+        session[setting_key] = enabled
+        _send_message(token, chat_id, f"Anthropic {tool_label} is now {'ON' if enabled else 'OFF'} for this chat.")
         return True, False
 
     if command == "/mode":
@@ -678,18 +783,36 @@ def _handle_command(
         _send_message(token, chat_id, f"Started a new conversation with model: {model_title}")
         return True, False
 
-    if command == "/models":
+    if command in ("/models", "/model"):
+        if command == "/model":
+            parts = text.split(maxsplit=1)
+            if len(parts) > 1 and parts[1].strip().lower().startswith("set"):
+                pass
+            elif len(parts) > 1 and parts[1].strip():
+                _send_message(token, chat_id, "Usage: /model or /model set <name|index>")
+                return True, False
         models = _build_model_catalog()
         session = sessions.setdefault(chat_id, _build_default_session())
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
+        if command == "/models":
+            _send_message(token, chat_id, "Tip: use /model to list and /model set <name|index> to switch.")
         return True, False
 
-    if command == "/roles":
+    if command in ("/roles", "/role"):
+        if command == "/role":
+            parts = text.split(maxsplit=1)
+            if len(parts) > 1 and parts[1].strip().lower().startswith("set"):
+                pass
+            elif len(parts) > 1 and parts[1].strip():
+                _send_message(token, chat_id, "Usage: /role or /role set <name|index>")
+                return True, False
         roles = _build_roles_catalog()
         session = sessions.setdefault(chat_id, _build_default_session())
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
+        if command == "/roles":
+            _send_message(token, chat_id, "Tip: use /role to list and /role set <name|index> to switch.")
         return True, False
 
     if command == "/model":
