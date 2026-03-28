@@ -1,4 +1,5 @@
 > Improvements:
+- [9fe194d] [Improvement] Control reasoning effort
 - [875e7e8] [Improvement] Anthropic web search and web fetch in Telegram
 - [9bed98c] [Improvement] Add role selector to Telegram commands
 - [8b8b202] [Improvement] Better message parsing in Telegram
