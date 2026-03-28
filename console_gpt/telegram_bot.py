@@ -685,9 +685,9 @@ def _handle_command(
             "/mode chat - keep multi-turn context\n"
             "/mode message - one question/one answer per message\n"
             "/model - list available models (config + Ollama, if available)\n"
-            "/model set <name> - switch active model for this chat\n"
+            "/model set <name|index> - switch active model for this chat\n"
             "/role - list available roles\n"
-            "/role set <name> - switch active role for this chat (keeps conversation)\n"
+            "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
             "/websearch - show Anthropic web search status\n"
             "/websearch [on|off] - toggle Anthropic web search tool\n"
             "/webfetch - show Anthropic web fetch status\n"
@@ -785,45 +785,35 @@ def _handle_command(
         _send_message(token, chat_id, f"Started a new conversation with model: {model_title}")
         return True, False
 
-    if command in ("/models", "/model"):
-        if command == "/model":
-            parts = text.split(maxsplit=1)
-            if len(parts) > 1 and parts[1].strip().lower().startswith("set"):
-                pass
-            elif len(parts) > 1 and parts[1].strip():
-                _send_message(token, chat_id, "Usage: /model or /model set <name|index>")
-                return True, False
+    if command == "/models":
         models = _build_model_catalog()
         session = sessions.setdefault(chat_id, _build_default_session())
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
-        if command == "/models":
-            _send_message(token, chat_id, "Tip: use /model to list and /model set <name|index> to switch.")
+        _send_message(token, chat_id, "Tip: use /model to list and /model set <name|index> to switch.")
         return True, False
 
-    if command in ("/roles", "/role"):
-        if command == "/role":
-            parts = text.split(maxsplit=1)
-            if len(parts) > 1 and parts[1].strip().lower().startswith("set"):
-                pass
-            elif len(parts) > 1 and parts[1].strip():
-                _send_message(token, chat_id, "Usage: /role or /role set <name|index>")
-                return True, False
+    if command == "/roles":
         roles = _build_roles_catalog()
         session = sessions.setdefault(chat_id, _build_default_session())
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
-        if command == "/roles":
-            _send_message(token, chat_id, "Tip: use /role to list and /role set <name|index> to switch.")
+        _send_message(token, chat_id, "Tip: use /role to list and /role set <name|index> to switch.")
         return True, False
 
     if command == "/model":
         session = sessions.setdefault(chat_id, _build_default_session())
         parts = text.split(maxsplit=2)
 
+        if len(parts) == 1 or not parts[1].strip():
+            models = _build_model_catalog()
+            active_model = session["model"].get("model_title", "")
+            _send_message(token, chat_id, _render_models_list(models, active_model))
+            return True, False
+
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
-                _send_message(token, chat_id, "Usage: /model set <name>")
+                _send_message(token, chat_id, "Usage: /model set <name|index>")
                 return True, False
 
             model_selector = parts[2].strip()
@@ -835,14 +825,14 @@ def _handle_command(
                 model_index = int(model_selector)
                 if model_index < 1 or model_index > len(indexed_keys):
                     _send_message(
-                        token, chat_id, f"Invalid model index '{model_index}'. Use /models to list valid indexes."
+                        token, chat_id, f"Invalid model index '{model_index}'. Use /model to list valid indexes."
                     )
                     return True, False
                 target_model_key = indexed_keys[model_index - 1]
 
             if target_model_key not in models:
                 _send_message(
-                    token, chat_id, f"Unknown model '{model_selector}'. Use /models to list available models."
+                    token, chat_id, f"Unknown model '{model_selector}'. Use /model to list available models."
                 )
                 return True, False
 
@@ -862,13 +852,19 @@ def _handle_command(
         _send_message(
             token,
             chat_id,
-            "Usage: /model set <name|index>\nUse /models to view available models and active selection.",
+            "Usage: /model or /model set <name|index>",
         )
         return True, False
 
     if command == "/role":
         session = sessions.setdefault(chat_id, _build_default_session())
         parts = text.split(maxsplit=2)
+
+        if len(parts) == 1 or not parts[1].strip():
+            roles = _build_roles_catalog()
+            active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
+            _send_message(token, chat_id, _render_roles_list(roles, active_role))
+            return True, False
 
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
@@ -884,13 +880,13 @@ def _handle_command(
                 role_index = int(role_selector)
                 if role_index < 1 or role_index > len(indexed_keys):
                     _send_message(
-                        token, chat_id, f"Invalid role index '{role_index}'. Use /roles to list valid indexes."
+                        token, chat_id, f"Invalid role index '{role_index}'. Use /role to list valid indexes."
                     )
                     return True, False
                 target_role_key = indexed_keys[role_index - 1]
 
             if target_role_key not in roles:
-                _send_message(token, chat_id, f"Unknown role '{role_selector}'. Use /roles to list available roles.")
+                _send_message(token, chat_id, f"Unknown role '{role_selector}'. Use /role to list available roles.")
                 return True, False
 
             current_role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
@@ -905,7 +901,7 @@ def _handle_command(
         _send_message(
             token,
             chat_id,
-            "Usage: /role set <name|index>\nUse /roles to view available roles and active selection.",
+            "Usage: /role or /role set <name|index>",
         )
         return True, False
 
