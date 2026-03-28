@@ -9,7 +9,6 @@
 
 > Bug Fixes:
 - [da6a79a] [BugFix] /model and /role commands simplified
-- [5d4fd54] [BugFix] Revert model lists
 
 
 ---
