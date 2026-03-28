@@ -262,6 +262,24 @@ def _sync_session_prompt_cache(session: Dict[str, Any]) -> None:
     session["cached"] = _should_enable_prompt_cache(session)
 
 
+def _get_or_create_session(
+    sessions: Dict[int, Dict[str, Any]],
+    chat_id: int,
+    debug_context: bool = False,
+    init_stage: str = "session_init",
+) -> Dict[str, Any]:
+    existing = sessions.get(chat_id)
+    if existing is not None:
+        return existing
+
+    session = _build_default_session()
+    _sync_session_prompt_cache(session)
+    sessions[chat_id] = session
+    if debug_context:
+        _debug_session_settings_snapshot(session, chat_id, init_stage)
+    return session
+
+
 def _effective_reasoning_effort(session: Dict[str, Any]) -> Any:
     override = session.get("reasoning_effort_override", None)
     if override is not None:
@@ -454,6 +472,29 @@ def _debug_session_settings_snapshot(session: Dict[str, Any], chat_id: int, stag
         "info",
         (
             f"[TG DEBUG] stage={stage} chat_id={chat_id} "
+            f"model={model.get('model_title', 'unknown')} mode={mode} role={role_key} "
+            f"reasoning_effective={_format_reasoning_effort(reasoning_effective)} "
+            f"reasoning_override={_format_reasoning_effort(reasoning_override)} "
+            f"cached={cached} web_search={web_search_enabled} web_fetch={web_fetch_enabled}"
+        ),
+    )
+
+
+def _debug_startup_default_settings_snapshot() -> None:
+    session = _build_default_session()
+    _sync_session_prompt_cache(session)
+    model = session.get("model", {}) or {}
+    mode = str(session.get("mode", "message")).lower()
+    role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
+    reasoning_override = session.get("reasoning_effort_override", None)
+    reasoning_effective = _effective_reasoning_effort(session)
+    cached = bool(session.get("cached", False))
+    web_search_enabled = bool(session.get("anthropic_web_search_enabled", False))
+    web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
+    custom_print(
+        "info",
+        (
+            "[TG DEBUG] stage=startup_defaults "
             f"model={model.get('model_title', 'unknown')} mode={mode} role={role_key} "
             f"reasoning_effective={_format_reasoning_effort(reasoning_effective)} "
             f"reasoning_override={_format_reasoning_effort(reasoning_override)} "
@@ -764,7 +805,7 @@ def _handle_command(
         return True, False
 
     if command in ("/websearch", "/webfetch"):
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         is_search_command = command == "/websearch"
         setting_key = "anthropic_web_search_enabled" if is_search_command else "anthropic_web_fetch_enabled"
         tool_label = "web search" if is_search_command else "web fetch"
@@ -792,7 +833,7 @@ def _handle_command(
         return True, False
 
     if command == "/mode":
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         parts = text.split(maxsplit=1)
         current_mode = str(session.get("mode", "message")).lower()
 
@@ -846,7 +887,7 @@ def _handle_command(
         return True, False
 
     if command == "/reasoning":
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         parts = text.split(maxsplit=1)
 
         if len(parts) == 1 or not parts[1].strip():
@@ -885,7 +926,7 @@ def _handle_command(
         return True, False
 
     if command == "/new":
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         session["role_key"] = fetch_variable("defaults", "system_role")
         _reset_session_conversation(session)
         if debug_context:
@@ -896,7 +937,7 @@ def _handle_command(
 
     if command == "/models":
         models = _build_model_catalog()
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
         _send_message(token, chat_id, "Tip: use /model to list and /model set <name|index> to switch.")
@@ -904,14 +945,14 @@ def _handle_command(
 
     if command == "/roles":
         roles = _build_roles_catalog()
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
         _send_message(token, chat_id, "Tip: use /role to list and /role set <name|index> to switch.")
         return True, False
 
     if command == "/model":
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         parts = text.split(maxsplit=2)
 
         if len(parts) == 1 or not parts[1].strip():
@@ -966,7 +1007,7 @@ def _handle_command(
         return True, False
 
     if command == "/role":
-        session = sessions.setdefault(chat_id, _build_default_session())
+        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
         parts = text.split(maxsplit=2)
 
         if len(parts) == 1 or not parts[1].strip():
@@ -1061,6 +1102,8 @@ def run_telegram_bot() -> None:
         _stop_mcp_server_if_running()
     custom_print("info", "Terminal controls: exit/quit/bye = stop bot, reset/restart = clear in-memory sessions.")
     custom_print("info", "Starting Telegram bot polling loop...")
+    if telegram_debug_context:
+        _debug_startup_default_settings_snapshot()
 
     # Validate token early and fail fast with a clear message.
     bot_info = _telegram_api(token, "getMe").get("result", {})
@@ -1129,7 +1172,7 @@ def run_telegram_bot() -> None:
                     if handled:
                         continue
 
-                session = sessions.setdefault(chat_id, _build_default_session())
+                session = _get_or_create_session(sessions, chat_id, debug_context=telegram_debug_context, init_stage="chat_init")
                 model_title = session["model"].get("model_title", "")
                 model_name = session["model"].get("model_name")
                 user_content = _build_user_content_from_message(
