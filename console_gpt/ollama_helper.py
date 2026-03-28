@@ -1,10 +1,15 @@
 import atexit
+import shutil
 import subprocess
 import time
 
 import requests
 
 from console_gpt.custom_stdout import custom_print
+
+
+def _has_ollama_cli() -> bool:
+    return shutil.which("ollama") is not None
 
 
 def is_ollama_running():
@@ -18,6 +23,10 @@ def is_ollama_running():
 
 def start_ollama():
     """Start Ollama in the background using 'ollama serve'."""
+    if not _has_ollama_cli():
+        custom_print("warn", "Ollama CLI not found. Install Ollama to enable local models.")
+        return None
+
     try:
         # Start Ollama in the background
         process = subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -45,6 +54,10 @@ def start_ollama():
 
 def list_ollama_models():
     """List all available Ollama models using 'ollama list' and return them as a list."""
+    if not _has_ollama_cli():
+        # Ollama is optional; treat missing CLI as "no local models" without noisy errors.
+        return []
+
     try:
         result = subprocess.run(["ollama", "list"], capture_output=True, text=True)
         if result.returncode == 0:

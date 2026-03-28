@@ -151,6 +151,7 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | bot_token | Telegram bot token from BotFather, in the format `<digits>:<token>`. |
 | allowed_chat_ids | List of chat IDs allowed to use the bot. Leave empty to allow all chats. |
 | admin_chat_ids | List of chat IDs allowed to run admin-only commands such as `/shutdown`. |
+| debug_context | If **true**, prints Telegram session/memory debug snapshots to terminal logs for troubleshooting context issues. |
 
 ### Adding your OpenAI SDK supported model
 Add an entry at the end of your `config.toml` file.

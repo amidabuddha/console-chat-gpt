@@ -1,4 +1,5 @@
 import base64
+import html
 import io
 import re
 import select
@@ -55,18 +56,22 @@ def _stop_mcp_server_if_running() -> None:
         custom_print("info", "MCP server stopped.")
 
 
-def _consume_terminal_exit_signal() -> bool:
-    """Allow stopping Telegram runtime by typing 'exit'/'quit' in the terminal."""
+def _consume_terminal_control_command() -> Optional[str]:
+    """Read local terminal control command for Telegram runtime."""
     if not sys.stdin or not sys.stdin.isatty():
-        return False
+        return None
     try:
         readable, _, _ = select.select([sys.stdin], [], [], 0)
         if not readable:
-            return False
+            return None
         command = sys.stdin.readline().strip().lower()
-        return command in ("exit", "quit", "bye")
+        if command in ("exit", "quit", "bye"):
+            return "stop"
+        if command in ("reset", "restart"):
+            return "reset"
+        return None
     except Exception:
-        return False
+        return None
 
 
 def _telegram_get_file_bytes(token: str, file_id: str) -> bytes:
@@ -98,9 +103,63 @@ def _chunk_text(text: str, chunk_size: int = 3900) -> List[str]:
     return chunks
 
 
+def _telegram_markdown_to_html(text: str) -> str:
+    """Convert a subset of markdown-like model output to Telegram-safe HTML."""
+    if not text:
+        return ""
+
+    fenced_blocks: List[str] = []
+
+    def _capture_fenced_block(match: re.Match[str]) -> str:
+        block = match.group(1) or ""
+        escaped = html.escape(block.strip("\n"))
+        fenced_blocks.append(f"<pre><code>{escaped}</code></pre>")
+        return f"@@TG_CODEBLOCK_{len(fenced_blocks) - 1}@@"
+
+    without_fenced = re.sub(r"```(?:[^\n`]+)?\n([\s\S]*?)```", _capture_fenced_block, text)
+    escaped_text = html.escape(without_fenced)
+
+    lines: List[str] = []
+    for line in escaped_text.split("\n"):
+        heading_match = re.match(r"^\s{0,3}#{1,6}\s+(.+)$", line)
+        if heading_match:
+            lines.append(f"<b>{heading_match.group(1).strip()}</b>")
+        else:
+            lines.append(line)
+    transformed = "\n".join(lines)
+
+    transformed = re.sub(
+        r"\[([^\]]+)\]\((https?://[^\s)]+)\)",
+        lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>',
+        transformed,
+    )
+    transformed = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", transformed)
+    transformed = re.sub(r"__(.+?)__", r"<b>\1</b>", transformed)
+    transformed = re.sub(r"`([^`\n]+)`", r"<code>\1</code>", transformed)
+
+    for idx, block in enumerate(fenced_blocks):
+        transformed = transformed.replace(f"@@TG_CODEBLOCK_{idx}@@", block)
+
+    return transformed
+
+
 def _send_message(token: str, chat_id: int, text: str) -> None:
     for part in _chunk_text(text.strip() or "(empty response)"):
-        _telegram_api(token, "sendMessage", {"chat_id": chat_id, "text": part})
+        payload = {
+            "chat_id": chat_id,
+            "text": _telegram_markdown_to_html(part),
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True,
+        }
+        try:
+            _telegram_api(token, "sendMessage", payload)
+        except RuntimeError as e:
+            # Fallback to plain text if Telegram rejects entities for a specific chunk.
+            error_text = str(e).lower()
+            if "parse entities" in error_text or "can't parse entities" in error_text:
+                _telegram_api(token, "sendMessage", {"chat_id": chat_id, "text": part})
+            else:
+                raise
 
 
 def _is_allowed_chat(chat_id: int, allowed_chat_ids: List[int]) -> bool:
@@ -139,6 +198,8 @@ def _build_default_session() -> Dict[str, Any]:
     return {
         "model": model_data,
         "temperature": temperature,
+        "mode": "chat",
+        "cached": model_key.startswith("anthropic"),
         "conversation": [{"role": "system", "content": system_role}],
     }
 
@@ -149,8 +210,15 @@ def _default_system_role_content() -> str:
     return role_data.get(role_key, "Deliver precise and informative virtual assistance.")
 
 
+def _clear_session_runtime_client(session: Dict[str, Any]) -> None:
+    session.pop("_runtime_client", None)
+    session.pop("_runtime_client_key", None)
+
+
 def _reset_session_conversation(session: Dict[str, Any]) -> None:
     session["conversation"] = [{"role": "system", "content": _default_system_role_content()}]
+    # Clear provider-side runtime state so resets are honored consistently.
+    _clear_session_runtime_client(session)
 
 
 def _is_ollama_model(model_data: Dict[str, Any]) -> bool:
@@ -278,6 +346,21 @@ def _extract_completion_text(response: Any) -> Tuple[str, Dict[str, Any]]:
     return text_content, {"role": "assistant", "content": text_content}
 
 
+def _debug_conversation_snapshot(session: Dict[str, Any], chat_id: int, stage: str) -> None:
+    conversation = session.get("conversation", []) or []
+    roles_tail: List[str] = []
+    for item in conversation[-8:]:
+        if isinstance(item, dict):
+            roles_tail.append(str(item.get("role", "?")))
+        else:
+            roles_tail.append(type(item).__name__)
+    mode = str(session.get("mode", "chat")).lower()
+    custom_print(
+        "info",
+        f"[TG DEBUG] stage={stage} chat_id={chat_id} mode={mode} conv_len={len(conversation)} roles_tail={roles_tail}",
+    )
+
+
 def _uses_responses_api(model_name: Optional[str]) -> bool:
     return model_name in MODELS_LIST["openai_models"]
 
@@ -300,7 +383,7 @@ def _execute_model_action(with_timeout_action, fallback_action):
         return "error_appeared"
 
 
-def _request_model_reply(session: Dict[str, Any]) -> str:
+def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, chat_id: int = 0) -> str:
     model_data = session["model"]
     model_name = model_data.get("model_name")
     model_title = model_data.get("model_title")
@@ -309,6 +392,10 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
     reasoning_effort = model_data.get("reasoning_effort")
     temperature = session["temperature"]
     conversation = session["conversation"]
+    cached = session.get("cached", False)
+    # Mirror chat.py behavior where Anthropic cached mode is carried as the string "True".
+    if cached is True:
+        cached = "True"
 
     client_params = {"api_key": api_key}
     if base_url:
@@ -323,7 +410,11 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
 
     use_responses = _uses_responses_api(model_name) and not ollama_model
     if use_responses:
-        client = openai.OpenAI(**client_params)
+        client_key = ("responses", api_key or "", base_url or "", model_name or "")
+        if session.get("_runtime_client_key") != client_key or session.get("_runtime_client") is None:
+            session["_runtime_client"] = openai.OpenAI(**client_params)
+            session["_runtime_client_key"] = client_key
+        client = session["_runtime_client"]
         params = {
             "model": model_name,
             "input": conversation[1:] if conversation[0]["role"] == "system" else conversation,
@@ -336,6 +427,13 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
             params["reasoning"]["summary"] = "detailed"
         else:
             params["temperature"] = temperature
+
+        if debug_context:
+            input_len = len(params.get("input", []) or [])
+            custom_print(
+                "info",
+                f"[TG DEBUG] stage=request_dispatch chat_id={chat_id} api=responses model={model_name} input_len={input_len}",
+            )
 
         response = _execute_model_action(
             lambda: client.responses.create(**params, timeout=REQUEST_TIMEOUT_SECONDS),
@@ -351,15 +449,28 @@ def _request_model_reply(session: Dict[str, Any]) -> str:
             conversation.extend(parsed)
         return assistant_text or "(No text content returned by model.)"
 
-    client = openai.OpenAI(**client_params) if ollama_model else UnifiedChatApi(**client_params)
+    client_type = "openai_chat" if ollama_model else "unified_chat"
+    client_key = (client_type, api_key or "", base_url or "", model_name or "")
+    if session.get("_runtime_client_key") != client_key or session.get("_runtime_client") is None:
+        session["_runtime_client"] = openai.OpenAI(**client_params) if ollama_model else UnifiedChatApi(**client_params)
+        session["_runtime_client_key"] = client_key
+    client = session["_runtime_client"]
     params = {
         "model": model_name,
         "messages": conversation,
         "temperature": temperature,
         "stream": False,
     }
+    if cached is not False:
+        params["cached"] = cached
     if reasoning_effort:
         params["reasoning_effort"] = reasoning_effort
+
+    if debug_context:
+        custom_print(
+            "info",
+            f"[TG DEBUG] stage=request_dispatch chat_id={chat_id} api=chat_completions model={model_name} cached={params.get('cached', False)} messages_len={len(conversation)}",
+        )
 
     response = _execute_model_action(
         lambda: client.chat.completions.create(**params, timeout=REQUEST_TIMEOUT_SECONDS),
@@ -448,7 +559,7 @@ def _handle_command(
             token,
             chat_id,
             "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            "Commands: /help, /new, /models, /model, /shutdown",
+            "Commands: /help, /new, /mode, /models, /model, /shutdown",
         )
         return True, False
 
@@ -458,8 +569,10 @@ def _handle_command(
             chat_id,
             "Commands:\n"
             "/new - reset current conversation\n"
+            "/mode - show current mode (chat or single)\n"
+            "/mode chat - keep multi-turn context\n"
+            "/mode single - one question/one answer per message\n"
             "/models - list available models (config + Ollama, if available)\n"
-            "/model - show active model for this chat\n"
             "/model set <name> - switch active model for this chat\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
             "/help - show this message\n\n"
@@ -468,6 +581,55 @@ def _handle_command(
             "- photos (with optional caption)\n"
             "- .txt or .pdf documents (with optional caption)",
         )
+        return True, False
+
+    if command == "/mode":
+        session = sessions.setdefault(chat_id, _build_default_session())
+        parts = text.split(maxsplit=1)
+        current_mode = str(session.get("mode", "chat")).lower()
+
+        if len(parts) == 1 or not parts[1].strip():
+            _send_message(
+                token,
+                chat_id,
+                "Current mode: "
+                f"{current_mode}\n"
+                "Use /mode single for one-question/one-answer behavior or /mode chat for multi-turn context.",
+            )
+            return True, False
+
+        target_mode = parts[1].strip().lower()
+        if target_mode not in ("chat", "single"):
+            _send_message(token, chat_id, "Usage: /mode [chat|single]")
+            return True, False
+
+        if target_mode == current_mode:
+            _send_message(token, chat_id, f"Mode is already '{current_mode}'.")
+            return True, False
+
+        session["mode"] = target_mode
+        if target_mode == "single":
+            _reset_session_conversation(session)
+            _send_message(
+                token,
+                chat_id,
+                "Switched to single mode. Each new message starts a fresh one-turn exchange.",
+            )
+            return True, False
+
+        conversation_len = len(session.get("conversation", []))
+        if conversation_len > 1:
+            _send_message(
+                token,
+                chat_id,
+                "Switched to chat mode. You can continue from the latest exchange.",
+            )
+        else:
+            _send_message(
+                token,
+                chat_id,
+                "Switched to chat mode. Start sending messages for multi-turn context.",
+            )
         return True, False
 
     if command == "/new":
@@ -487,12 +649,6 @@ def _handle_command(
     if command == "/model":
         session = sessions.setdefault(chat_id, _build_default_session())
         parts = text.split(maxsplit=2)
-
-        if len(parts) >= 2 and parts[1].lower() in ("list", "ls"):
-            models = _build_model_catalog()
-            active_model = session["model"].get("model_title", "")
-            _send_message(token, chat_id, _render_models_list(models, active_model))
-            return True, False
 
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
@@ -521,6 +677,8 @@ def _handle_command(
 
             previous_model = dict(session.get("model", {}))
             session["model"] = dict(models[target_model_key])
+            session["cached"] = str(target_model_key).startswith("anthropic")
+            _clear_session_runtime_client(session)
             if _is_ollama_model(previous_model) and previous_model.get("model_name") != session["model"].get(
                 "model_name"
             ):
@@ -531,12 +689,10 @@ def _handle_command(
             _send_message(token, chat_id, f"Switched model to {target_model_key} ({model_name}). Conversation reset.")
             return True, False
 
-        model_name = session["model"].get("model_name", "unknown")
-        model_title = session["model"].get("model_title", "unknown")
         _send_message(
             token,
             chat_id,
-            f"Active model: {model_title} ({model_name})\nUse /models to list available models or /model set <name> to switch.",
+            "Usage: /model set <name|index>\nUse /models to view available models and active selection.",
         )
         return True, False
 
@@ -577,11 +733,13 @@ def run_telegram_bot() -> None:
     allowed_chat_ids = [int(chat_id) for chat_id in allowed_chat_ids_raw]
     admin_chat_ids_raw = fetch_variable("telegram", "admin_chat_ids", auto_exit=False) or []
     admin_chat_ids = [int(chat_id) for chat_id in admin_chat_ids_raw]
+    telegram_debug_context = bool(fetch_variable("telegram", "debug_context", auto_exit=False))
 
     custom_print("warn", "Telegram mode detected. Streaming is disabled in Telegram runtime.")
     if fetch_variable("features", "mcp_client", auto_exit=False):
         custom_print("warn", "Telegram mode detected. MCP is disabled in Telegram runtime.")
         _stop_mcp_server_if_running()
+    custom_print("info", "Terminal controls: exit/quit/bye = stop bot, reset/restart = clear in-memory sessions.")
     custom_print("info", "Starting Telegram bot polling loop...")
 
     # Validate token early and fail fast with a clear message.
@@ -596,9 +754,14 @@ def run_telegram_bot() -> None:
 
     try:
         while True:
-            if _consume_terminal_exit_signal():
+            terminal_action = _consume_terminal_control_command()
+            if terminal_action == "stop":
                 custom_print("info", "Exit command received. Stopping Telegram bot...")
                 break
+            if terminal_action == "reset":
+                sessions = {}
+                custom_print("info", "Reset command received. In-memory Telegram sessions were cleared.")
+                continue
 
             updates = _telegram_api(
                 token,
@@ -649,9 +812,15 @@ def run_telegram_bot() -> None:
                     _send_message(token, chat_id, "Unsupported input. Send text, an image, or a .txt/.pdf document.")
                     continue
 
+                # In single mode, each incoming message starts from a fresh conversation context.
+                if str(session.get("mode", "chat")).lower() == "single":
+                    _reset_session_conversation(session)
+
                 session["conversation"].append({"role": "user", "content": user_content})
+                if telegram_debug_context:
+                    _debug_conversation_snapshot(session, chat_id, "after_user_append")
                 _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
-                reply = _request_model_reply(session)
+                reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
                 _send_message(token, chat_id, reply)
 
             if shutdown_requested:
