@@ -6,6 +6,7 @@
 - [673b563] [Improvement] Change configured models from Telegram
 
 > Bug Fixes:
+- [da6a79a] [BugFix] /model and /role commands simplified
 - [5d4fd54] [BugFix] Revert model lists
 - [28db2f1] [BugFix] Prevent lopping /shutdown from Telegram
 

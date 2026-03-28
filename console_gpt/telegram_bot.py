@@ -831,9 +831,7 @@ def _handle_command(
                 target_model_key = indexed_keys[model_index - 1]
 
             if target_model_key not in models:
-                _send_message(
-                    token, chat_id, f"Unknown model '{model_selector}'. Use /model to list available models."
-                )
+                _send_message(token, chat_id, f"Unknown model '{model_selector}'. Use /model to list available models.")
                 return True, False
 
             previous_model = dict(session.get("model", {}))
