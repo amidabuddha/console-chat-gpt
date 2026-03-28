@@ -414,8 +414,10 @@ def _is_anthropic_server_tool(tool: Dict[str, Any]) -> bool:
     tool_type = tool.get("type")
     if not isinstance(tool_type, str):
         return False
-    return tool_type.startswith("web_search_") or tool_type.startswith("web_fetch_") or tool_type.startswith(
-        "code_execution_"
+    return (
+        tool_type.startswith("web_search_")
+        or tool_type.startswith("web_fetch_")
+        or tool_type.startswith("code_execution_")
     )
 
 

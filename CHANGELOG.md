@@ -1,7 +1,5 @@
-> Features:
-- [fc801fa] [Feature] Support conversations through a Telegram bot
-
 > Improvements:
+- [875e7e8] [Improvement] Anthropic web search and web fetch in Telegram
 - [9bed98c] [Improvement] Add role selector to Telegram commands
 - [8b8b202] [Improvement] Better message parsing in Telegram
 - [9821aa6] [Improvement] Add Ollama models to Telegram coversations
