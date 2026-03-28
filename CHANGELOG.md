@@ -9,7 +9,6 @@
 > Bug Fixes:
 - [5d4fd54] [BugFix] Revert model lists
 - [28db2f1] [BugFix] Prevent lopping /shutdown from Telegram
-- [f2efd51] [BugFix] Anthropic max_tokens refers to output, not context
 
 > Others:
 - [4c86e4b] [Other] Patch vulnerable packages
