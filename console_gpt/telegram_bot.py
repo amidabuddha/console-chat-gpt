@@ -14,7 +14,6 @@ from pypdf import PdfReader
 from unichat import MODELS_LIST, UnifiedChatApi
 from unichat.api_helper import openai
 
-from console_gpt.catch_errors import handle_with_exceptions
 from console_gpt.config_manager import fetch_variable
 from console_gpt.custom_stdout import custom_print
 from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
@@ -272,10 +271,7 @@ def _build_model_catalog() -> Dict[str, Dict[str, Any]]:
         catalog[model_key] = dict(model_data)
         catalog[model_key]["model_title"] = model_key
 
-    try:
-        ollama_models = list_ollama_models()
-    except Exception:
-        ollama_models = []
+    ollama_models = list_ollama_models()
 
     for ollama_model in ollama_models:
         model_key = f"ollama/{ollama_model}"
@@ -386,7 +382,6 @@ def _execute_model_action(with_timeout_action, fallback_action):
 def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, chat_id: int = 0) -> str:
     model_data = session["model"]
     model_name = model_data.get("model_name")
-    model_title = model_data.get("model_title")
     api_key = model_data.get("api_key")
     base_url = model_data.get("base_url")
     reasoning_effort = model_data.get("reasoning_effort")
@@ -678,7 +673,6 @@ def _handle_command(
             previous_model = dict(session.get("model", {}))
             session["model"] = dict(models[target_model_key])
             session["cached"] = str(target_model_key).startswith("anthropic")
-            _clear_session_runtime_client(session)
             if _is_ollama_model(previous_model) and previous_model.get("model_name") != session["model"].get(
                 "model_name"
             ):
