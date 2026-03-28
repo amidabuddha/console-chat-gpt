@@ -1172,7 +1172,9 @@ def run_telegram_bot() -> None:
                     if handled:
                         continue
 
-                session = _get_or_create_session(sessions, chat_id, debug_context=telegram_debug_context, init_stage="chat_init")
+                session = _get_or_create_session(
+                    sessions, chat_id, debug_context=telegram_debug_context, init_stage="chat_init"
+                )
                 model_title = session["model"].get("model_title", "")
                 model_name = session["model"].get("model_name")
                 user_content = _build_user_content_from_message(
