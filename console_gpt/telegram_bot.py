@@ -1168,74 +1168,88 @@ def run_telegram_bot() -> None:
                 custom_print("info", "Reset command received. In-memory Telegram sessions were cleared.")
                 continue
 
-            updates = _telegram_api(
-                token,
-                "getUpdates",
-                {
-                    "offset": offset,
-                    # Keep timeout modest to make terminal exit commands responsive.
-                    "timeout": 5,
-                    "allowed_updates": ["message", "edited_message"],
-                },
-            ).get("result", [])
+            try:
+                updates = _telegram_api(
+                    token,
+                    "getUpdates",
+                    {
+                        "offset": offset,
+                        # Keep timeout modest to make terminal exit commands responsive.
+                        "timeout": 5,
+                        "allowed_updates": ["message", "edited_message"],
+                    },
+                ).get("result", [])
+            except Exception as e:
+                # Telegram/network hiccups should not stop the runtime.
+                custom_print("warn", f"Telegram polling warning: {e}. Retrying...")
+                time.sleep(2)
+                continue
 
             for update in updates:
-                offset = max(offset, int(update["update_id"]) + 1)
-                message = update.get("message") or update.get("edited_message")
-                if not message:
-                    continue
-
-                chat = message.get("chat") or {}
-                chat_id = int(chat.get("id", 0))
-                if not chat_id or not _is_allowed_chat(chat_id, allowed_chat_ids):
-                    continue
-
-                text = (message.get("text") or "").strip()
-                if text.startswith("/"):
-                    command = text.split()[0].lower()
-                    if command == "/shutdown":
-                        message_ts = int(message.get("date") or 0)
-                        # Ignore stale shutdown commands that were sent before this bot process started.
-                        if message_ts and message_ts < process_start_ts:
-                            custom_print("info", f"Ignored stale /shutdown from chat_id={chat_id}.")
-                            continue
-                    handled, should_shutdown = _handle_command(
-                        text,
-                        chat_id,
-                        token,
-                        sessions,
-                        admin_chat_ids,
-                        debug_context=telegram_debug_context,
-                    )
-                    if should_shutdown:
-                        custom_print("info", f"Remote shutdown requested by chat_id={chat_id}.")
-                        shutdown_requested = True
-                        break
-                    if handled:
+                try:
+                    offset = max(offset, int(update["update_id"]) + 1)
+                    message = update.get("message") or update.get("edited_message")
+                    if not message:
                         continue
 
-                session = _get_or_create_session(
-                    sessions, chat_id, debug_context=telegram_debug_context, init_stage="chat_init"
-                )
-                model_title = session["model"].get("model_title", "")
-                model_name = session["model"].get("model_name")
-                user_content = _build_user_content_from_message(
-                    token, message, model_title, _uses_responses_api(model_name)
-                )
-                if not user_content:
-                    _send_message(token, chat_id, "Unsupported input. Send text, an image, or a .txt/.pdf document.")
+                    chat = message.get("chat") or {}
+                    chat_id = int(chat.get("id", 0))
+                    if not chat_id or not _is_allowed_chat(chat_id, allowed_chat_ids):
+                        continue
+
+                    text = (message.get("text") or "").strip()
+                    if text.startswith("/"):
+                        command = text.split()[0].lower()
+                        if command == "/shutdown":
+                            message_ts = int(message.get("date") or 0)
+                            # Ignore stale shutdown commands that were sent before this bot process started.
+                            if message_ts and message_ts < process_start_ts:
+                                custom_print("info", f"Ignored stale /shutdown from chat_id={chat_id}.")
+                                continue
+                        handled, should_shutdown = _handle_command(
+                            text,
+                            chat_id,
+                            token,
+                            sessions,
+                            admin_chat_ids,
+                            debug_context=telegram_debug_context,
+                        )
+                        if should_shutdown:
+                            custom_print("info", f"Remote shutdown requested by chat_id={chat_id}.")
+                            shutdown_requested = True
+                            break
+                        if handled:
+                            continue
+
+                    session = _get_or_create_session(
+                        sessions, chat_id, debug_context=telegram_debug_context, init_stage="chat_init"
+                    )
+                    model_title = session["model"].get("model_title", "")
+                    model_name = session["model"].get("model_name")
+                    user_content = _build_user_content_from_message(
+                        token, message, model_title, _uses_responses_api(model_name)
+                    )
+                    if not user_content:
+                        _send_message(
+                            token,
+                            chat_id,
+                            "Unsupported input. Send text, an image, or a .txt/.pdf document.",
+                        )
+                        continue
+
+                    # In message mode, each incoming message starts from a fresh conversation context.
+                    if str(session.get("mode", "message")).lower() == "message":
+                        _reset_session_conversation(session)
+
+                    session["conversation"].append({"role": "user", "content": user_content})
+                    if telegram_debug_context:
+                        _debug_conversation_snapshot(session, chat_id, "after_user_append")
+                    _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
+                    reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
+                    _send_message(token, chat_id, reply)
+                except Exception as e:
+                    custom_print("warn", f"Telegram update handling warning: {e}. Continuing...")
                     continue
-
-                # In message mode, each incoming message starts from a fresh conversation context.
-                if str(session.get("mode", "message")).lower() == "message":
-                    _reset_session_conversation(session)
-
-                session["conversation"].append({"role": "user", "content": user_content})
-                if telegram_debug_context:
-                    _debug_conversation_snapshot(session, chat_id, "after_user_append")
-                _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
-                reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
-                _send_message(token, chat_id, reply)
 
             if shutdown_requested:
                 # Confirm processed updates (including /shutdown) without flushing newer pending messages.
@@ -1252,11 +1266,7 @@ def run_telegram_bot() -> None:
     except KeyboardInterrupt:
         custom_print("info", "Telegram bot interrupted. Stopping...")
     except Exception as e:
-        custom_print("error", f"Telegram loop error: {e}")
-        try:
-            time.sleep(2)
-        except KeyboardInterrupt:
-            pass
+        custom_print("error", f"Unexpected fatal Telegram runtime error: {e}")
     finally:
         _unload_ollama_models_in_sessions(sessions)
         _stop_mcp_server_if_running()
