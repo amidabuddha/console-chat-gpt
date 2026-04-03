@@ -1,4 +1,5 @@
 > Improvements:
+- [ee783c2] [Improvement] Add timestamp to logs
 - [3c665a9] [Improvement] Keep Telegram bot running on polling/update errors
 - [f40e3e8] [Improvement] Enable web search for OpenAI Responses API via Telegram
 - [bfbd060] [Improvement] Add session variables state to debug
