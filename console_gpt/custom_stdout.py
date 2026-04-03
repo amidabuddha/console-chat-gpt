@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional
 
 from rich.console import Console
@@ -69,7 +70,8 @@ def custom_print(
     }
 
     prefix, color = formats.get(ptype.lower(), ("[UNKNOWN] ", "white"))
-    formatted_text = start + colored(prefix, color) + text + end
+    timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    formatted_text = start + timestamp + " " + colored(prefix, color) + text + end
 
     if print_now:
         print(formatted_text)
