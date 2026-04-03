@@ -16,8 +16,8 @@ def get_models():
         "anthropic_models": [],
         "mistral_models": [],
         "openai_models": [],
-        "grok_models": [],
-        "gemini_models": [],
+        "xai_models": [],
+        "google_models": [],
     }
 
     MODELS_MAX_TOKEN = {}
@@ -41,8 +41,8 @@ def get_models():
         elif any(sub in model for sub in ("gpt", "o3", "o4")):
             MODELS_LIST["openai_models"].append(model_name)
         elif "grok" in model:
-            MODELS_LIST["grok_models"].append(model_name)
+            MODELS_LIST["xai_models"].append(model_name)
         elif "gemini" in model:
-            MODELS_LIST["gemini_models"].append(model_name)
+            MODELS_LIST["google_models"].append(model_name)
 
     return MODELS_LIST, MODELS_MAX_TOKEN

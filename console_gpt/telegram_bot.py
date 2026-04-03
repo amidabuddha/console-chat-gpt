@@ -515,7 +515,7 @@ def _debug_startup_default_settings_snapshot() -> None:
 
 
 def _uses_responses_api(model_name: Optional[str]) -> bool:
-    return model_name in MODELS_LIST["openai_models"]
+    return model_name in MODELS_LIST["openai_models"] or model_name in MODELS_LIST["xai_models"]
 
 
 def _is_anthropic_server_tool(tool: Dict[str, Any]) -> bool:

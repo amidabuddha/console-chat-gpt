@@ -50,7 +50,7 @@ def chat(console, data, managed_user_prompt) -> None:
     if base_url:
         client_params["base_url"] = base_url
 
-    use_responses = model_name in MODELS_LIST["openai_models"]
+    use_responses = model_name in MODELS_LIST["openai_models"] or model_name in MODELS_LIST["xai_models"]
     if use_responses:
         client = openai.OpenAI(**client_params)
         verbosity = model_data.get("verbosity")
