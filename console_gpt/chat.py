@@ -60,9 +60,6 @@ def chat(console, data, managed_user_prompt) -> None:
     temperature = data.temperature
 
     cached = model_title.startswith("anthropic")
-    telegram_mode_enabled = bool(fetch_variable("telegram", "enabled", auto_exit=False))
-    if telegram_mode_enabled and fetch_variable("features", "streaming"):
-        custom_print("warn", "Streaming is disabled while Telegram mode is enabled.")
 
     tools = False
     if fetch_variable("features", "mcp_client"):
@@ -130,7 +127,7 @@ def chat(console, data, managed_user_prompt) -> None:
             conversation.append(user_input)
 
         # Get chat completion
-        streaming = False if telegram_mode_enabled else fetch_variable("features", "streaming")
+        streaming = fetch_variable("features", "streaming")
         # Start the loading bar until API response is returned
         with console.status("[bold green]Generating a response...", spinner="aesthetic"):
             if use_responses:
@@ -144,9 +141,12 @@ def chat(console, data, managed_user_prompt) -> None:
                 if tools is not False:
                     res_tools = openai_response_tools(tools)
                     res_tools.extend(
-                        [{"type": "web_search_preview"}, {"type": "code_interpreter", "container": {"type": "auto"}}]
+                        [{"type": "web_search"}, {"type": "code_interpreter", "container": {"type": "auto"}}]
                     )
-                    res_tools.append({"type": "image_generation", "input_fidelity": "high"})
+                    if model_name in MODELS_LIST["xai_models"]:
+                        res_tools.append({"type": "x_search"})
+                    if model_name in MODELS_LIST["openai_models"]:
+                        res_tools.append({"type": "image_generation", "input_fidelity": "high"})
                     params["tools"] = res_tools
                     params["parallel_tool_calls"] = False
                 if reasoning_effort:
