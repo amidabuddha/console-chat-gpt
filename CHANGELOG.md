@@ -9,7 +9,6 @@
 
 > Bug Fixes:
 - [479879f] [BugFix] Images from Telegram to Antropic
-- [da6a79a] [BugFix] /model and /role commands simplified
 
 
 ---
