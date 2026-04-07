@@ -41,8 +41,18 @@ def _telegram_api(token: str, method: str, payload: Optional[Dict[str, Any]] = N
         if status in (401, 404):
             hint = " Check chat.telegram.bot_token in config.toml."
         raise RuntimeError(f"Telegram API HTTP {status} on method '{method}'.{hint}") from e
+    except requests.RequestException as e:
+        # Catch DNS/connectivity/transient request failures and return a clear runtime message.
+        error_text = str(e)
+        hint = ""
+        if "Failed to resolve" in error_text or "Name or service not known" in error_text:
+            hint = " Check your network or DNS settings and verify api.telegram.org is reachable."
+        raise RuntimeError(f"Telegram API request failed on method '{method}': {error_text}.{hint}") from e
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as e:
+        raise RuntimeError(f"Telegram API returned a non-JSON response on method '{method}'.") from e
     if not data.get("ok"):
         description = data.get("description", "unknown error")
         error_code = data.get("error_code", "unknown")
@@ -1148,7 +1158,12 @@ def run_telegram_bot() -> None:
         _debug_startup_default_settings_snapshot()
 
     # Validate token early and fail fast with a clear message.
-    bot_info = _telegram_api(token, "getMe").get("result", {})
+    try:
+        bot_info = _telegram_api(token, "getMe").get("result", {})
+    except RuntimeError as e:
+        custom_print("error", f"Unable to start Telegram bot: {e}")
+        custom_print("error", "Telegram bot startup aborted. The process can be retried once connectivity is restored.")
+        return
     bot_username = bot_info.get("username", "unknown")
     custom_print("ok", f"Telegram bot connected: @{bot_username}")
 
