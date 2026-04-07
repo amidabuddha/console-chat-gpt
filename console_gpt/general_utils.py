@@ -15,16 +15,61 @@ from console_gpt.custom_stdout import custom_print
 Char = TypeVar("Char", bound=str)
 
 
-def use_emoji_maybe(emoji: str, fallback: Optional[Char] = None) -> str:
+def _resolve_emoji_code(value: str) -> str:
+    """Resolve common emoji code formats into a Unicode character.
+
+    Supported formats:
+    - U+1F916
+    - 1F916 (hex codepoint)
+    - 0x1F916
+    - literal emoji character(s)
+    """
+    if not isinstance(value, str):
+        return value
+
+    candidate = value.strip()
+    if not candidate:
+        return value
+
+    upper = candidate.upper()
+    if upper.startswith("U+"):
+        upper = upper[2:]
+    elif upper.startswith("0X"):
+        upper = upper[2:]
+
+    if upper and all(c in "0123456789ABCDEF" for c in upper):
+        try:
+            return chr(int(upper, 16))
+        except (ValueError, OverflowError):
+            return value
+
+    return value
+
+
+def use_emoji_maybe(emoji: Optional[str] = None, fallback: Optional[Char] = None, emoji_key: Optional[str] = None) -> str:
     """
     Return emoji if the OS supports it and if it's enabled in the settings
-    :param emoji: Unicode for the emoji
+    :param emoji: Optional Unicode for the emoji
     :param fallback: The fallback char/word (ASCII) to be displayed if emoji is not supported
+    :param emoji_key: Optional config key under chat.customizations.emoji_codes to override the emoji
     :return: either emoji or the fallback char/word
     """
     use_emoji = fetch_variable("customizations", "use_emoji")
     fallback_char = fetch_variable("customizations", "fallback_char")[0]
     fallback_char = fallback_char if not fallback else fallback[0]
+
+    if emoji_key:
+        configured_emoji = fetch_variable("customizations", "emoji_codes", emoji_key, auto_exit=False)
+        if isinstance(configured_emoji, str) and configured_emoji.strip():
+            emoji = _resolve_emoji_code(configured_emoji)
+        elif emoji is not None:
+            emoji = _resolve_emoji_code(emoji)
+        else:
+            emoji = fallback_char
+    elif emoji is not None:
+        emoji = _resolve_emoji_code(emoji)
+    else:
+        emoji = fallback_char
 
     # if emoji is disabled return a question mark (default by the library anyway)
     if not use_emoji:

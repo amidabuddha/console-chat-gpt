@@ -11,6 +11,15 @@ changelog_checksum = "dummy_value"
 use_emoji = true
 fallback_char = "?"
 
+[chat.customizations.emoji_codes]
+# Use either literal emoji (e.g. "🤖") or Unicode codepoints (e.g. "U+1F916")
+user_prompt = "U+1F9D1"
+model_menu = "U+1F916"
+role_menu = "U+1F3AD"
+file_prompt = "U+1F4C1"
+settings_menu = "U+2699"
+url_prompt = "U+1F30D"
+
 [chat.defaults]
 temperature = 1
 system_role = "assistant"

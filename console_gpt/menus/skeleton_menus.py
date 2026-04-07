@@ -88,7 +88,11 @@ def base_settings_menu(data: Dict[str, bool], menu_title: Optional[str] = "Setti
     result = {}
     label_length = max(len(k) for k, v in data.items()) + 2
     menu_data = [f"{k.replace('_', ' ').title():<{label_length}}| {v}" for k, v in data.items()]
-    selections = questionary.checkbox(menu_title, choices=menu_data, qmark=use_emoji_maybe("\u2699\ufe0f")).ask()
+    selections = questionary.checkbox(
+        menu_title,
+        choices=menu_data,
+        qmark=use_emoji_maybe(emoji_key="settings_menu"),
+    ).ask()
     flush_lines()  # Used to flush the original output of the library
 
     if selections in [None, []]:
@@ -106,7 +110,11 @@ def base_settings_menu(data: Dict[str, bool], menu_title: Optional[str] = "Setti
 
 
 def base_checkbox_menu(data: List, menu_title: str) -> List:
-    selection = questionary.checkbox(menu_title, choices=data, qmark=use_emoji_maybe("\u2699\ufe0f")).ask()
+    selection = questionary.checkbox(
+        menu_title,
+        choices=data,
+        qmark=use_emoji_maybe(emoji_key="settings_menu"),
+    ).ask()
     if selection in [None, []]:
         flush_lines(4)
         return selection

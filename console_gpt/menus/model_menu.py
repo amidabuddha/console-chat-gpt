@@ -48,7 +48,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     # Add new options for model management
     menu_data = list(all_models.keys())
     menu_data.extend(["ollama", "Add model(s)", "Remove model(s)", "Change default model"])
-    menu_title = "{} Select a model:".format(use_emoji_maybe("\U0001f916"))
+    menu_title = "{} Select a model:".format(use_emoji_maybe(emoji_key="model_menu"))
     selection = base_multiselect_menu("Model menu", menu_data, menu_title, default_model)
 
     if selection == "Add model(s)":
@@ -105,7 +105,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
         if not current_models:
             custom_print("info", "No models available to set as default.")
             return model_menu()
-        menu_title = "{} Select a new default model:".format(use_emoji_maybe("\U0001f916"))
+        menu_title = "{} Select a new default model:".format(use_emoji_maybe(emoji_key="model_menu"))
         new_default = base_multiselect_menu(
             "Change default model", current_models, menu_title, default_model, exit=False
         )
@@ -120,7 +120,7 @@ def model_menu() -> Dict[str, Union[int, str, float]]:
     if selection == "ollama":
         models = get_ollama()
         if models:
-            menu_title = "{} Select a locally hosted model:".format(use_emoji_maybe("\U0001f916"))
+            menu_title = "{} Select a locally hosted model:".format(use_emoji_maybe(emoji_key="model_menu"))
             local_selection = base_multiselect_menu("Ollama models", models, menu_title)
             model_data = {
                 "api_key": "ollama",
