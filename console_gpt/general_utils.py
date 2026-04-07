@@ -46,7 +46,9 @@ def _resolve_emoji_code(value: str) -> str:
     return value
 
 
-def use_emoji_maybe(emoji: Optional[str] = None, fallback: Optional[Char] = None, emoji_key: Optional[str] = None) -> str:
+def use_emoji_maybe(
+    emoji: Optional[str] = None, fallback: Optional[Char] = None, emoji_key: Optional[str] = None
+) -> str:
     """
     Return emoji if the OS supports it and if it's enabled in the settings
     :param emoji: Optional Unicode for the emoji
