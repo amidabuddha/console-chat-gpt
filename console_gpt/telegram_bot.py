@@ -320,7 +320,7 @@ def _parse_reasoning_effort_selector(raw_value: str) -> Tuple[bool, Optional[Any
         return True, None, "default"
     if value in ("off", "false", "0", "none"):
         return True, "off", "off"
-    if value in ("low", "medium", "high", "max"):
+    if value in ("low", "medium", "high", "xhigh", "max"):
         return True, value, value
     return False, None, ""
 
@@ -720,9 +720,9 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         normalized_effort = str(reasoning_effort).strip().lower()
         if normalized_effort in ("off", "none"):
             anthropic_reasoning_effort = "none"
-        elif normalized_effort == "xhigh":
+        elif normalized_effort == "xhigh" and model_title != "anthropic-opus-latest":
             anthropic_reasoning_effort = "max"
-        elif normalized_effort in ("low", "medium", "high", "max"):
+        elif normalized_effort in ("low", "medium", "high", "xhigh", "max"):
             anthropic_reasoning_effort = normalized_effort
     if anthropic_reasoning_effort:
         params["reasoning_effort"] = anthropic_reasoning_effort
@@ -838,7 +838,7 @@ def _handle_command(
             "/role - list available roles\n"
             "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
             "/reasoning - show effective reasoning effort for this chat\n"
-            "/reasoning <default|off|low|medium|high|max> - set session reasoning effort override\n"
+            "/reasoning <default|off|low|medium|high|xhigh|max> - set session reasoning effort override\n"
             "/websearch - show web search status (Anthropic + OpenAI Responses)\n"
             "/websearch [on|off] - toggle web search tool (Anthropic + OpenAI Responses)\n"
             "/webfetch - show Anthropic web fetch status\n"
@@ -951,13 +951,13 @@ def _handle_command(
                 chat_id,
                 "Reasoning effort: "
                 f"{_format_reasoning_effort(effective)} ({source}).\n"
-                "Use /reasoning <default|off|low|medium|high|max> to change it.",
+                "Use /reasoning <default|off|low|medium|high|xhigh|max> to change it.",
             )
             return True, False
 
         is_valid, parsed_value, parsed_label = _parse_reasoning_effort_selector(parts[1])
         if not is_valid:
-            _send_message(token, chat_id, "Usage: /reasoning <default|off|low|medium|high|max>")
+            _send_message(token, chat_id, "Usage: /reasoning <default|off|low|medium|high|xhigh|max>")
             return True, False
 
         session["reasoning_effort_override"] = parsed_value

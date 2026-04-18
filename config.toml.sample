@@ -130,6 +130,15 @@ model_name = "claude-opus-4-6"
 model_output_pricing_per_1k = 0.025
 reasoning_effort = "medium"
 
+[chat.models.anthropic-opus-latest]
+api_key = "YOUR_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.005
+model_max_tokens = 128000
+model_name = "claude-opus-4-7"
+model_output_pricing_per_1k = 0.025
+reasoning_effort = "medium"
+
 # ==================================
 # Google models
 # ==================================
