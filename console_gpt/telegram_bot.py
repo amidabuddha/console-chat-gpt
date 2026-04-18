@@ -219,7 +219,7 @@ def _build_default_session() -> Dict[str, Any]:
         "mode": "message",
         "web_search_enabled": False,
         "anthropic_web_fetch_enabled": False,
-        "cached": model_key.startswith("anthropic"),
+        "cached": False,
         "conversation": [{"role": "system", "content": system_role}],
     }
 
@@ -269,8 +269,18 @@ def _should_enable_prompt_cache(session: Dict[str, Any]) -> bool:
     return model_title.startswith("anthropic") and mode != "message"
 
 
+def _session_cached_prompt_payload(session: Dict[str, Any]) -> Any:
+    """
+    Return the stable prompt context that should be reused via Anthropic caching.
+    """
+    conversation = session.get("conversation", []) or []
+    if conversation and isinstance(conversation[0], dict) and conversation[0].get("role") == "system":
+        return conversation[0].get("content", "")
+    return _session_system_role_content(session)
+
+
 def _sync_session_prompt_cache(session: Dict[str, Any]) -> None:
-    session["cached"] = _should_enable_prompt_cache(session)
+    session["cached"] = _session_cached_prompt_payload(session) if _should_enable_prompt_cache(session) else False
 
 
 def _is_web_search_enabled(session: Dict[str, Any]) -> bool:
@@ -486,7 +496,9 @@ def _debug_session_settings_snapshot(session: Dict[str, Any], chat_id: int, stag
     role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
     reasoning_override = session.get("reasoning_effort_override", None)
     reasoning_effective = _effective_reasoning_effort(session)
-    cached = bool(session.get("cached", False))
+    cache_enabled = _should_enable_prompt_cache(session)
+    cached_payload = session.get("cached", False)
+    cached_payload_type = type(cached_payload).__name__ if cached_payload is not False else "bool"
     web_search_enabled = _is_web_search_enabled(session)
     web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
     custom_print(
@@ -496,7 +508,8 @@ def _debug_session_settings_snapshot(session: Dict[str, Any], chat_id: int, stag
             f"model={model.get('model_title', 'unknown')} mode={mode} role={role_key} "
             f"reasoning_effective={_format_reasoning_effort(reasoning_effective)} "
             f"reasoning_override={_format_reasoning_effort(reasoning_override)} "
-            f"cached={cached} web_search={web_search_enabled} web_fetch={web_fetch_enabled}"
+            f"cache_enabled={cache_enabled} cached_payload_type={cached_payload_type} "
+            f"web_search={web_search_enabled} web_fetch={web_fetch_enabled}"
         ),
     )
 
@@ -509,7 +522,9 @@ def _debug_startup_default_settings_snapshot() -> None:
     role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
     reasoning_override = session.get("reasoning_effort_override", None)
     reasoning_effective = _effective_reasoning_effort(session)
-    cached = bool(session.get("cached", False))
+    cache_enabled = _should_enable_prompt_cache(session)
+    cached_payload = session.get("cached", False)
+    cached_payload_type = type(cached_payload).__name__ if cached_payload is not False else "bool"
     web_search_enabled = _is_web_search_enabled(session)
     web_fetch_enabled = bool(session.get("anthropic_web_fetch_enabled", False))
     custom_print(
@@ -519,7 +534,8 @@ def _debug_startup_default_settings_snapshot() -> None:
             f"model={model.get('model_title', 'unknown')} mode={mode} role={role_key} "
             f"reasoning_effective={_format_reasoning_effort(reasoning_effective)} "
             f"reasoning_override={_format_reasoning_effort(reasoning_override)} "
-            f"cached={cached} web_search={web_search_enabled} web_fetch={web_fetch_enabled}"
+            f"cache_enabled={cache_enabled} cached_payload_type={cached_payload_type} "
+            f"web_search={web_search_enabled} web_fetch={web_fetch_enabled}"
         ),
     )
 
@@ -595,10 +611,8 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
     verbosity = model_data.get("verbosity")
     temperature = session["temperature"]
     conversation = session["conversation"]
+    cache_enabled = _should_enable_prompt_cache(session)
     cached = session.get("cached", False)
-    # Mirror chat.py behavior where Anthropic cached mode is carried as the string "True".
-    if cached is True:
-        cached = "True"
 
     client_params = {"api_key": api_key}
     if base_url:
@@ -712,7 +726,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
 
         if anthropic_tools:
             params["tools"] = anthropic_tools
-    if cached is not False:
+    if model_title.startswith("anthropic") and cache_enabled and cached is not False and cached not in (None, ""):
         params["cached"] = cached
 
     anthropic_reasoning_effort: Optional[str] = None
@@ -730,7 +744,12 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
     if debug_context:
         custom_print(
             "info",
-            f"[TG DEBUG] stage=request_dispatch chat_id={chat_id} api=chat_completions model={model_name} cached={params.get('cached', False)} messages_len={len(conversation)}",
+            (
+                f"[TG DEBUG] stage=request_dispatch chat_id={chat_id} api=chat_completions "
+                f"model={model_name} cache_enabled={cache_enabled} "
+                f"cached_payload_type={type(cached).__name__ if cached is not False else 'bool'} "
+                f"messages_len={len(conversation)}"
+            ),
         )
 
     response = _execute_model_action(
