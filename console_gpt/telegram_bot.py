@@ -330,7 +330,7 @@ def _parse_reasoning_effort_selector(raw_value: str) -> Tuple[bool, Optional[Any
         return True, None, "default"
     if value in ("off", "false", "0", "none"):
         return True, "off", "off"
-    if value in ("low", "medium", "high", "xhigh", "max"):
+    if value in ("minimal", "low", "medium", "high", "xhigh", "max"):
         return True, value, value
     return False, None, ""
 
@@ -645,20 +645,20 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         model_lower = str(model_name or "").lower()
         responses_reasoning_effort: Optional[str] = None
         normalized_effort = str(reasoning_effort).strip().lower() if reasoning_effort not in (None, False) else ""
-        if model_lower.startswith("gpt-5.4"):
+        if model_lower.startswith(("gpt-5.4", "gpt-5.5")):
             if normalized_effort in ("", "off", "none"):
                 responses_reasoning_effort = "none"
             elif normalized_effort == "max":
                 responses_reasoning_effort = "xhigh"
-            elif normalized_effort in ("low", "medium", "high", "xhigh"):
+            elif normalized_effort in ("minimal","low", "medium", "high", "xhigh"):
                 responses_reasoning_effort = normalized_effort
 
         if responses_reasoning_effort is not None:
             params.setdefault("reasoning", {})["effort"] = responses_reasoning_effort
             params["reasoning"]["summary"] = "detailed"
 
-        # For GPT-5.4, temperature is valid only when reasoning effort is none.
-        if (not model_lower.startswith("gpt-5.4")) or responses_reasoning_effort == "none":
+        # For GPT-5.4/GPT-5.5, temperature is valid only when reasoning effort is none.
+        if (not model_lower.startswith(("gpt-5.4", "gpt-5.5"))) or responses_reasoning_effort == "none":
             params["temperature"] = temperature
         if isinstance(verbosity, str) and verbosity.lower() in ("low", "medium", "high"):
             params.setdefault("text", {})["verbosity"] = verbosity.lower()
@@ -736,6 +736,8 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
             anthropic_reasoning_effort = "none"
         elif normalized_effort == "xhigh" and model_title != "anthropic-opus-latest":
             anthropic_reasoning_effort = "max"
+        elif normalized_effort == "minimal":
+            anthropic_reasoning_effort = "low"
         elif normalized_effort in ("low", "medium", "high", "xhigh", "max"):
             anthropic_reasoning_effort = normalized_effort
     if anthropic_reasoning_effort:
@@ -857,7 +859,7 @@ def _handle_command(
             "/role - list available roles\n"
             "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
             "/reasoning - show effective reasoning effort for this chat\n"
-            "/reasoning <default|off|low|medium|high|xhigh|max> - set session reasoning effort override\n"
+            "/reasoning <default|off|minimal|low|medium|high|xhigh|max> - set session reasoning effort override\n"
             "/websearch - show web search status (Anthropic + OpenAI Responses)\n"
             "/websearch [on|off] - toggle web search tool (Anthropic + OpenAI Responses)\n"
             "/webfetch - show Anthropic web fetch status\n"
@@ -970,13 +972,13 @@ def _handle_command(
                 chat_id,
                 "Reasoning effort: "
                 f"{_format_reasoning_effort(effective)} ({source}).\n"
-                "Use /reasoning <default|off|low|medium|high|xhigh|max> to change it.",
+                "Use /reasoning <default|off|minimal|low|medium|high|xhigh|max> to change it.",
             )
             return True, False
 
         is_valid, parsed_value, parsed_label = _parse_reasoning_effort_selector(parts[1])
         if not is_valid:
-            _send_message(token, chat_id, "Usage: /reasoning <default|off|low|medium|high|xhigh|max>")
+            _send_message(token, chat_id, "Usage: /reasoning <default|off|minimal|low|medium|high|xhigh|max>")
             return True, False
 
         session["reasoning_effort_override"] = parsed_value

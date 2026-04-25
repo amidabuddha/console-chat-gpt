@@ -87,7 +87,6 @@ def chat(console, data, managed_user_prompt) -> None:
     # Inner Loop
     while True:
         response = ""  # Adding this to satisfy the IDE
-        error_appeared = False  # Used when the API returns an exception
         # Check if we're not in the middle of a tool call
         if (
             not conversation
@@ -149,7 +148,11 @@ def chat(console, data, managed_user_prompt) -> None:
                         res_tools.append({"type": "image_generation", "input_fidelity": "high"})
                     params["tools"] = res_tools
                     params["parallel_tool_calls"] = False
-                if reasoning_effort:
+                reasoning_disabled_text = False
+                if isinstance(reasoning_effort, str):
+                    reasoning_disabled_text = reasoning_effort.strip().lower() in ("off", "none", "false", "0")
+
+                if reasoning_effort and not reasoning_disabled_text:
                     params.setdefault("reasoning", {})["effort"] = reasoning_effort
                     params["reasoning"]["summary"] = "detailed"
                 else:

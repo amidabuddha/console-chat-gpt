@@ -100,6 +100,16 @@ model_output_pricing_per_1k = 0.015
 reasoning_effort = "medium"
 verbosity = "low"
 
+[chat.models.gpt-5-latest]
+api_key = "YOUR_API_KEY"
+base_url = ""
+model_input_pricing_per_1k = 0.005
+model_max_tokens = 1050000
+model_name = "gpt-5.5"
+model_output_pricing_per_1k = 0.03
+reasoning_effort = "medium"
+verbosity = "low"
+
 # ==================================
 # Anthropic models
 # ==================================
