@@ -963,8 +963,14 @@ def _handle_command(
                 "/model set <name|index> - switch active model for this chat\n"
             )
         )
-        alias_line = "Aliases: /roles -> /role" if is_model_locked_chat else "Aliases: /models -> /model, /roles -> /role"
-        lock_note = f"\n\nThis room is pinned to model: {model_locked_key}. Model switching is disabled." if is_model_locked_chat else ""
+        alias_line = (
+            "Aliases: /roles -> /role" if is_model_locked_chat else "Aliases: /models -> /model, /roles -> /role"
+        )
+        lock_note = (
+            f"\n\nThis room is pinned to model: {model_locked_key}. Model switching is disabled."
+            if is_model_locked_chat
+            else ""
+        )
         _send_message(
             token,
             chat_id,
