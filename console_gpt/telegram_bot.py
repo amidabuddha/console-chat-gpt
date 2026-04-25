@@ -224,6 +224,100 @@ def _build_default_session() -> Dict[str, Any]:
     }
 
 
+def _build_default_session_for_model(model_key_override: Optional[str] = None) -> Dict[str, Any]:
+    models = fetch_variable("models")
+    default_model = fetch_variable("defaults", "model")
+    selected_model = model_key_override if model_key_override in models else default_model
+    model_key = selected_model if selected_model in models else next(iter(models.keys()))
+    model_data = dict(models[model_key])
+    model_data.update({"model_title": model_key})
+
+    role_key = fetch_variable("defaults", "system_role")
+    role_data = fetch_variable("roles")
+    system_role = role_data.get(role_key, "Deliver precise and informative virtual assistance.")
+
+    temperature = fetch_variable("defaults", "temperature")
+    return {
+        "model": model_data,
+        "role_key": role_key,
+        "temperature": temperature,
+        "reasoning_effort_override": None,
+        "mode": "message",
+        "web_search_enabled": False,
+        "anthropic_web_fetch_enabled": False,
+        "cached": False,
+        "conversation": [{"role": "system", "content": system_role}],
+    }
+
+
+def _parse_chat_id(raw_chat_id: Any) -> Optional[int]:
+    if isinstance(raw_chat_id, int):
+        return raw_chat_id
+    if isinstance(raw_chat_id, str):
+        value = raw_chat_id.strip()
+        if not value:
+            return None
+        try:
+            return int(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _normalize_chat_id_values(raw_values: Any) -> List[int]:
+    if raw_values is None:
+        return []
+
+    if isinstance(raw_values, (int, str)):
+        parsed = _parse_chat_id(raw_values)
+        return [parsed] if parsed is not None else []
+
+    if not isinstance(raw_values, list):
+        return []
+
+    parsed_values: List[int] = []
+    for item in raw_values:
+        parsed = _parse_chat_id(item)
+        if parsed is not None:
+            parsed_values.append(parsed)
+    return parsed_values
+
+
+def _build_telegram_model_chat_overrides() -> Dict[int, str]:
+    """Build map of Telegram chat_id -> locked model key from [chat.models.*] config."""
+    configured_models = fetch_variable("models") or {}
+    overrides: Dict[int, str] = {}
+
+    for model_key, model_data in configured_models.items():
+        if not isinstance(model_data, dict):
+            continue
+
+        raw_single_chat_id = model_data.get("telegram_chat_id")
+        raw_chat_ids = model_data.get("telegram_chat_ids")
+        model_chat_ids = _normalize_chat_id_values(raw_chat_ids)
+
+        single_chat_id = _parse_chat_id(raw_single_chat_id)
+        if single_chat_id is not None:
+            model_chat_ids.append(single_chat_id)
+
+        if not model_chat_ids:
+            continue
+
+        for mapped_chat_id in model_chat_ids:
+            if mapped_chat_id in overrides and overrides[mapped_chat_id] != model_key:
+                custom_print(
+                    "warn",
+                    (
+                        "Duplicate Telegram model room mapping for chat_id="
+                        f"{mapped_chat_id}: keeping '{overrides[mapped_chat_id]}' and ignoring '{model_key}'."
+                    ),
+                )
+                continue
+            overrides[mapped_chat_id] = model_key
+
+    return overrides
+
+
 def _default_system_role_content() -> str:
     role_key = fetch_variable("defaults", "system_role")
     role_data = fetch_variable("roles")
@@ -294,6 +388,7 @@ def _set_web_search_enabled(session: Dict[str, Any], enabled: bool) -> None:
 def _get_or_create_session(
     sessions: Dict[int, Dict[str, Any]],
     chat_id: int,
+    model_chat_overrides: Optional[Dict[int, str]] = None,
     debug_context: bool = False,
     init_stage: str = "session_init",
 ) -> Dict[str, Any]:
@@ -301,8 +396,12 @@ def _get_or_create_session(
     if existing is not None:
         return existing
 
-    session = _build_default_session()
+    model_override = (model_chat_overrides or {}).get(chat_id)
+    session = _build_default_session_for_model(model_override)
     _sync_session_prompt_cache(session)
+    if model_override:
+        session["model_locked"] = True
+        session["model_locked_key"] = model_override
     sessions[chat_id] = session
     if debug_context:
         _debug_session_settings_snapshot(session, chat_id, init_stage)
@@ -833,19 +932,39 @@ def _handle_command(
     token: str,
     sessions: Dict[int, Dict[str, Any]],
     admin_chat_ids: List[int],
+    model_chat_overrides: Optional[Dict[int, str]] = None,
     debug_context: bool = False,
 ) -> Tuple[bool, bool]:
     command = text.split()[0].lower()
+    model_locked_key = (model_chat_overrides or {}).get(chat_id)
+    is_model_locked_chat = model_locked_key is not None
+
     if command == "/start":
+        command_list = (
+            "/help, /new, /mode, /role, /reasoning, /websearch, /webfetch, /shutdown"
+            if is_model_locked_chat
+            else "/help, /new, /mode, /model, /role, /reasoning, /websearch, /webfetch, /shutdown"
+        )
+        lock_note = f"\nThis room is pinned to model: {model_locked_key}." if is_model_locked_chat else ""
         _send_message(
             token,
             chat_id,
             "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            "Commands: /help, /new, /mode, /model, /role, /reasoning, /websearch, /webfetch, /shutdown",
+            f"Commands: {command_list}{lock_note}",
         )
         return True, False
 
     if command == "/help":
+        model_lines = (
+            ""
+            if is_model_locked_chat
+            else (
+                "/model - list available models (config + Ollama, if available)\n"
+                "/model set <name|index> - switch active model for this chat\n"
+            )
+        )
+        alias_line = "Aliases: /roles -> /role" if is_model_locked_chat else "Aliases: /models -> /model, /roles -> /role"
+        lock_note = f"\n\nThis room is pinned to model: {model_locked_key}. Model switching is disabled." if is_model_locked_chat else ""
         _send_message(
             token,
             chat_id,
@@ -854,8 +973,7 @@ def _handle_command(
             "/mode - show current mode (chat or message)\n"
             "/mode chat - keep multi-turn context\n"
             "/mode message - one question/one answer per message\n"
-            "/model - list available models (config + Ollama, if available)\n"
-            "/model set <name|index> - switch active model for this chat\n"
+            f"{model_lines}"
             "/role - list available roles\n"
             "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
             "/reasoning - show effective reasoning effort for this chat\n"
@@ -866,16 +984,22 @@ def _handle_command(
             "/webfetch [on|off] - toggle Anthropic web fetch tool\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
             "/help - show this message\n\n"
-            "Aliases: /models -> /model, /roles -> /role\n\n"
+            f"{alias_line}\n\n"
             "You can also send:\n"
             "- plain text\n"
             "- photos (with optional caption)\n"
-            "- .txt or .pdf documents (with optional caption)",
+            f"- .txt or .pdf documents (with optional caption){lock_note}",
         )
         return True, False
 
     if command in ("/websearch", "/webfetch"):
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         is_search_command = command == "/websearch"
         setting_key = "web_search_enabled" if is_search_command else "anthropic_web_fetch_enabled"
         tool_label = "web search" if is_search_command else "web fetch"
@@ -906,7 +1030,13 @@ def _handle_command(
         return True, False
 
     if command == "/mode":
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         parts = text.split(maxsplit=1)
         current_mode = str(session.get("mode", "message")).lower()
 
@@ -960,7 +1090,13 @@ def _handle_command(
         return True, False
 
     if command == "/reasoning":
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         parts = text.split(maxsplit=1)
 
         if len(parts) == 1 or not parts[1].strip():
@@ -999,7 +1135,13 @@ def _handle_command(
         return True, False
 
     if command == "/new":
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         session["role_key"] = fetch_variable("defaults", "system_role")
         _reset_session_conversation(session)
         if debug_context:
@@ -1009,8 +1151,21 @@ def _handle_command(
         return True, False
 
     if command == "/models":
+        if is_model_locked_chat:
+            _send_message(
+                token,
+                chat_id,
+                f"This room is pinned to model '{model_locked_key}'. Model switching is disabled for this chat.",
+            )
+            return True, False
         models = _build_model_catalog()
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
         _send_message(token, chat_id, "Tip: use /model to list and /model set <name|index> to switch.")
@@ -1018,14 +1173,34 @@ def _handle_command(
 
     if command == "/roles":
         roles = _build_roles_catalog()
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
         _send_message(token, chat_id, "Tip: use /role to list and /role set <name|index> to switch.")
         return True, False
 
     if command == "/model":
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        if is_model_locked_chat:
+            _send_message(
+                token,
+                chat_id,
+                f"This room is pinned to model '{model_locked_key}'. Model switching is disabled for this chat.",
+            )
+            return True, False
+
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         parts = text.split(maxsplit=2)
 
         if len(parts) == 1 or not parts[1].strip():
@@ -1080,7 +1255,13 @@ def _handle_command(
         return True, False
 
     if command == "/role":
-        session = _get_or_create_session(sessions, chat_id, debug_context=debug_context, init_stage="session_init")
+        session = _get_or_create_session(
+            sessions,
+            chat_id,
+            model_chat_overrides=model_chat_overrides,
+            debug_context=debug_context,
+            init_stage="session_init",
+        )
         parts = text.split(maxsplit=2)
 
         if len(parts) == 1 or not parts[1].strip():
@@ -1168,12 +1349,22 @@ def run_telegram_bot() -> None:
     admin_chat_ids_raw = fetch_variable("telegram", "admin_chat_ids", auto_exit=False) or []
     admin_chat_ids = [int(chat_id) for chat_id in admin_chat_ids_raw]
     telegram_debug_context = bool(fetch_variable("telegram", "debug_context", auto_exit=False))
+    model_chat_overrides = _build_telegram_model_chat_overrides()
+
+    if allowed_chat_ids:
+        # Any model-mapped rooms should be accepted without forcing duplicate config entries.
+        allowed_chat_ids = sorted(set(allowed_chat_ids + list(model_chat_overrides.keys())))
 
     custom_print("warn", "Telegram mode detected. Streaming is disabled in Telegram runtime.")
     if fetch_variable("features", "mcp_client", auto_exit=False):
         custom_print("warn", "Telegram mode detected. MCP is disabled in Telegram runtime.")
         _stop_mcp_server_if_running()
     custom_print("info", "Terminal controls: exit/quit/bye = stop bot, reset/restart = clear in-memory sessions.")
+    if model_chat_overrides:
+        custom_print(
+            "info",
+            f"Telegram model room mappings active for {len(model_chat_overrides)} chat room(s).",
+        )
     custom_print("info", "Starting Telegram bot polling loop...")
     if telegram_debug_context:
         _debug_startup_default_settings_snapshot()
@@ -1248,6 +1439,7 @@ def run_telegram_bot() -> None:
                             token,
                             sessions,
                             admin_chat_ids,
+                            model_chat_overrides=model_chat_overrides,
                             debug_context=telegram_debug_context,
                         )
                         if should_shutdown:
@@ -1258,7 +1450,11 @@ def run_telegram_bot() -> None:
                             continue
 
                     session = _get_or_create_session(
-                        sessions, chat_id, debug_context=telegram_debug_context, init_stage="chat_init"
+                        sessions,
+                        chat_id,
+                        model_chat_overrides=model_chat_overrides,
+                        debug_context=telegram_debug_context,
+                        init_stage="chat_init",
                     )
                     model_title = session["model"].get("model_title", "")
                     model_name = session["model"].get("model_name")

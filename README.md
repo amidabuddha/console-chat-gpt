@@ -93,6 +93,10 @@ Overall, this app focuses on providing a user-friendly and customizable experien
    ```shell
    python3 -m pip install -r requirements.txt
    ```
+   Additionally third party libraries may be fercefully updated if necessary:
+   ```
+   python3 -m pip install --upgrade --force-reinstall --upgrade-strategy eager unichat
+   ```
 
 4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), or the relevant platform, depending on your selected LLM.
 
@@ -152,6 +156,12 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | allowed_chat_ids | List of chat IDs allowed to use the bot. Leave empty to allow all chats. |
 | admin_chat_ids | List of chat IDs allowed to run admin-only commands such as `/shutdown`. |
 | debug_context | If **true**, prints Telegram session/memory debug snapshots to terminal logs for troubleshooting context issues. |
+
+Per-model Telegram room mapping is also supported inside each model block via:
+- `telegram_chat_id = <chat_id>`
+- `telegram_chat_ids = [<chat_id_1>, <chat_id_2>]`
+
+When a chat room is mapped to a model, that room is pinned to this model (model switching commands are disabled there), while all other commands (`/mode`, `/role`, `/reasoning`, `/websearch`, `/webfetch`, etc.) remain available.
 
 ### Adding your OpenAI SDK supported model
 Add an entry at the end of your `config.toml` file.

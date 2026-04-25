@@ -70,6 +70,9 @@ assistant = "Deliver precise and informative virtual assistance for any inquiry 
 # ==================================
 # OpenAI models
 # ==================================
+# Optional per-model Telegram room lock:
+# telegram_chat_id = -1001234567890
+# telegram_chat_ids = [ -1001234567890, -1009876543210 ]
 [chat.models.gpt-5-nano]
 api_key = "YOUR_API_KEY"
 base_url = ""
