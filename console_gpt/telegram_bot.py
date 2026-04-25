@@ -14,7 +14,7 @@ from pypdf import PdfReader
 from unichat import MODELS_LIST, UnifiedChatApi
 from unichat.api_helper import openai
 
-from console_gpt.config_manager import fetch_variable
+from console_gpt.config_manager import fetch_variable, fetch_variable_resolved
 from console_gpt.custom_stdout import custom_print
 from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
                                        start_ollama)
@@ -207,7 +207,7 @@ def _build_default_session() -> Dict[str, Any]:
     model_data.update({"model_title": model_key})
 
     role_key = fetch_variable("defaults", "system_role")
-    role_data = fetch_variable("roles")
+    role_data = fetch_variable_resolved("roles")
     system_role = role_data.get(role_key, "Deliver precise and informative virtual assistance.")
 
     temperature = fetch_variable("defaults", "temperature")
@@ -233,7 +233,7 @@ def _build_default_session_for_model(model_key_override: Optional[str] = None) -
     model_data.update({"model_title": model_key})
 
     role_key = fetch_variable("defaults", "system_role")
-    role_data = fetch_variable("roles")
+    role_data = fetch_variable_resolved("roles")
     system_role = role_data.get(role_key, "Deliver precise and informative virtual assistance.")
 
     temperature = fetch_variable("defaults", "temperature")
@@ -320,12 +320,12 @@ def _build_telegram_model_chat_overrides() -> Dict[int, str]:
 
 def _default_system_role_content() -> str:
     role_key = fetch_variable("defaults", "system_role")
-    role_data = fetch_variable("roles")
+    role_data = fetch_variable_resolved("roles")
     return role_data.get(role_key, "Deliver precise and informative virtual assistance.")
 
 
 def _session_system_role_content(session: Dict[str, Any]) -> str:
-    role_data = fetch_variable("roles")
+    role_data = fetch_variable_resolved("roles")
     role_key = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
     return role_data.get(role_key, _default_system_role_content())
 
@@ -519,7 +519,7 @@ def _render_models_list(models: Dict[str, Any], active_model: str) -> str:
 
 
 def _build_roles_catalog() -> Dict[str, str]:
-    return dict(fetch_variable("roles"))
+    return dict(fetch_variable_resolved("roles"))
 
 
 def _indexed_role_keys(roles: Dict[str, str]) -> List[str]:

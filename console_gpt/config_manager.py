@@ -199,6 +199,93 @@ def fetch_variable(*args, auto_exit: bool = True) -> Any:
         return __var_error(args, auto_exit)
 
 
+def resolve_text_or_file(
+    value: Any,
+    setting_path: str,
+    base_path: Optional[str] = None,
+    required_dir: Optional[str] = None,
+) -> Any:
+    """Resolve a config text value that can be either inline text or a file path."""
+    if not isinstance(value, str):
+        return value
+
+    candidate = value.strip()
+    if not candidate or "\n" in candidate:
+        return value
+
+    is_file_uri = candidate.startswith("file://")
+    looks_like_path = (
+        "/" in candidate
+        or "\\" in candidate
+        or candidate.endswith((".txt", ".md", ".xml", ".prompt", ".role"))
+    )
+
+    if not is_file_uri:
+        if looks_like_path:
+            custom_print(
+                "error",
+                f'{setting_path} file path must start with "file://" (for example: file://roles/my_role.txt)',
+                1,
+            )
+        return value
+
+    candidate_path = candidate[7:]
+    if required_dir:
+        normalized = candidate_path.replace("\\", "/")
+        required_prefix = required_dir.rstrip("/") + "/"
+        if not normalized.startswith(required_prefix):
+            custom_print("error", f'{setting_path} must point under file://{required_prefix}', 1)
+
+    candidate_path = os.path.expandvars(os.path.expanduser(candidate_path))
+
+    paths_to_try = [candidate_path]
+    if base_path:
+        paths_to_try.append(os.path.join(base_path, candidate_path))
+
+    for path in paths_to_try:
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+
+    custom_print("error", f'{setting_path} file not found: "{candidate}"', 1)
+
+    return value
+
+
+def fetch_variable_resolved(*args, auto_exit: bool = True) -> Any:
+    """Fetch config value and resolve supported text fields from file paths."""
+    value = fetch_variable(*args, auto_exit=auto_exit)
+
+    if len(args) == 2 and args[0] == "managed" and args[1] == "assistant_role":
+        return resolve_text_or_file(
+            value,
+            setting_path="chat.managed.assistant_role",
+            base_path=BASE_PATH,
+            required_dir="roles",
+        )
+
+    if len(args) == 1 and args[0] == "roles" and isinstance(value, dict):
+        return {
+            key: resolve_text_or_file(
+                val,
+                setting_path=f"chat.roles.{key}",
+                base_path=BASE_PATH,
+                required_dir="roles",
+            )
+            for key, val in value.items()
+        }
+
+    if len(args) == 2 and args[0] == "roles":
+        return resolve_text_or_file(
+            value,
+            setting_path=f"chat.roles.{args[1]}",
+            base_path=BASE_PATH,
+            required_dir="roles",
+        )
+
+    return value
+
+
 def __verify_local_version_config() -> None:
     if not os.path.exists(CONFIG_VERSION_PATH_LOCAL):
         dummy_data = 'version = "0.0.0"'

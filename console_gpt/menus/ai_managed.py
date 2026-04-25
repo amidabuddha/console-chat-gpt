@@ -5,7 +5,7 @@ from rich.console import Console
 from unichat import UnifiedChatApi
 
 from console_gpt.catch_errors import sigint_wrapper
-from console_gpt.config_manager import fetch_variable
+from console_gpt.config_manager import fetch_variable, fetch_variable_resolved
 from console_gpt.constants import api_key_placeholders
 from console_gpt.custom_stdout import custom_print
 from console_gpt.menus.combined_menu import ChatObject
@@ -39,7 +39,7 @@ def managed_prompt() -> Tuple[ChatObject, str]:
 
 def configure_assistant():
     assistant_model = fetch_variable("managed", "assistant")
-    assistant_role = fetch_variable("managed", "assistant_role")
+    assistant_role = fetch_variable_resolved("managed", "assistant_role")
     replacements = {key: fetch_variable("managed", key.strip("{}")) for key in MODEL_KEYS}
     for key, value in replacements.items():
         assistant_role = assistant_role.replace(key, value)

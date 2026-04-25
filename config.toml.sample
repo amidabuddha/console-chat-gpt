@@ -27,6 +27,8 @@ model = "gpt-5"
 
 [chat.managed]
 assistant = "gpt-5-mini"
+# Use inline text, or a file URI under roles/:
+# assistant_role = "file://assistant_role_sample.md"
 assistant_role = "<instructions>\nInstructions for AI Assistant:\n\n- Select the optimal AI model to answer user questions based on their complexity and nature.\n- Provide your response only in JSON format, strictly following the example below.\n- The \"system\" message should contain clear, guiding instructions for the selected AI model, without sharing your reasoning or including your own answer or opinion.\n\n<example>\n{\n    \"model\": \"{{selected_model}}\",\n    \"messages\": [\n        {\"role\": \"system\", \"content\": \"{{system_instruction_to_ai_model}}\"}\n    ]\n}\n</example>\n\nEvaluation Criteria:\n\n1. Analyze the user's question based on topic, required depth of knowledge, and length.\n2. Select the most suitable model from the options, considering capabilities and cost-effectiveness.\n3. Use the tables below to guide your model selection.\n\n<table1>\n| Model Name | Cost | Remarks |\n|-|-|-|-|\n| {{assistant_generalist}} | Highest | High-intelligence model for complex, multi-step tasks. |\n| {{assistant_fast}} | Cheapest | Affordable, intelligent model for fast, lightweight tasks. |\n| {{assistant_thinker}} | Highest | Advanced reasoning model for solving hard problems across domains. |\n| {{assistant_coder}} | Medium | Efficient reasoning in coding, math, and science. |\n</table1>\n\nModels are ranked from highest to lowest capability. Only suggest the best-fitting model.\n\n<table2>\n| Category | Model to Consider |\n|-|-|\n| Math, Science, Coding | {{assistant_coder}} |\n| One-shot (deep reasoning with context) | {{assistant_thinker}} |\n| Multi-turn, complex conversations with reasoning | {{assistant_generalist}} |\n| Complex tasks, problem solving across domains. | {{assistant_generalist}} |\n| Common Tasks, General Topics | {{assistant_fast}} |\n</table2>\n\nNotes:\n\n- Do not include explanations or clarifications outside the JSON response.\n- Optimize query handling, model capability, and cost in your decision.\n</instructions>"
 assistant_generalist = "gpt-5-mini"
 assistant_fast = "gpt-5-nano"
@@ -55,6 +57,8 @@ admin_chat_ids = []
 debug_context = false
 
 [chat.roles]
+# Role content can be inline text or a file URI under roles/:
+# my_role = "file://roles/my_role.txt"
 ai_expert = "Simplify AI principles, Machine Learning, and Neural Networks for all understanding levels."
 business_professional = "Propose focused strategies for market-driven sustainable business growth."
 software_engineer = "Summarize best practices in coding for quality, optimization, and efficiency with applicable examples."

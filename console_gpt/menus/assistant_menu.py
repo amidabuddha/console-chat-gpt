@@ -9,6 +9,7 @@ from typing import List, Optional, Tuple
 from unichat.api_helper import openai
 
 from console_gpt.config_manager import (ASSISTANTS_PATH, fetch_variable,
+                                        fetch_variable_resolved,
                                         write_to_config)
 from console_gpt.custom_stdin import custom_input
 from console_gpt.custom_stdout import custom_print, markdown_print
@@ -110,7 +111,7 @@ def _assistant_preview(item: str) -> str:
     :param item: The assistant name.
     :return: Instructions of the selected assistant.
     """
-    all_roles = fetch_variable("roles")
+    all_roles = fetch_variable_resolved("roles")
     # Check the size of the terminal
     line_length = int(shutil.get_terminal_size().columns)
     match item:

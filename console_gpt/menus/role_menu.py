@@ -4,7 +4,8 @@ import textwrap
 from typing import Optional, Tuple, Union
 
 from console_gpt.catch_errors import eof_wrapper
-from console_gpt.config_manager import fetch_variable, write_to_config
+from console_gpt.config_manager import (fetch_variable, fetch_variable_resolved,
+                                        write_to_config)
 from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input
 from console_gpt.general_utils import capitalize, decapitalize, use_emoji_maybe
@@ -19,7 +20,7 @@ def _role_preview(item: str) -> str:
     :return: The preview of the role.
     """
     default_role = fetch_variable("defaults", "system_role")
-    all_roles = fetch_variable("roles")
+    all_roles = fetch_variable_resolved("roles")
     # Check the size of the terminal
     line_length = int(shutil.get_terminal_size().columns)
     match item:
@@ -128,7 +129,7 @@ def role_menu() -> Tuple[Optional[str], Optional[str]]:
         default_role = fetch_variable("defaults", "system_role")
 
         if not _show_menu:
-            return capitalize(default_role), fetch_variable("roles", default_role)
+            return capitalize(default_role), fetch_variable_resolved("roles", default_role)
 
         # Generate a list based on the role title (chat.roles.<role>)
         role_titles = list(fetch_variable("roles").keys()) or []
@@ -155,4 +156,4 @@ def role_menu() -> Tuple[Optional[str], Optional[str]]:
         case "Remove System Behavior":
             _remove_custom_role()
             return role_menu()
-    return selection, fetch_variable("roles", decapitalize(selection))
+    return selection, fetch_variable_resolved("roles", decapitalize(selection))
