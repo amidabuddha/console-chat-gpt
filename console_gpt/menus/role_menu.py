@@ -4,7 +4,8 @@ import textwrap
 from typing import Optional, Tuple, Union
 
 from console_gpt.catch_errors import eof_wrapper
-from console_gpt.config_manager import (fetch_variable, fetch_variable_resolved,
+from console_gpt.config_manager import (fetch_variable,
+                                        fetch_variable_resolved,
                                         write_to_config)
 from console_gpt.constants import style
 from console_gpt.custom_stdin import custom_input

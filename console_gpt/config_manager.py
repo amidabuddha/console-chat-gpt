@@ -215,9 +215,7 @@ def resolve_text_or_file(
 
     is_file_uri = candidate.startswith("file://")
     looks_like_path = (
-        "/" in candidate
-        or "\\" in candidate
-        or candidate.endswith((".txt", ".md", ".xml", ".prompt", ".role"))
+        "/" in candidate or "\\" in candidate or candidate.endswith((".txt", ".md", ".xml", ".prompt", ".role"))
     )
 
     if not is_file_uri:
@@ -234,7 +232,7 @@ def resolve_text_or_file(
         normalized = candidate_path.replace("\\", "/")
         required_prefix = required_dir.rstrip("/") + "/"
         if not normalized.startswith(required_prefix):
-            custom_print("error", f'{setting_path} must point under file://{required_prefix}', 1)
+            custom_print("error", f"{setting_path} must point under file://{required_prefix}", 1)
 
     candidate_path = os.path.expandvars(os.path.expanduser(candidate_path))
 

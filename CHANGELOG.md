@@ -1,4 +1,5 @@
 > Improvements:
+- [2cb0029] [Improvement] Support adding roles as file reference
 - [eb092e2] [Improvement] Support separate conversations in Telegram simultaneously
 - [e003a5f] [Improvement] GPT-5.5
 - [a20ba97] [Improvement] Allow images into Anthropic cache with Telegram chat
@@ -8,7 +9,6 @@
 - [3cad175] [Improvement] X Search with xAI Responses API
 - [4802d67] [Improvement] Map xAI models to Responses API
 - [ee783c2] [Improvement] Add timestamp to logs
-- [3c665a9] [Improvement] Keep Telegram bot running on polling/update errors
 
 
 ---
