@@ -650,7 +650,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
                 responses_reasoning_effort = "none"
             elif normalized_effort == "max":
                 responses_reasoning_effort = "xhigh"
-            elif normalized_effort in ("minimal","low", "medium", "high", "xhigh"):
+            elif normalized_effort in ("minimal", "low", "medium", "high", "xhigh"):
                 responses_reasoning_effort = normalized_effort
 
         if responses_reasoning_effort is not None:
