@@ -532,6 +532,24 @@ def _build_roles_catalog() -> Dict[str, str]:
     return dict(fetch_variable_resolved("roles"))
 
 
+def _validate_telegram_default_role_config() -> None:
+    """Fail fast when Telegram role configuration is invalid."""
+    roles = _build_roles_catalog()
+    if not roles:
+        custom_print("error", "Telegram mode requires at least one role under chat.roles in config.toml.", 1)
+
+    default_role = str(fetch_variable("defaults", "system_role"))
+    if default_role not in roles:
+        custom_print(
+            "error",
+            (
+                "Invalid chat.defaults.system_role for Telegram mode: "
+                f"'{default_role}' is not defined under chat.roles."
+            ),
+            1,
+        )
+
+
 def _indexed_role_keys(roles: Dict[str, str]) -> List[str]:
     return sorted(roles.keys())
 
@@ -1398,6 +1416,8 @@ def run_telegram_bot() -> None:
             "Invalid Telegram bot token format. Expected '<digits>:<token>' from BotFather.",
             1,
         )
+
+    _validate_telegram_default_role_config()
 
     allowed_chat_ids_raw = fetch_variable("telegram", "allowed_chat_ids", auto_exit=False) or []
     allowed_chat_ids = [int(chat_id) for chat_id in allowed_chat_ids_raw]
