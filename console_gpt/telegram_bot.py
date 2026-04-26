@@ -1,4 +1,5 @@
 import base64
+import threading
 import html
 import io
 import re
@@ -6,6 +7,7 @@ import select
 import subprocess
 import sys
 import time
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -391,21 +393,29 @@ def _get_or_create_session(
     model_chat_overrides: Optional[Dict[int, str]] = None,
     debug_context: bool = False,
     init_stage: str = "session_init",
+    sessions_lock: Optional[Any] = None,
 ) -> Dict[str, Any]:
-    existing = sessions.get(chat_id)
-    if existing is not None:
-        return existing
+    def _create_if_missing() -> Dict[str, Any]:
+        existing = sessions.get(chat_id)
+        if existing is not None:
+            return existing
 
-    model_override = (model_chat_overrides or {}).get(chat_id)
-    session = _build_default_session_for_model(model_override)
-    _sync_session_prompt_cache(session)
-    if model_override:
-        session["model_locked"] = True
-        session["model_locked_key"] = model_override
-    sessions[chat_id] = session
-    if debug_context:
-        _debug_session_settings_snapshot(session, chat_id, init_stage)
-    return session
+        model_override = (model_chat_overrides or {}).get(chat_id)
+        session = _build_default_session_for_model(model_override)
+        _sync_session_prompt_cache(session)
+        if model_override:
+            session["model_locked"] = True
+            session["model_locked_key"] = model_override
+        sessions[chat_id] = session
+        if debug_context:
+            _debug_session_settings_snapshot(session, chat_id, init_stage)
+        return session
+
+    if sessions_lock is None:
+        return _create_if_missing()
+
+    with sessions_lock:
+        return _create_if_missing()
 
 
 def _effective_reasoning_effort(session: Dict[str, Any]) -> Any:
@@ -965,6 +975,7 @@ def _handle_command(
     admin_chat_ids: List[int],
     model_chat_overrides: Optional[Dict[int, str]] = None,
     debug_context: bool = False,
+    sessions_lock: Optional[Any] = None,
 ) -> Tuple[bool, bool]:
     command = text.split()[0].lower()
     model_locked_key = (model_chat_overrides or {}).get(chat_id)
@@ -1036,6 +1047,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         is_search_command = command == "/websearch"
         setting_key = "web_search_enabled" if is_search_command else "anthropic_web_fetch_enabled"
@@ -1073,6 +1085,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         parts = text.split(maxsplit=1)
         current_mode = str(session.get("mode", "message")).lower()
@@ -1133,6 +1146,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         parts = text.split(maxsplit=1)
 
@@ -1178,6 +1192,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         session["role_key"] = fetch_variable("defaults", "system_role")
         _reset_session_conversation(session)
@@ -1202,6 +1217,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
@@ -1216,6 +1232,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
@@ -1237,6 +1254,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         parts = text.split(maxsplit=2)
 
@@ -1406,6 +1424,18 @@ def run_telegram_bot() -> None:
     if telegram_debug_context:
         _debug_startup_default_settings_snapshot()
 
+    max_workers_raw = fetch_variable("telegram", "max_concurrent_updates", auto_exit=False)
+    if max_workers_raw in (None, "") or isinstance(max_workers_raw, bool):
+        max_workers = 8
+    else:
+        try:
+            max_workers = int(max_workers_raw)
+        except (TypeError, ValueError):
+            max_workers = 8
+    if max_workers < 1:
+        max_workers = 8
+    custom_print("info", f"Telegram concurrent update workers: {max_workers}")
+
     # Validate token early and fail fast with a clear message.
     try:
         bot_info = _telegram_api(token, "getMe").get("result", {})
@@ -1417,18 +1447,127 @@ def run_telegram_bot() -> None:
     custom_print("ok", f"Telegram bot connected: @{bot_username}")
 
     sessions: Dict[int, Dict[str, Any]] = {}
+    sessions_lock = threading.Lock()
+    shutdown_requested = threading.Event()
+    worker_executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="tg-update")
+    ordered_futures: Dict[int, Future] = {}
+    ordered_futures_lock = threading.Lock()
     offset = 0
     process_start_ts = int(time.time())
-    shutdown_requested = False
+
+    def _process_update(update: Dict[str, Any]) -> None:
+        chat_id = 0
+        try:
+            if shutdown_requested.is_set():
+                return
+
+            message = update.get("message") or update.get("edited_message")
+            if not message:
+                return
+
+            chat = message.get("chat") or {}
+            chat_id = int(chat.get("id", 0))
+            if not chat_id or not _is_allowed_chat(chat_id, allowed_chat_ids):
+                return
+
+            text = (message.get("text") or "").strip()
+            if text.startswith("/"):
+                command = text.split()[0].lower()
+                if command == "/shutdown":
+                    message_ts = int(message.get("date") or 0)
+                    # Ignore stale shutdown commands that were sent before this bot process started.
+                    if message_ts and message_ts < process_start_ts:
+                        custom_print("info", f"Ignored stale /shutdown from chat_id={chat_id}.")
+                        return
+
+                handled, should_shutdown = _handle_command(
+                    text,
+                    chat_id,
+                    token,
+                    sessions,
+                    admin_chat_ids,
+                    model_chat_overrides=model_chat_overrides,
+                    debug_context=telegram_debug_context,
+                    sessions_lock=sessions_lock,
+                )
+                if should_shutdown:
+                    custom_print("info", f"Remote shutdown requested by chat_id={chat_id}.")
+                    shutdown_requested.set()
+                    return
+                if handled:
+                    return
+
+            session = _get_or_create_session(
+                sessions,
+                chat_id,
+                model_chat_overrides=model_chat_overrides,
+                debug_context=telegram_debug_context,
+                init_stage="chat_init",
+                sessions_lock=sessions_lock,
+            )
+            model_title = session["model"].get("model_title", "")
+            model_name = session["model"].get("model_name")
+            user_content = _build_user_content_from_message(
+                token, message, model_title, _uses_responses_api(model_name)
+            )
+            if not user_content:
+                _send_message(
+                    token,
+                    chat_id,
+                    "Unsupported input. Send text, an image, or a .txt/.pdf document.",
+                )
+                return
+
+            # In message mode, each incoming message starts from a fresh conversation context.
+            if str(session.get("mode", "message")).lower() == "message":
+                _reset_session_conversation(session)
+
+            session["conversation"].append({"role": "user", "content": user_content})
+            if telegram_debug_context:
+                _debug_conversation_snapshot(session, chat_id, "after_user_append")
+            _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
+            reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
+            _send_message(token, chat_id, reply)
+        except Exception as e:
+            custom_print("warn", f"Telegram update handling warning: {e}. Continuing...")
+            if chat_id:
+                try:
+                    _send_message(token, chat_id, _build_user_facing_model_error_message(str(e)))
+                except Exception as reply_error:
+                    custom_print(
+                        "warn",
+                        f"Telegram fallback error-message warning: {reply_error}. Continuing...",
+                    )
+
+    def _submit_update(chat_id: int, update: Dict[str, Any]) -> None:
+        with ordered_futures_lock:
+            prev_future = ordered_futures.get(chat_id)
+
+            def _run_after_previous(prev: Optional[Future], pending_update: Dict[str, Any]) -> None:
+                if prev is not None:
+                    try:
+                        prev.result()
+                    except Exception:
+                        # Continue processing later updates in the same chat even if a previous one failed.
+                        pass
+                _process_update(pending_update)
+
+            next_future = worker_executor.submit(_run_after_previous, prev_future, update)
+            ordered_futures[chat_id] = next_future
 
     try:
         while True:
+            if shutdown_requested.is_set():
+                break
+
             terminal_action = _consume_terminal_control_command()
             if terminal_action == "stop":
                 custom_print("info", "Exit command received. Stopping Telegram bot...")
+                shutdown_requested.set()
                 break
             if terminal_action == "reset":
-                sessions = {}
+                with sessions_lock:
+                    sessions.clear()
                 custom_print("info", "Reset command received. In-memory Telegram sessions were cleared.")
                 continue
 
@@ -1461,74 +1600,15 @@ def run_telegram_bot() -> None:
                     if not chat_id or not _is_allowed_chat(chat_id, allowed_chat_ids):
                         continue
 
-                    text = (message.get("text") or "").strip()
-                    if text.startswith("/"):
-                        command = text.split()[0].lower()
-                        if command == "/shutdown":
-                            message_ts = int(message.get("date") or 0)
-                            # Ignore stale shutdown commands that were sent before this bot process started.
-                            if message_ts and message_ts < process_start_ts:
-                                custom_print("info", f"Ignored stale /shutdown from chat_id={chat_id}.")
-                                continue
-                        handled, should_shutdown = _handle_command(
-                            text,
-                            chat_id,
-                            token,
-                            sessions,
-                            admin_chat_ids,
-                            model_chat_overrides=model_chat_overrides,
-                            debug_context=telegram_debug_context,
-                        )
-                        if should_shutdown:
-                            custom_print("info", f"Remote shutdown requested by chat_id={chat_id}.")
-                            shutdown_requested = True
-                            break
-                        if handled:
-                            continue
+                    if shutdown_requested.is_set():
+                        break
 
-                    session = _get_or_create_session(
-                        sessions,
-                        chat_id,
-                        model_chat_overrides=model_chat_overrides,
-                        debug_context=telegram_debug_context,
-                        init_stage="chat_init",
-                    )
-                    model_title = session["model"].get("model_title", "")
-                    model_name = session["model"].get("model_name")
-                    user_content = _build_user_content_from_message(
-                        token, message, model_title, _uses_responses_api(model_name)
-                    )
-                    if not user_content:
-                        _send_message(
-                            token,
-                            chat_id,
-                            "Unsupported input. Send text, an image, or a .txt/.pdf document.",
-                        )
-                        continue
-
-                    # In message mode, each incoming message starts from a fresh conversation context.
-                    if str(session.get("mode", "message")).lower() == "message":
-                        _reset_session_conversation(session)
-
-                    session["conversation"].append({"role": "user", "content": user_content})
-                    if telegram_debug_context:
-                        _debug_conversation_snapshot(session, chat_id, "after_user_append")
-                    _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
-                    reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
-                    _send_message(token, chat_id, reply)
+                    _submit_update(chat_id, update)
                 except Exception as e:
                     custom_print("warn", f"Telegram update handling warning: {e}. Continuing...")
-                    if chat_id:
-                        try:
-                            _send_message(token, chat_id, _build_user_facing_model_error_message(str(e)))
-                        except Exception as reply_error:
-                            custom_print(
-                                "warn",
-                                f"Telegram fallback error-message warning: {reply_error}. Continuing...",
-                            )
                     continue
 
-            if shutdown_requested:
+            if shutdown_requested.is_set():
                 # Confirm processed updates (including /shutdown) without flushing newer pending messages.
                 _telegram_api(
                     token,
@@ -1545,6 +1625,7 @@ def run_telegram_bot() -> None:
     except Exception as e:
         custom_print("error", f"Unexpected fatal Telegram runtime error: {e}")
     finally:
+        worker_executor.shutdown(wait=True)
         _unload_ollama_models_in_sessions(sessions)
         _stop_mcp_server_if_running()
         custom_print("exit", "Telegram bot stopped.", 130)

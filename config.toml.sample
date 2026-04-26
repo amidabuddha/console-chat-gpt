@@ -55,6 +55,9 @@ bot_token = "YOUR_TELEGRAM_BOT_TOKEN"
 allowed_chat_ids = []
 admin_chat_ids = []
 debug_context = false
+# Maximum number of Telegram updates processed concurrently.
+# Different chats run in parallel, while each chat stays ordered/isolated.
+max_concurrent_updates = 8
 
 [chat.roles]
 # Role content can be inline text or a file URI under roles/:

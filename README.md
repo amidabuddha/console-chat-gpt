@@ -156,6 +156,7 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | allowed_chat_ids | List of chat IDs allowed to use the bot. Leave empty to allow all chats. |
 | admin_chat_ids | List of chat IDs allowed to run admin-only commands such as `/shutdown`. |
 | debug_context | If **true**, prints Telegram session/memory debug snapshots to terminal logs for troubleshooting context issues. |
+| max_concurrent_updates | Maximum number of Telegram updates processed in parallel. Default is **8** when omitted. Different chats run concurrently, while each chat remains strictly ordered and isolated. |
 
 Per-model Telegram room mapping is also supported inside each model block via:
 - `telegram_chat_id = <chat_id>`
