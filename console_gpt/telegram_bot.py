@@ -698,6 +698,37 @@ def _execute_model_action(with_timeout_action, fallback_action):
         return "error_appeared"
 
 
+def _build_user_facing_model_error_message(error_text: str) -> str:
+    text = (error_text or "").lower()
+
+    quota_or_billing_markers = (
+        "insufficient_quota",
+        "exceeded your current quota",
+        "credit balance is too low",
+        "billing",
+        "quota",
+    )
+    if any(marker in text for marker in quota_or_billing_markers):
+        return (
+            "The model request failed due to provider quota or billing limits. "
+            "Please check your provider account and try again."
+        )
+
+    if "429" in text or "rate limit" in text or "too many requests" in text:
+        return "The model request hit a rate limit. Please wait a moment and try again."
+
+    if "401" in text or "unauthorized" in text or "invalid api key" in text:
+        return "The model request failed due to authentication. Please verify the configured API key."
+
+    if "400" in text or "invalid_request_error" in text or "bad request" in text:
+        return "The model request was rejected as invalid for this provider/model configuration."
+
+    if "timed out" in text or "timeout" in text:
+        return f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s. Try a smaller prompt or another model."
+
+    return "The model request failed. Please try again."
+
+
 def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, chat_id: int = 0) -> str:
     _sync_session_prompt_cache(session)
 
@@ -1487,6 +1518,14 @@ def run_telegram_bot() -> None:
                     _send_message(token, chat_id, reply)
                 except Exception as e:
                     custom_print("warn", f"Telegram update handling warning: {e}. Continuing...")
+                    if chat_id:
+                        try:
+                            _send_message(token, chat_id, _build_user_facing_model_error_message(str(e)))
+                        except Exception as reply_error:
+                            custom_print(
+                                "warn",
+                                f"Telegram fallback error-message warning: {reply_error}. Continuing...",
+                            )
                     continue
 
             if shutdown_requested:
