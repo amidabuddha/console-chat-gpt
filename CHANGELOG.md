@@ -1,4 +1,5 @@
 > Improvements:
+- [3e4d3ce] [Improvement] Simplify error handling
 - [24782f9] [Improvement] Add concurrency for multiple chats in Telegram
 - [7af91a6] [Improvement] Better error handling
 - [2cb0029] [Improvement] Support adding roles as file reference
@@ -8,7 +9,6 @@
 - [374151a] [Improvement] Add Anthropic Opus 4.7
 - [a8993cb] [Improvement] Configurable emoji
 - [d4a6ada] [Improvement] Handle Telegram runtime errors
-- [3cad175] [Improvement] X Search with xAI Responses API
 
 > Bug Fixes:
 - [98e5187] [Bugfix] Role validation in Telegram flow
