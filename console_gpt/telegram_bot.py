@@ -22,7 +22,6 @@ from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
                                        start_ollama)
 from mcp_servers.server_manager import ServerManager
 
-REQUEST_TIMEOUT_SECONDS = 120
 ANTHROPIC_WEB_SEARCH_MAX_USES = 5
 ANTHROPIC_WEB_FETCH_MAX_USES = 5
 ANTHROPIC_WEB_FETCH_MAX_CONTENT_TOKENS = 50000
@@ -708,22 +707,13 @@ def _patch_unichat_tool_normalizer_for_server_tools(client: Any) -> None:
     setattr(api_helper, "_server_tools_passthrough_patch", True)
 
 
-def _execute_model_action(with_timeout_action, fallback_action):
-    """Execute model request with timeout support and compatibility fallback."""
+def _execute_model_action(action):
+    """Execute a model request without enforcing local request-level timeouts."""
     try:
-        return with_timeout_action()
-    except TypeError:
-        # Some API client wrappers may not support request-level timeout kwargs.
-        return fallback_action()
-    except KeyboardInterrupt:
-        return "interrupted"
+        return action()
     except Exception as e:
-        error_text = str(e).lower()
-        if "timed out" in error_text or "timeout" in error_text:
-            custom_print("warn", f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s.")
-            return "request_timeout"
         custom_print("error", f"Model request failed: {e}")
-        return "error_appeared"
+        return {"error": str(e)}
 
 
 def _build_user_facing_model_error_message(error_text: str) -> str:
@@ -752,7 +742,7 @@ def _build_user_facing_model_error_message(error_text: str) -> str:
         return "The model request was rejected as invalid for this provider/model configuration."
 
     if "timed out" in text or "timeout" in text:
-        return f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s. Try a smaller prompt or another model."
+        return "The model request timed out at the provider/network layer. Please try again."
 
     return "The model request failed. Please try again."
 
@@ -828,14 +818,9 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
                 f"[TG DEBUG] stage=request_dispatch chat_id={chat_id} api=responses model={model_name} input_len={input_len}",
             )
 
-        response = _execute_model_action(
-            lambda: client.responses.create(**params, timeout=REQUEST_TIMEOUT_SECONDS),
-            lambda: client.responses.create(**params),
-        )
-        if response == "request_timeout":
-            return f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s. Try a smaller prompt or another model."
-        if response in ("interrupted", "error_appeared"):
-            return "The model request failed. Please try again."
+        response = _execute_model_action(lambda: client.responses.create(**params))
+        if isinstance(response, dict) and "error" in response:
+            return _build_user_facing_model_error_message(response["error"])
 
         assistant_text, parsed = _extract_responses_text(response)
         if parsed:
@@ -912,14 +897,9 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
             ),
         )
 
-    response = _execute_model_action(
-        lambda: client.chat.completions.create(**params, timeout=REQUEST_TIMEOUT_SECONDS),
-        lambda: client.chat.completions.create(**params),
-    )
-    if response == "request_timeout":
-        return f"Model request timed out after {REQUEST_TIMEOUT_SECONDS}s. Try a smaller prompt or another model."
-    if response in ("interrupted", "error_appeared"):
-        return "The model request failed. Please try again."
+    response = _execute_model_action(lambda: client.chat.completions.create(**params))
+    if isinstance(response, dict) and "error" in response:
+        return _build_user_facing_model_error_message(response["error"])
 
     assistant_text, assistant_msg = _extract_completion_text(response)
     conversation.append(assistant_msg)
