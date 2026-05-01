@@ -7,7 +7,6 @@
 - [eb092e2] [Improvement] Support separate conversations in Telegram simultaneously
 - [e003a5f] [Improvement] GPT-5.5
 - [a20ba97] [Improvement] Allow images into Anthropic cache with Telegram chat
-- [374151a] [Improvement] Add Anthropic Opus 4.7
 
 > Bug Fixes:
 - [98e5187] [Bugfix] Role validation in Telegram flow
