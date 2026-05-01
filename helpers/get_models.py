@@ -14,7 +14,6 @@ def get_models():
     # Initialize the structures
     MODELS_LIST = {
         "anthropic_models": [],
-        "mistral_models": [],
         "openai_models": [],
         "xai_models": [],
         "google_models": [],
@@ -36,8 +35,6 @@ def get_models():
         # Fill MODELS_LIST
         if "anthropic" in model:
             MODELS_LIST["anthropic_models"].append(model_name)
-        elif "tral" in model:
-            MODELS_LIST["mistral_models"].append(model_name)
         elif any(sub in model for sub in ("gpt", "o3", "o4")):
             MODELS_LIST["openai_models"].append(model_name)
         elif "grok" in model:
