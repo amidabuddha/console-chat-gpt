@@ -93,10 +93,6 @@ Overall, this app focuses on providing a user-friendly and customizable experien
    ```shell
    python3 -m pip install -r requirements.txt
    ```
-   Additionally third party libraries may be fercefully updated if necessary:
-   ```
-   python3 -m pip install --upgrade --force-reinstall --upgrade-strategy eager unichat
-   ```
 
 4. Get your API key from [OpenAI](https://platform.openai.com/account/api-keys), [MistralAI](https://console.mistral.ai/user/api-keys/), [Anthropic](https://console.anthropic.com/settings/keys), [xAI](https://console.x.ai/), [Google AI Studio](https://aistudio.google.com/apikey), or the relevant platform, depending on your selected LLM.
 
