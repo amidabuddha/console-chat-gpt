@@ -31,6 +31,16 @@ ANTHROPIC_WEB_FETCH_TOOL_TYPE = "web_fetch_20260209"
 OPENAI_WEB_SEARCH_TOOL_TYPE = "web_search"
 
 
+class _TelegramModelRequestError(RuntimeError):
+    def __init__(self, error_text: str, user_message: Optional[str] = None):
+        super().__init__(error_text)
+        self.user_message = user_message
+
+
+class _UnsupportedTelegramInputError(ValueError):
+    pass
+
+
 def _telegram_api(token: str, method: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     url = f"https://api.telegram.org/bot{token}/{method}"
     try:
@@ -200,32 +210,7 @@ def _extract_document_content(file_name: str, file_bytes: bytes) -> Optional[str
     return None
 
 
-def _build_default_session() -> Dict[str, Any]:
-    models = fetch_variable("models")
-    default_model = fetch_variable("defaults", "model")
-    model_key = default_model if default_model in models else next(iter(models.keys()))
-    model_data = dict(models[model_key])
-    model_data.update({"model_title": model_key})
-
-    role_key = fetch_variable("defaults", "system_role")
-    role_data = fetch_variable_resolved("roles")
-    system_role = role_data.get(role_key, "Deliver precise and informative virtual assistance.")
-
-    temperature = fetch_variable("defaults", "temperature")
-    return {
-        "model": model_data,
-        "role_key": role_key,
-        "temperature": temperature,
-        "reasoning_effort_override": None,
-        "mode": "message",
-        "web_search_enabled": False,
-        "anthropic_web_fetch_enabled": False,
-        "cached": False,
-        "conversation": [{"role": "system", "content": system_role}],
-    }
-
-
-def _build_default_session_for_model(model_key_override: Optional[str] = None) -> Dict[str, Any]:
+def _build_default_session(model_key_override: Optional[str] = None) -> Dict[str, Any]:
     models = fetch_variable("models")
     default_model = fetch_variable("defaults", "model")
     selected_model = model_key_override if model_key_override in models else default_model
@@ -358,6 +343,17 @@ def _reset_session_conversation(session: Dict[str, Any]) -> None:
     _set_session_role(session, str(session.get("role_key") or fetch_variable("defaults", "system_role")), False)
 
 
+def _rollback_last_user_turn(session: Dict[str, Any]) -> None:
+    conversation = session.get("conversation", [])
+    if not isinstance(conversation, list):
+        return
+    for idx in range(len(conversation) - 1, -1, -1):
+        item = conversation[idx]
+        if isinstance(item, dict) and item.get("role") == "user":
+            del conversation[idx:]
+            return
+
+
 def _should_enable_prompt_cache(session: Dict[str, Any]) -> bool:
     model_title = str(session.get("model", {}).get("model_title", "")).lower()
     mode = str(session.get("mode", "message")).lower()
@@ -400,7 +396,7 @@ def _get_or_create_session(
             return existing
 
         model_override = (model_chat_overrides or {}).get(chat_id)
-        session = _build_default_session_for_model(model_override)
+        session = _build_default_session(model_override)
         _sync_session_prompt_cache(session)
         if model_override:
             session["model_locked"] = True
@@ -578,6 +574,11 @@ def _extract_responses_text(response: Any) -> Tuple[str, List[Dict[str, Any]]]:
             if text_content:
                 assistant_chunks.append(text_content)
                 parsed_output.append({"role": "assistant", "content": text_content})
+        elif output_type == "function_call":
+            raise _TelegramModelRequestError(
+                "Model returned a local function call, but Telegram runtime has MCP tools disabled.",
+                "The model tried to call a local tool, but Telegram runtime has MCP tools disabled.",
+            )
 
     return "\n\n".join(assistant_chunks).strip(), parsed_output
 
@@ -597,6 +598,13 @@ def _extract_completion_text(response: Any) -> Tuple[str, Dict[str, Any]]:
         text_content = "".join(chunks).strip()
     else:
         text_content = str(content or "").strip()
+
+    tool_calls = getattr(message, "tool_calls", None)
+    if tool_calls:
+        raise _TelegramModelRequestError(
+            "Model returned local tool calls, but Telegram runtime has MCP tools disabled.",
+            "The model tried to call a local tool, but Telegram runtime has MCP tools disabled.",
+        )
 
     return text_content, {"role": "assistant", "content": text_content}
 
@@ -713,7 +721,7 @@ def _execute_model_action(action):
         return action()
     except Exception as e:
         custom_print("error", f"Model request failed: {e}")
-        return {"error": str(e)}
+        raise _TelegramModelRequestError(str(e)) from e
 
 
 def _build_user_facing_model_error_message(error_text: str) -> str:
@@ -771,7 +779,10 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         custom_print("info", "Ollama is not running. Starting it now...")
         start_ollama()
         if not is_ollama_running():
-            return "Ollama is unavailable. Start Ollama and try again."
+            raise _TelegramModelRequestError(
+                "Ollama is unavailable after start attempt.",
+                "Ollama is unavailable. Start Ollama and try again.",
+            )
 
     use_responses = _uses_responses_api(model_name) and not ollama_model
     if use_responses:
@@ -789,6 +800,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
             params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
         if _is_web_search_enabled(session):
             params["tools"] = [{"type": OPENAI_WEB_SEARCH_TOOL_TYPE}]
+            params["parallel_tool_calls"] = False
 
         model_lower = str(model_name or "").lower()
         responses_reasoning_effort: Optional[str] = None
@@ -810,6 +822,8 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
             params["temperature"] = temperature
         if isinstance(verbosity, str) and verbosity.lower() in ("low", "medium", "high"):
             params.setdefault("text", {})["verbosity"] = verbosity.lower()
+        if model_name == "o3-pro":
+            params["background"] = True
 
         if debug_context:
             input_len = len(params.get("input", []) or [])
@@ -820,7 +834,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
 
         response = _execute_model_action(lambda: client.responses.create(**params))
         if isinstance(response, dict) and "error" in response:
-            return _build_user_facing_model_error_message(response["error"])
+            raise _TelegramModelRequestError(str(response["error"]))
 
         assistant_text, parsed = _extract_responses_text(response)
         if parsed:
@@ -899,7 +913,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
 
     response = _execute_model_action(lambda: client.chat.completions.create(**params))
     if isinstance(response, dict) and "error" in response:
-        return _build_user_facing_model_error_message(response["error"])
+        raise _TelegramModelRequestError(str(response["error"]))
 
     assistant_text, assistant_msg = _extract_completion_text(response)
     conversation.append(assistant_msg)
@@ -945,7 +959,7 @@ def _build_user_content_from_message(
         file_bytes = _telegram_get_file_bytes(token, doc["file_id"])
         extracted = _extract_document_content(file_name, file_bytes)
         if extracted is None:
-            return (
+            raise _UnsupportedTelegramInputError(
                 f"Unsupported document type: {file_name}. Please send .txt or .pdf files only."
                 if file_name
                 else "Unsupported document type. Please send .txt or .pdf files only."
@@ -1314,6 +1328,7 @@ def _handle_command(
             model_chat_overrides=model_chat_overrides,
             debug_context=debug_context,
             init_stage="session_init",
+            sessions_lock=sessions_lock,
         )
         parts = text.split(maxsplit=2)
 
@@ -1507,9 +1522,13 @@ def run_telegram_bot() -> None:
             )
             model_title = session["model"].get("model_title", "")
             model_name = session["model"].get("model_name")
-            user_content = _build_user_content_from_message(
-                token, message, model_title, _uses_responses_api(model_name)
-            )
+            try:
+                user_content = _build_user_content_from_message(
+                    token, message, model_title, _uses_responses_api(model_name)
+                )
+            except _UnsupportedTelegramInputError as e:
+                _send_message(token, chat_id, str(e))
+                return
             if not user_content:
                 _send_message(
                     token,
@@ -1525,14 +1544,26 @@ def run_telegram_bot() -> None:
             session["conversation"].append({"role": "user", "content": user_content})
             if telegram_debug_context:
                 _debug_conversation_snapshot(session, chat_id, "after_user_append")
-            _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
-            reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
+            try:
+                _telegram_api(token, "sendChatAction", {"chat_id": chat_id, "action": "typing"})
+            except Exception as e:
+                custom_print("warn", f"Telegram typing indicator warning: {e}. Continuing...")
+            try:
+                reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
+            except Exception:
+                _rollback_last_user_turn(session)
+                raise
             _send_message(token, chat_id, reply)
         except Exception as e:
             custom_print("warn", f"Telegram update handling warning: {e}. Continuing...")
             if chat_id:
                 try:
-                    _send_message(token, chat_id, _build_user_facing_model_error_message(str(e)))
+                    user_message = (
+                        e.user_message
+                        if isinstance(e, _TelegramModelRequestError) and e.user_message
+                        else _build_user_facing_model_error_message(str(e))
+                    )
+                    _send_message(token, chat_id, user_message)
                 except Exception as reply_error:
                     custom_print(
                         "warn",
