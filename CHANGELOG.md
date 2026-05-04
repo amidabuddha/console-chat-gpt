@@ -5,9 +5,9 @@
 - [7af91a6] [Improvement] Better error handling
 - [2cb0029] [Improvement] Support adding roles as file reference
 - [eb092e2] [Improvement] Support separate conversations in Telegram simultaneously
-- [e003a5f] [Improvement] GPT-5.5
 
 > Bug Fixes:
+- [e88ce00] [Bugfix] Harden Telegram bot error handling
 - [98e5187] [Bugfix] Role validation in Telegram flow
 
 
