@@ -1,7 +1,7 @@
 unichat~=4.3.4
 questionary~=2.0.1
 rich~=13.7.0
-pillow~=12.1.1
+pillow~=12.2.0
 simple_term_menu~=1.6.4
 termcolor~=2.4.0
 toml~=0.10.2
