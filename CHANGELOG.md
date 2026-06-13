@@ -2,7 +2,6 @@
 - [b95fae9] [Improvement] Grok 4.3
 - [3e4d3ce] [Improvement] Simplify error handling
 - [24782f9] [Improvement] Add concurrency for multiple chats in Telegram
-- [7af91a6] [Improvement] Better error handling
 
 > Bug Fixes:
 - [e88ce00] [Bugfix] Harden Telegram bot error handling
