@@ -614,7 +614,7 @@ def _render_models_list(models: Dict[str, Any], active_model: str) -> str:
         marker = "*" if model_key == active_model else " "
         lines.append(f"{idx:>{index_width}}    {marker}     {model_key}")
     lines.append("```")
-    lines.append("Use: `/model set 2` or `/model set model-name`")
+    lines.append("Use: /model set 2 or /model set model-name")
     return "\n".join(lines)
 
 
@@ -658,7 +658,84 @@ def _render_roles_list(roles: Dict[str, str], active_role: str) -> str:
         marker = "*" if role_key == active_role else " "
         lines.append(f"{idx:>{index_width}}    {marker}     {role_key}")
     lines.append("```")
-    lines.append("Use: `/role set 2` or `/role set role-name`")
+    lines.append("Use: /role set 2 or /role set role-name")
+    return "\n".join(lines)
+
+
+def _render_start_message(is_model_locked_chat: bool, model_locked_key: Optional[str]) -> str:
+    commands = ["/help", "/new", "/mode"]
+    if not is_model_locked_chat:
+        commands.append("/model")
+    commands.extend(["/role", "/reasoning", "/websearch", "/webfetch", "/shutdown"])
+
+    lines = [
+        "Telegram mode is active.",
+        "",
+        "Send text, images, or .txt/.pdf files to chat with your configured model.",
+        "",
+        "Commands:",
+    ]
+    lines.extend(f"- {command}" for command in commands)
+    if is_model_locked_chat:
+        lines.extend(["", f"This room is pinned to model: {model_locked_key}."])
+    return "\n".join(lines)
+
+
+def _render_help_message(is_model_locked_chat: bool, model_locked_key: Optional[str]) -> str:
+    lines = [
+        "Commands:",
+        "",
+        "- /new - reset current conversation",
+        "- /mode - show current mode",
+        "- /mode chat - keep multi-turn context",
+        "- /mode message - one question, one answer per message",
+    ]
+    if not is_model_locked_chat:
+        lines.extend(
+            [
+                "- /model - list available models",
+                "- /model set 2 - switch model by list number",
+                "- /model set model-name - switch model by name",
+            ]
+        )
+    lines.extend(
+        [
+            "- /role - list available roles",
+            "- /role set 2 - switch role by list number",
+            "- /role set role-name - switch role by name",
+            "- /reasoning - show reasoning effort",
+            "- /reasoning default - use model config",
+            "- /reasoning off - disable reasoning effort",
+            "- /reasoning high - set high reasoning effort",
+            "- /websearch - show web search status",
+            "- /websearch on - enable web search",
+            "- /websearch off - disable web search",
+            "- /webfetch - show Anthropic web fetch status",
+            "- /webfetch on - enable Anthropic web fetch",
+            "- /webfetch off - disable Anthropic web fetch",
+            "- /shutdown - stop bot runtime (admin chat IDs only)",
+            "- /help - show this message",
+            "",
+            "Aliases:",
+        ]
+    )
+    if is_model_locked_chat:
+        lines.append("- /roles - same as /role")
+    else:
+        lines.extend(["- /models - same as /model", "- /roles - same as /role"])
+
+    lines.extend(
+        [
+            "",
+            "You can also send:",
+            "",
+            "- plain text",
+            "- photos with an optional caption",
+            "- .txt or .pdf documents with an optional caption",
+        ]
+    )
+    if is_model_locked_chat:
+        lines.extend(["", f"This room is pinned to model: {model_locked_key}. Model switching is disabled."])
     return "\n".join(lines)
 
 
@@ -1185,62 +1262,11 @@ def _handle_command(
     is_model_locked_chat = model_locked_key is not None
 
     if command == "/start":
-        command_list = (
-            "/help, /new, /mode, /role, /reasoning, /websearch, /webfetch, /shutdown"
-            if is_model_locked_chat
-            else "/help, /new, /mode, /model, /role, /reasoning, /websearch, /webfetch, /shutdown"
-        )
-        lock_note = f"\nThis room is pinned to model: {model_locked_key}." if is_model_locked_chat else ""
-        _send_message(
-            token,
-            chat_id,
-            "Telegram mode is active. Send text, images, or .txt/.pdf files to chat with your configured model.\n"
-            f"Commands: {command_list}{lock_note}",
-        )
+        _send_message(token, chat_id, _render_start_message(is_model_locked_chat, model_locked_key))
         return True, False
 
     if command == "/help":
-        model_lines = (
-            ""
-            if is_model_locked_chat
-            else (
-                "/model - list available models (config + Ollama, if available)\n"
-                "`/model set 2` or `/model set model-name` - switch active model for this chat\n"
-            )
-        )
-        alias_line = (
-            "Aliases: /roles -> /role" if is_model_locked_chat else "Aliases: /models -> /model, /roles -> /role"
-        )
-        lock_note = (
-            f"\n\nThis room is pinned to model: {model_locked_key}. Model switching is disabled."
-            if is_model_locked_chat
-            else ""
-        )
-        _send_message(
-            token,
-            chat_id,
-            "Commands:\n"
-            "/new - reset current conversation\n"
-            "/mode - show current mode (chat or message)\n"
-            "/mode chat - keep multi-turn context\n"
-            "/mode message - one question/one answer per message\n"
-            f"{model_lines}"
-            "/role - list available roles\n"
-            "`/role set 2` or `/role set role-name` - switch active role for this chat (keeps conversation)\n"
-            "/reasoning - show effective reasoning effort for this chat\n"
-            "`/reasoning default`, `/reasoning off`, `/reasoning high` - set session reasoning effort override\n"
-            "/websearch - show web search status (Anthropic + OpenAI Responses)\n"
-            "`/websearch on` or `/websearch off` - toggle web search tool (Anthropic + OpenAI Responses)\n"
-            "/webfetch - show Anthropic web fetch status\n"
-            "`/webfetch on` or `/webfetch off` - toggle Anthropic web fetch tool\n"
-            "/shutdown - stop bot runtime (admin chat IDs only)\n"
-            "/help - show this message\n\n"
-            f"{alias_line}\n\n"
-            "You can also send:\n"
-            "- plain text\n"
-            "- photos (with optional caption)\n"
-            f"- .txt or .pdf documents (with optional caption){lock_note}",
-        )
+        _send_message(token, chat_id, _render_help_message(is_model_locked_chat, model_locked_key))
         return True, False
 
     if command in ("/websearch", "/webfetch"):
@@ -1263,13 +1289,13 @@ def _handle_command(
                 token,
                 chat_id,
                 f"{tool_label.title()} is {'ON' if current else 'OFF'} for this chat. "
-                f"Use `/{command[1:]} on` or `/{command[1:]} off` to change it.",
+                f"Use /{command[1:]} on or /{command[1:]} off to change it.",
             )
             return True, False
 
         value = parts[1].strip().lower()
         if value not in ("on", "off"):
-            _send_message(token, chat_id, f"Usage: `/{command[1:]} on` or `/{command[1:]} off`")
+            _send_message(token, chat_id, f"Usage: /{command[1:]} on or /{command[1:]} off")
             return True, False
 
         enabled = value == "on"
@@ -1306,7 +1332,7 @@ def _handle_command(
 
         target_mode = parts[1].strip().lower()
         if target_mode not in ("chat", "message"):
-            _send_message(token, chat_id, "Usage: `/mode chat` or `/mode message`")
+            _send_message(token, chat_id, "Usage: /mode chat or /mode message")
             return True, False
 
         if target_mode == current_mode:
@@ -1363,7 +1389,7 @@ def _handle_command(
                 chat_id,
                 "Reasoning effort: "
                 f"{_format_reasoning_effort(effective)} ({source}).\n"
-                "Use `/reasoning default`, `/reasoning off`, or `/reasoning high` to change it.",
+                "Use /reasoning default, /reasoning off, or /reasoning high to change it.",
             )
             return True, False
 
@@ -1372,8 +1398,8 @@ def _handle_command(
             _send_message(
                 token,
                 chat_id,
-                "Usage: `/reasoning default`, `/reasoning off`, `/reasoning minimal`, `/reasoning low`, "
-                "`/reasoning medium`, `/reasoning high`, `/reasoning xhigh`, or `/reasoning max`",
+                "Usage: /reasoning default, /reasoning off, /reasoning minimal, /reasoning low, "
+                "/reasoning medium, /reasoning high, /reasoning xhigh, or /reasoning max",
             )
             return True, False
 
@@ -1430,7 +1456,7 @@ def _handle_command(
         )
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
-        _send_message(token, chat_id, "Tip: use `/model` to list and `/model set 2` to switch.")
+        _send_message(token, chat_id, "Tip: use /model to list and /model set 2 to switch.")
         return True, False
 
     if command == "/roles":
@@ -1445,7 +1471,7 @@ def _handle_command(
         )
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
-        _send_message(token, chat_id, "Tip: use `/role` to list and `/role set 2` to switch.")
+        _send_message(token, chat_id, "Tip: use /role to list and /role set 2 to switch.")
         return True, False
 
     if command == "/model":
@@ -1475,7 +1501,7 @@ def _handle_command(
 
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
-                _send_message(token, chat_id, "Usage: `/model set 2` or `/model set model-name`")
+                _send_message(token, chat_id, "Usage: /model set 2 or /model set model-name")
                 return True, False
 
             model_selector = parts[2].strip()
@@ -1514,7 +1540,7 @@ def _handle_command(
         _send_message(
             token,
             chat_id,
-            "Usage: `/model`, `/model set 2`, or `/model set model-name`",
+            "Usage: /model, /model set 2, or /model set model-name",
         )
         return True, False
 
@@ -1537,7 +1563,7 @@ def _handle_command(
 
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
-                _send_message(token, chat_id, "Usage: `/role set 2` or `/role set role-name`")
+                _send_message(token, chat_id, "Usage: /role set 2 or /role set role-name")
                 return True, False
 
             role_selector = parts[2].strip()
@@ -1572,7 +1598,7 @@ def _handle_command(
         _send_message(
             token,
             chat_id,
-            "Usage: `/role`, `/role set 2`, or `/role set role-name`",
+            "Usage: /role, /role set 2, or /role set role-name",
         )
         return True, False
 
