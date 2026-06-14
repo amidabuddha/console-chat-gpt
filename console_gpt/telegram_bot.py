@@ -598,12 +598,20 @@ def _indexed_model_keys(models: Dict[str, Any]) -> List[str]:
 
 
 def _render_models_list(models: Dict[str, Any], active_model: str) -> str:
-    lines = ["Available models (active marked with *):"]
     indexed_keys = _indexed_model_keys(models)
+    index_width = max(2, len(str(len(indexed_keys))))
+    lines = [
+        "Available models",
+        "Active model marked with *:",
+        "",
+        "```",
+        f"{'No':>{index_width}}  Active  Model",
+    ]
     for idx, model_key in enumerate(indexed_keys, start=1):
         marker = "*" if model_key == active_model else " "
-        lines.append(f"{idx}. [{marker}] {model_key}")
-    lines.append("Use: /model set <index> or /model set <name>")
+        lines.append(f"{idx:>{index_width}}    {marker}     {model_key}")
+    lines.append("```")
+    lines.append("Use: `/model set 2` or `/model set model-name`")
     return "\n".join(lines)
 
 
@@ -634,12 +642,20 @@ def _indexed_role_keys(roles: Dict[str, str]) -> List[str]:
 
 
 def _render_roles_list(roles: Dict[str, str], active_role: str) -> str:
-    lines = ["Available roles (active marked with *):"]
     indexed_keys = _indexed_role_keys(roles)
+    index_width = max(2, len(str(len(indexed_keys))))
+    lines = [
+        "Available roles",
+        "Active role marked with *:",
+        "",
+        "```",
+        f"{'No':>{index_width}}  Active  Role",
+    ]
     for idx, role_key in enumerate(indexed_keys, start=1):
         marker = "*" if role_key == active_role else " "
-        lines.append(f"{idx}. [{marker}] {role_key}")
-    lines.append("Use: /role set <index> or /role set <name>")
+        lines.append(f"{idx:>{index_width}}    {marker}     {role_key}")
+    lines.append("```")
+    lines.append("Use: `/role set 2` or `/role set role-name`")
     return "\n".join(lines)
 
 
@@ -839,6 +855,15 @@ def _build_user_facing_model_error_message(error_text: str) -> str:
     return "The model request failed. Please try again."
 
 
+def _append_stream_piece(current_content: str, piece: str) -> str:
+    if not piece:
+        return current_content
+    # Some OpenAI-compatible providers stream cumulative content instead of true deltas.
+    if current_content and piece.startswith(current_content):
+        return piece
+    return current_content + piece
+
+
 def _consume_streaming_response(
     response_stream: Any, conversation: List[Dict[str, Any]], stream_callback: Optional[Callable[[str], None]]
 ) -> str:
@@ -848,7 +873,7 @@ def _consume_streaming_response(
         for event in response_stream:
             event_type = getattr(event, "type", "")
             if event_type == "response.output_text.delta":
-                current_content += getattr(event, "delta", "") or ""
+                current_content = _append_stream_piece(current_content, getattr(event, "delta", "") or "")
                 if stream_callback:
                     stream_callback(current_content)
             elif event_type == "response.completed":
@@ -887,7 +912,7 @@ def _consume_streaming_completion(
                 saw_tool_call = True
 
             if hasattr(delta, "content") and delta.content:
-                current_content += delta.content
+                current_content = _append_stream_piece(current_content, delta.content)
                 if stream_callback:
                     stream_callback(current_content)
     except Exception as e:
@@ -1177,7 +1202,7 @@ def _handle_command(
             if is_model_locked_chat
             else (
                 "/model - list available models (config + Ollama, if available)\n"
-                "/model set <name|index> - switch active model for this chat\n"
+                "`/model set 2` or `/model set model-name` - switch active model for this chat\n"
             )
         )
         alias_line = (
@@ -1198,13 +1223,13 @@ def _handle_command(
             "/mode message - one question/one answer per message\n"
             f"{model_lines}"
             "/role - list available roles\n"
-            "/role set <name|index> - switch active role for this chat (keeps conversation)\n"
+            "`/role set 2` or `/role set role-name` - switch active role for this chat (keeps conversation)\n"
             "/reasoning - show effective reasoning effort for this chat\n"
-            "/reasoning <default|off|minimal|low|medium|high|xhigh|max> - set session reasoning effort override\n"
+            "`/reasoning default`, `/reasoning off`, `/reasoning high` - set session reasoning effort override\n"
             "/websearch - show web search status (Anthropic + OpenAI Responses)\n"
-            "/websearch [on|off] - toggle web search tool (Anthropic + OpenAI Responses)\n"
+            "`/websearch on` or `/websearch off` - toggle web search tool (Anthropic + OpenAI Responses)\n"
             "/webfetch - show Anthropic web fetch status\n"
-            "/webfetch [on|off] - toggle Anthropic web fetch tool\n"
+            "`/webfetch on` or `/webfetch off` - toggle Anthropic web fetch tool\n"
             "/shutdown - stop bot runtime (admin chat IDs only)\n"
             "/help - show this message\n\n"
             f"{alias_line}\n\n"
@@ -1234,13 +1259,14 @@ def _handle_command(
             _send_message(
                 token,
                 chat_id,
-                f"{tool_label.title()} is {'ON' if current else 'OFF'} for this chat. Use /{command[1:]} [on|off] to change it.",
+                f"{tool_label.title()} is {'ON' if current else 'OFF'} for this chat. "
+                f"Use `/{command[1:]} on` or `/{command[1:]} off` to change it.",
             )
             return True, False
 
         value = parts[1].strip().lower()
         if value not in ("on", "off"):
-            _send_message(token, chat_id, f"Usage: /{command[1:]} [on|off]")
+            _send_message(token, chat_id, f"Usage: `/{command[1:]} on` or `/{command[1:]} off`")
             return True, False
 
         enabled = value == "on"
@@ -1277,7 +1303,7 @@ def _handle_command(
 
         target_mode = parts[1].strip().lower()
         if target_mode not in ("chat", "message"):
-            _send_message(token, chat_id, "Usage: /mode [chat|message]")
+            _send_message(token, chat_id, "Usage: `/mode chat` or `/mode message`")
             return True, False
 
         if target_mode == current_mode:
@@ -1334,13 +1360,18 @@ def _handle_command(
                 chat_id,
                 "Reasoning effort: "
                 f"{_format_reasoning_effort(effective)} ({source}).\n"
-                "Use /reasoning <default|off|minimal|low|medium|high|xhigh|max> to change it.",
+                "Use `/reasoning default`, `/reasoning off`, or `/reasoning high` to change it.",
             )
             return True, False
 
         is_valid, parsed_value, parsed_label = _parse_reasoning_effort_selector(parts[1])
         if not is_valid:
-            _send_message(token, chat_id, "Usage: /reasoning <default|off|minimal|low|medium|high|xhigh|max>")
+            _send_message(
+                token,
+                chat_id,
+                "Usage: `/reasoning default`, `/reasoning off`, `/reasoning minimal`, `/reasoning low`, "
+                "`/reasoning medium`, `/reasoning high`, `/reasoning xhigh`, or `/reasoning max`",
+            )
             return True, False
 
         session["reasoning_effort_override"] = parsed_value
@@ -1396,7 +1427,7 @@ def _handle_command(
         )
         active_model = session["model"].get("model_title", "")
         _send_message(token, chat_id, _render_models_list(models, active_model))
-        _send_message(token, chat_id, "Tip: use /model to list and /model set <name|index> to switch.")
+        _send_message(token, chat_id, "Tip: use `/model` to list and `/model set 2` to switch.")
         return True, False
 
     if command == "/roles":
@@ -1411,7 +1442,7 @@ def _handle_command(
         )
         active_role = str(session.get("role_key") or fetch_variable("defaults", "system_role"))
         _send_message(token, chat_id, _render_roles_list(roles, active_role))
-        _send_message(token, chat_id, "Tip: use /role to list and /role set <name|index> to switch.")
+        _send_message(token, chat_id, "Tip: use `/role` to list and `/role set 2` to switch.")
         return True, False
 
     if command == "/model":
@@ -1441,7 +1472,7 @@ def _handle_command(
 
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
-                _send_message(token, chat_id, "Usage: /model set <name|index>")
+                _send_message(token, chat_id, "Usage: `/model set 2` or `/model set model-name`")
                 return True, False
 
             model_selector = parts[2].strip()
@@ -1480,7 +1511,7 @@ def _handle_command(
         _send_message(
             token,
             chat_id,
-            "Usage: /model or /model set <name|index>",
+            "Usage: `/model`, `/model set 2`, or `/model set model-name`",
         )
         return True, False
 
@@ -1503,7 +1534,7 @@ def _handle_command(
 
         if len(parts) >= 2 and parts[1].lower() == "set":
             if len(parts) < 3 or not parts[2].strip():
-                _send_message(token, chat_id, "Usage: /role set <name|index>")
+                _send_message(token, chat_id, "Usage: `/role set 2` or `/role set role-name`")
                 return True, False
 
             role_selector = parts[2].strip()
@@ -1538,7 +1569,7 @@ def _handle_command(
         _send_message(
             token,
             chat_id,
-            "Usage: /role or /role set <name|index>",
+            "Usage: `/role`, `/role set 2`, or `/role set role-name`",
         )
         return True, False
 
