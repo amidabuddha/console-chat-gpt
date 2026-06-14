@@ -142,7 +142,7 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | disable_intro_help_message | All chat commands available in `help` are printed upon chat initialization. This is targeted at new users and may be disabled by setting to **false**. |
 | assistant_mode | Enable **Open AI Assistants API** as an available selection upon chat initialization. |
 | ai_managed | Enable **AI Managed mode** to allow a model to automatically select the best model according to your prompt. Detailed settings below. |
-| streaming | If set to **true**, the model response data will be streamed to the terminal client. In Telegram mode, private chats receive ephemeral draft previews while the final reply is still sent as a persisted rich message. |
+| streaming | If set to **true**, the model response data will be streamed to the terminal client. Telegram mode always sends completed replies. |
 | mcp_client | Setting to **false** will prevent the default initialization of MCP servers for each chat if not needed. |
 
 | [chat.telegram] | Enable Telegram UI for cnversations. |
@@ -154,7 +154,7 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 | debug_context | If **true**, prints Telegram session/memory debug snapshots to terminal logs for troubleshooting context issues. |
 | max_concurrent_updates | Maximum number of Telegram updates processed in parallel. Default is **8** when omitted. Different chats run concurrently, while each chat remains strictly ordered and isolated. |
 
-Telegram replies are sent through `sendRichMessage` when the Bot API supports it, so model Markdown can render as rich headings, lists, tables, quotes, formulas, details blocks, and similar structured output. If rich message delivery is unavailable or Telegram rejects a malformed rich block, the bot falls back to the classic `sendMessage` path. When `chat.features.streaming` is enabled, private Telegram chats also receive ephemeral `sendRichMessageDraft` previews during generation; group chats keep the non-streaming final-message flow.
+Telegram replies are sent through `sendRichMessage` when the Bot API supports it, so model Markdown can render as rich headings, lists, tables, quotes, formulas, details blocks, and similar structured output. If rich message delivery is unavailable or Telegram rejects a malformed rich block, the bot falls back to the classic `sendMessage` path.
 
 Per-model Telegram room mapping is also supported inside each model block via:
 - `telegram_chat_id = <chat_id>`
