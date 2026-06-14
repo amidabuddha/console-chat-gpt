@@ -1,6 +1,9 @@
 > Features:
 - [894b9c1] [Feature] Add Telegram rich message streaming
 
+> Improvements:
+- [928cda6] [Improvement] Add repository commit guidance
+
 > Bug Fixes:
 - [a0e8367] [Bugfix] Remove Telegram draft streaming
 - [b4bae9b] [Bugfix] Fix Telegram rich help formatting
