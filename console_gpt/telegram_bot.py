@@ -9,7 +9,7 @@ import threading
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import requests
 from pypdf import PdfReader
@@ -29,6 +29,10 @@ ANTHROPIC_WEB_FETCH_MAX_CONTENT_TOKENS = 50000
 ANTHROPIC_WEB_SEARCH_TOOL_TYPE = "web_search_20260209"
 ANTHROPIC_WEB_FETCH_TOOL_TYPE = "web_fetch_20260209"
 OPENAI_WEB_SEARCH_TOOL_TYPE = "web_search"
+TELEGRAM_TEXT_CHUNK_SIZE = 3900
+TELEGRAM_RICH_CHUNK_SIZE = 32000
+TELEGRAM_DRAFT_UPDATE_INTERVAL_SECONDS = 1.25
+TELEGRAM_DRAFT_MIN_DELTA_CHARS = 80
 
 
 class _TelegramModelRequestError(RuntimeError):
@@ -113,7 +117,7 @@ def _telegram_get_file_bytes(token: str, file_id: str) -> bytes:
     return file_response.content
 
 
-def _chunk_text(text: str, chunk_size: int = 3900) -> List[str]:
+def _chunk_text(text: str, chunk_size: int = TELEGRAM_TEXT_CHUNK_SIZE) -> List[str]:
     if len(text) <= chunk_size:
         return [text]
 
@@ -170,23 +174,103 @@ def _telegram_markdown_to_html(text: str) -> str:
     return transformed
 
 
+def _should_fallback_from_rich_message_error(error: RuntimeError) -> bool:
+    error_text = str(error).lower()
+    return any(
+        marker in error_text
+        for marker in (
+            "api error 404",
+            "method not found",
+            "can't parse",
+            "cannot parse",
+            "failed to parse",
+            "can't find end",
+            "unsupported start tag",
+            "unsupported tag",
+        )
+    )
+
+
+def _send_legacy_message_part(token: str, chat_id: int, part: str) -> None:
+    payload = {
+        "chat_id": chat_id,
+        "text": _telegram_markdown_to_html(part),
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
+    }
+    try:
+        _telegram_api(token, "sendMessage", payload)
+    except RuntimeError as e:
+        # Fallback to plain text if Telegram rejects entities for a specific chunk.
+        error_text = str(e).lower()
+        if "parse entities" in error_text or "can't parse entities" in error_text:
+            _telegram_api(token, "sendMessage", {"chat_id": chat_id, "text": part})
+        else:
+            raise
+
+
 def _send_message(token: str, chat_id: int, text: str) -> None:
-    for part in _chunk_text(text.strip() or "(empty response)"):
+    for part in _chunk_text(text.strip() or "(empty response)", TELEGRAM_RICH_CHUNK_SIZE):
         payload = {
             "chat_id": chat_id,
-            "text": _telegram_markdown_to_html(part),
-            "parse_mode": "HTML",
-            "disable_web_page_preview": True,
+            "rich_message": {"markdown": part},
         }
         try:
-            _telegram_api(token, "sendMessage", payload)
+            _telegram_api(token, "sendRichMessage", payload)
         except RuntimeError as e:
-            # Fallback to plain text if Telegram rejects entities for a specific chunk.
-            error_text = str(e).lower()
-            if "parse entities" in error_text or "can't parse entities" in error_text:
-                _telegram_api(token, "sendMessage", {"chat_id": chat_id, "text": part})
-            else:
+            if not _should_fallback_from_rich_message_error(e):
                 raise
+            for legacy_part in _chunk_text(part):
+                _send_legacy_message_part(token, chat_id, legacy_part)
+
+
+def _send_rich_message_draft(token: str, chat_id: int, draft_id: int, text: str) -> None:
+    draft_text = (text or "").strip()
+    if not draft_text:
+        return
+    if len(draft_text) > TELEGRAM_RICH_CHUNK_SIZE:
+        draft_text = "...\n" + draft_text[-(TELEGRAM_RICH_CHUNK_SIZE - 4) :]
+    payload = {
+        "chat_id": chat_id,
+        "draft_id": draft_id,
+        # Use escaped HTML for drafts so partial Markdown/code fences don't break preview updates.
+        "rich_message": {"html": html.escape(draft_text)},
+    }
+    _telegram_api(token, "sendRichMessageDraft", payload)
+
+
+class _TelegramDraftStreamer:
+    def __init__(self, token: str, chat_id: int):
+        self.token = token
+        self.chat_id = chat_id
+        self.draft_id = int(time.time() * 1000) % 2147483647 or 1
+        self.enabled = True
+        self.last_sent_at = 0.0
+        self.last_sent_len = 0
+
+    def __call__(self, text: str) -> None:
+        if not self.enabled:
+            return
+        draft_text = (text or "").strip()
+        if not draft_text:
+            return
+        now = time.monotonic()
+        if self.last_sent_len:
+            elapsed = now - self.last_sent_at
+            if elapsed < TELEGRAM_DRAFT_UPDATE_INTERVAL_SECONDS:
+                return
+            if (
+                len(draft_text) - self.last_sent_len < TELEGRAM_DRAFT_MIN_DELTA_CHARS
+                and elapsed < TELEGRAM_DRAFT_UPDATE_INTERVAL_SECONDS * 3
+            ):
+                return
+        try:
+            _send_rich_message_draft(self.token, self.chat_id, self.draft_id, draft_text)
+            self.last_sent_at = now
+            self.last_sent_len = len(draft_text)
+        except Exception as e:
+            self.enabled = False
+            custom_print("warn", f"Telegram draft streaming disabled for chat_id={self.chat_id}: {e}")
 
 
 def _is_allowed_chat(chat_id: int, allowed_chat_ids: List[int]) -> bool:
@@ -755,7 +839,78 @@ def _build_user_facing_model_error_message(error_text: str) -> str:
     return "The model request failed. Please try again."
 
 
-def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, chat_id: int = 0) -> str:
+def _consume_streaming_response(
+    response_stream: Any, conversation: List[Dict[str, Any]], stream_callback: Optional[Callable[[str], None]]
+) -> str:
+    current_content = ""
+
+    try:
+        for event in response_stream:
+            event_type = getattr(event, "type", "")
+            if event_type == "response.output_text.delta":
+                current_content += getattr(event, "delta", "") or ""
+                if stream_callback:
+                    stream_callback(current_content)
+            elif event_type == "response.completed":
+                assistant_text, parsed = _extract_responses_text(event.response)
+                if parsed:
+                    conversation.extend(parsed)
+                return assistant_text or current_content
+            elif event_type in ("response.failed", "response.incomplete"):
+                error = getattr(event, "error", None) or getattr(event, "response", None)
+                raise _TelegramModelRequestError(str(error or f"Responses stream ended with {event_type}."))
+    except _TelegramModelRequestError:
+        raise
+    except Exception as e:
+        custom_print("error", f"Model streaming failed: {e}")
+        raise _TelegramModelRequestError(str(e)) from e
+
+    if current_content:
+        conversation.append({"role": "assistant", "content": current_content})
+    return current_content
+
+
+def _consume_streaming_completion(
+    response_stream: Any, conversation: List[Dict[str, Any]], stream_callback: Optional[Callable[[str], None]]
+) -> str:
+    current_content = ""
+    saw_tool_call = False
+
+    try:
+        for chunk in response_stream:
+            choices = getattr(chunk, "choices", []) or []
+            if not choices:
+                continue
+            delta = choices[0].delta
+
+            if hasattr(delta, "tool_calls") and delta.tool_calls:
+                saw_tool_call = True
+
+            if hasattr(delta, "content") and delta.content:
+                current_content += delta.content
+                if stream_callback:
+                    stream_callback(current_content)
+    except Exception as e:
+        custom_print("error", f"Model streaming failed: {e}")
+        raise _TelegramModelRequestError(str(e)) from e
+
+    if saw_tool_call:
+        raise _TelegramModelRequestError(
+            "Model returned local tool calls, but Telegram runtime has MCP tools disabled.",
+            "The model tried to call a local tool, but Telegram runtime has MCP tools disabled.",
+        )
+
+    if current_content:
+        conversation.append({"role": "assistant", "content": current_content})
+    return current_content
+
+
+def _request_model_reply(
+    session: Dict[str, Any],
+    debug_context: bool = False,
+    chat_id: int = 0,
+    stream_callback: Optional[Callable[[str], None]] = None,
+) -> str:
     _sync_session_prompt_cache(session)
 
     model_data = session["model"]
@@ -794,7 +949,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         params = {
             "model": model_name,
             "input": conversation[1:] if conversation[0]["role"] == "system" else conversation,
-            "stream": False,
+            "stream": stream_callback is not None,
         }
         if conversation[0]["role"] == "system":
             params["instructions"] = "Formatting re-enabled\n" + conversation[0]["content"]
@@ -836,6 +991,10 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         if isinstance(response, dict) and "error" in response:
             raise _TelegramModelRequestError(str(response["error"]))
 
+        if stream_callback is not None:
+            assistant_text = _consume_streaming_response(response, conversation, stream_callback)
+            return assistant_text or "(No text content returned by model.)"
+
         assistant_text, parsed = _extract_responses_text(response)
         if parsed:
             conversation.extend(parsed)
@@ -854,7 +1013,7 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
         "model": model_name,
         "messages": conversation,
         "temperature": temperature,
-        "stream": False,
+        "stream": stream_callback is not None,
     }
     if model_title.startswith("anthropic"):
         anthropic_tools: List[Dict[str, Any]] = []
@@ -914,6 +1073,10 @@ def _request_model_reply(session: Dict[str, Any], debug_context: bool = False, c
     response = _execute_model_action(lambda: client.chat.completions.create(**params))
     if isinstance(response, dict) and "error" in response:
         raise _TelegramModelRequestError(str(response["error"]))
+
+    if stream_callback is not None:
+        assistant_text = _consume_streaming_completion(response, conversation, stream_callback)
+        return assistant_text or "(No text content returned by model.)"
 
     assistant_text, assistant_msg = _extract_completion_text(response)
     conversation.append(assistant_msg)
@@ -1419,13 +1582,17 @@ def run_telegram_bot() -> None:
     admin_chat_ids_raw = fetch_variable("telegram", "admin_chat_ids", auto_exit=False) or []
     admin_chat_ids = [int(chat_id) for chat_id in admin_chat_ids_raw]
     telegram_debug_context = bool(fetch_variable("telegram", "debug_context", auto_exit=False))
+    telegram_streaming_enabled = bool(fetch_variable("features", "streaming", auto_exit=False))
     model_chat_overrides = _build_telegram_model_chat_overrides()
 
     if allowed_chat_ids:
         # Any model-mapped rooms should be accepted without forcing duplicate config entries.
         allowed_chat_ids = sorted(set(allowed_chat_ids + list(model_chat_overrides.keys())))
 
-    custom_print("warn", "Telegram mode detected. Streaming is disabled in Telegram runtime.")
+    if telegram_streaming_enabled:
+        custom_print("info", "Telegram draft streaming is enabled for private chats.")
+    else:
+        custom_print("warn", "Telegram mode detected. Streaming is disabled by chat.features.streaming.")
     if fetch_variable("features", "mcp_client", auto_exit=False):
         custom_print("warn", "Telegram mode detected. MCP is disabled in Telegram runtime.")
         _stop_mcp_server_if_running()
@@ -1482,6 +1649,7 @@ def run_telegram_bot() -> None:
 
             chat = message.get("chat") or {}
             chat_id = int(chat.get("id", 0))
+            chat_type = str(chat.get("type") or "")
             if not chat_id or not _is_allowed_chat(chat_id, allowed_chat_ids):
                 return
 
@@ -1549,7 +1717,17 @@ def run_telegram_bot() -> None:
             except Exception as e:
                 custom_print("warn", f"Telegram typing indicator warning: {e}. Continuing...")
             try:
-                reply = _request_model_reply(session, debug_context=telegram_debug_context, chat_id=chat_id)
+                stream_callback = (
+                    _TelegramDraftStreamer(token, chat_id)
+                    if telegram_streaming_enabled and chat_type == "private"
+                    else None
+                )
+                reply = _request_model_reply(
+                    session,
+                    debug_context=telegram_debug_context,
+                    chat_id=chat_id,
+                    stream_callback=stream_callback,
+                )
             except Exception:
                 _rollback_last_user_turn(session)
                 raise
