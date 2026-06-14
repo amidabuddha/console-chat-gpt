@@ -82,9 +82,12 @@ def _is_valid_telegram_token(token: str) -> bool:
 
 def _stop_mcp_server_if_running() -> None:
     """Best-effort MCP cleanup when Telegram runtime stops."""
-    _, message = ServerManager().stop_server()
-    if message in ("Server stopped successfully", "Server force stopped"):
-        custom_print("info", "MCP server stopped.")
+    try:
+        _, message = ServerManager().stop_server()
+        if message in ("Server stopped successfully", "Server force stopped"):
+            custom_print("info", "MCP server stopped.")
+    except Exception as e:
+        custom_print("warn", f"MCP server cleanup skipped: {e}")
 
 
 def _consume_terminal_control_command() -> Optional[str]:
