@@ -2,6 +2,7 @@
 - [894b9c1] [Feature] Add Telegram rich message streaming
 
 > Improvements:
+- [bb5a37b] [Improvement] Update unichat to 4.3.6
 - [928cda6] [Improvement] Add repository commit guidance
 
 > Bug Fixes:
