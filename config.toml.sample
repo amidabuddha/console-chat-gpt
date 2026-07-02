@@ -136,8 +136,8 @@ reasoning_effort = false
 api_key = "YOUR_API_KEY"
 base_url = ""
 model_input_pricing_per_1k = 0.003
-model_max_tokens = 64000
-model_name = "claude-sonnet-4-6"
+model_max_tokens = 128000
+model_name = "claude-sonnet-5"
 model_output_pricing_per_1k = 0.015
 reasoning_effort = "medium"
 
@@ -146,16 +146,7 @@ api_key = "YOUR_API_KEY"
 base_url = ""
 model_input_pricing_per_1k = 0.005
 model_max_tokens = 128000
-model_name = "claude-opus-4-6"
-model_output_pricing_per_1k = 0.025
-reasoning_effort = "medium"
-
-[chat.models.anthropic-opus-latest]
-api_key = "YOUR_API_KEY"
-base_url = ""
-model_input_pricing_per_1k = 0.005
-model_max_tokens = 128000
-model_name = "claude-opus-4-7"
+model_name = "claude-opus-4-8"
 model_output_pricing_per_1k = 0.025
 reasoning_effort = "medium"
 
