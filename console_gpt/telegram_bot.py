@@ -16,7 +16,9 @@ from pypdf import PdfReader
 from unichat import MODELS_LIST, UnifiedChatApi
 from unichat.api_helper import openai
 
-from console_gpt.config_manager import fetch_variable, fetch_variable_resolved
+from console_gpt.config_manager import (fetch_variable,
+                                        fetch_variable_resolved,
+                                        write_to_config)
 from console_gpt.custom_stdout import custom_print
 from console_gpt.ollama_helper import (is_ollama_running, list_ollama_models,
                                        start_ollama)
@@ -226,7 +228,8 @@ def _send_message(token: str, chat_id: int, text: str) -> None:
 
 
 def _is_allowed_chat(chat_id: int, allowed_chat_ids: List[int]) -> bool:
-    return not allowed_chat_ids or chat_id in allowed_chat_ids
+    # Default-deny: an empty allowlist means "not yet paired", not "open to everyone".
+    return chat_id in allowed_chat_ids
 
 
 def _extract_pdf_text(file_bytes: bytes) -> str:
@@ -1509,9 +1512,14 @@ def run_telegram_bot() -> None:
     telegram_debug_context = bool(fetch_variable("telegram", "debug_context", auto_exit=False))
     model_chat_overrides = _build_telegram_model_chat_overrides()
 
-    if allowed_chat_ids:
-        # Any model-mapped rooms should be accepted without forcing duplicate config entries.
-        allowed_chat_ids = sorted(set(allowed_chat_ids + list(model_chat_overrides.keys())))
+    # Any model-mapped rooms should be accepted without forcing duplicate config entries.
+    allowed_chat_ids = sorted(set(allowed_chat_ids + list(model_chat_overrides.keys())))
+    if not allowed_chat_ids:
+        custom_print(
+            "warn",
+            "chat.telegram.allowed_chat_ids is empty: pairing mode is active. The first chat that "
+            "messages this bot will be paired and saved to config.toml; all other chats are denied.",
+        )
 
     if fetch_variable("features", "mcp_client", auto_exit=False):
         custom_print("warn", "Telegram mode detected. MCP is disabled in Telegram runtime.")
@@ -1556,6 +1564,21 @@ def run_telegram_bot() -> None:
     ordered_futures_lock = threading.Lock()
     offset = 0
     process_start_ts = int(time.time())
+
+    def _pair_first_chat(chat_id: int) -> None:
+        """First-contact pairing: claim the bot for this chat and persist the allowlist."""
+        allowed_chat_ids.append(chat_id)
+        custom_print("ok", f"Telegram bot paired to chat_id={chat_id}.")
+        try:
+            write_to_config("telegram", "allowed_chat_ids", new_value=[chat_id])
+            note = "This bot is now paired to this chat. chat.telegram.allowed_chat_ids was updated in config.toml."
+        except Exception as e:
+            custom_print("warn", f"Could not persist paired chat_id to config.toml: {e}")
+            note = "This bot is now paired to this chat for the current session only (config write failed)."
+        try:
+            _send_message(token, chat_id, f"{note}\nYour chat_id: {chat_id}")
+        except Exception as e:
+            custom_print("warn", f"Pairing confirmation message warning: {e}. Continuing...")
 
     def _process_update(update: Dict[str, Any]) -> None:
         chat_id = 0
@@ -1719,7 +1742,11 @@ def run_telegram_bot() -> None:
 
                     chat = message.get("chat") or {}
                     chat_id = int(chat.get("id", 0))
-                    if not chat_id or not _is_allowed_chat(chat_id, allowed_chat_ids):
+                    if not chat_id:
+                        continue
+                    if not allowed_chat_ids:
+                        _pair_first_chat(chat_id)
+                    if not _is_allowed_chat(chat_id, allowed_chat_ids):
                         continue
 
                     if shutdown_requested.is_set():
