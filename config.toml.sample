@@ -52,8 +52,10 @@ mcp_client = true
 [chat.telegram]
 enabled = false
 bot_token = "YOUR_TELEGRAM_BOT_TOKEN"
-# Leave empty to auto-pair with the first chat that messages the bot (saved here on first contact).
-# All other chats are denied once paired. Add chat IDs manually to allow more chats.
+# Pairing mode: if this list is empty and no model room mappings (telegram_chat_id/telegram_chat_ids)
+# are configured, claim the bot by sending "/pair <code>" from the chat you want to use. The code is
+# printed in the bot's terminal and rotates every 10 minutes. The paired chat ID is saved here
+# automatically; all other chats are denied.
 allowed_chat_ids = []
 admin_chat_ids = []
 debug_context = false

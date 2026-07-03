@@ -1,7 +1,9 @@
 import base64
+import hmac
 import html
 import io
 import re
+import secrets
 import select
 import subprocess
 import sys
@@ -33,6 +35,9 @@ ANTHROPIC_WEB_FETCH_TOOL_TYPE = "web_fetch_20260209"
 OPENAI_WEB_SEARCH_TOOL_TYPE = "web_search"
 TELEGRAM_TEXT_CHUNK_SIZE = 3900
 TELEGRAM_RICH_CHUNK_SIZE = 32000
+PAIRING_CODE_TTL_SECONDS = 600
+PAIRING_MAX_FAILED_ATTEMPTS = 5
+PAIRING_LOCKOUT_SECONDS = 300
 
 
 class _TelegramModelRequestError(RuntimeError):
@@ -1517,8 +1522,9 @@ def run_telegram_bot() -> None:
     if not allowed_chat_ids:
         custom_print(
             "warn",
-            "chat.telegram.allowed_chat_ids is empty: pairing mode is active. The first chat that "
-            "messages this bot will be paired and saved to config.toml; all other chats are denied.",
+            "No allowed Telegram chats configured (allowed_chat_ids and model room mappings are both empty): "
+            "pairing mode is active. Claim the bot by sending /pair with the code printed below; "
+            "all other chats are denied until paired.",
         )
 
     if fetch_variable("features", "mcp_client", auto_exit=False):
@@ -1565,9 +1571,26 @@ def run_telegram_bot() -> None:
     offset = 0
     process_start_ts = int(time.time())
 
-    def _pair_first_chat(chat_id: int) -> None:
-        """First-contact pairing: claim the bot for this chat and persist the allowlist."""
+    pairing_state: Dict[str, Any] = {
+        "code": None,
+        "issued_ts": 0.0,
+        "attempts": {},
+        "hinted_chats": set(),
+    }
+
+    def _issue_pairing_code() -> None:
+        pairing_state["code"] = f"{secrets.randbelow(1_000_000):06d}"
+        pairing_state["issued_ts"] = time.time()
+        custom_print(
+            "warn",
+            f"Pairing code: {pairing_state['code']} — claim the bot by sending '/pair {pairing_state['code']}' "
+            f"from the Telegram chat you want to use. The code rotates every {PAIRING_CODE_TTL_SECONDS // 60} minutes.",
+        )
+
+    def _pair_chat(chat_id: int) -> None:
+        """Claim the bot for this chat and persist the allowlist."""
         allowed_chat_ids.append(chat_id)
+        pairing_state["code"] = None
         custom_print("ok", f"Telegram bot paired to chat_id={chat_id}.")
         try:
             write_to_config("telegram", "allowed_chat_ids", new_value=[chat_id])
@@ -1579,6 +1602,34 @@ def run_telegram_bot() -> None:
             _send_message(token, chat_id, f"{note}\nYour chat_id: {chat_id}")
         except Exception as e:
             custom_print("warn", f"Pairing confirmation message warning: {e}. Continuing...")
+
+    def _handle_pairing_attempt(chat_id: int, text: str) -> None:
+        """Validate a '/pair <code>' attempt with per-chat attempt limits."""
+        now = time.time()
+        attempts = pairing_state["attempts"].setdefault(chat_id, {"failed": 0, "locked_until": 0.0})
+        if now < attempts["locked_until"]:
+            return
+        parts = text.split(maxsplit=1)
+        provided = parts[1].strip() if len(parts) > 1 else ""
+        expected = pairing_state["code"] or ""
+        if provided and expected and hmac.compare_digest(provided, expected):
+            _pair_chat(chat_id)
+            return
+        attempts["failed"] += 1
+        custom_print("warn", f"Failed Telegram pairing attempt from chat_id={chat_id}.")
+        if attempts["failed"] >= PAIRING_MAX_FAILED_ATTEMPTS:
+            attempts["failed"] = 0
+            attempts["locked_until"] = now + PAIRING_LOCKOUT_SECONDS
+            custom_print(
+                "warn",
+                f"Too many failed pairing attempts from chat_id={chat_id}. "
+                f"That chat is locked out for {PAIRING_LOCKOUT_SECONDS // 60} minutes.",
+            )
+            return
+        try:
+            _send_message(token, chat_id, "Invalid or expired pairing code.")
+        except Exception as e:
+            custom_print("warn", f"Pairing rejection message warning: {e}. Continuing...")
 
     def _process_update(update: Dict[str, Any]) -> None:
         chat_id = 0
@@ -1700,10 +1751,20 @@ def run_telegram_bot() -> None:
             next_future = worker_executor.submit(_run_after_previous, prev_future, update)
             ordered_futures[chat_id] = next_future
 
+    if not allowed_chat_ids:
+        _issue_pairing_code()
+
     try:
         while True:
             if shutdown_requested.is_set():
                 break
+
+            if (
+                not allowed_chat_ids
+                and pairing_state["code"]
+                and time.time() - pairing_state["issued_ts"] > PAIRING_CODE_TTL_SECONDS
+            ):
+                _issue_pairing_code()
 
             terminal_action = _consume_terminal_control_command()
             if terminal_action == "stop":
@@ -1745,7 +1806,22 @@ def run_telegram_bot() -> None:
                     if not chat_id:
                         continue
                     if not allowed_chat_ids:
-                        _pair_first_chat(chat_id)
+                        pairing_text = (message.get("text") or "").strip()
+                        pairing_command = pairing_text.split(maxsplit=1)[0].lower() if pairing_text else ""
+                        if pairing_command == "/pair" or pairing_command.startswith("/pair@"):
+                            _handle_pairing_attempt(chat_id, pairing_text)
+                        elif chat_id not in pairing_state["hinted_chats"]:
+                            pairing_state["hinted_chats"].add(chat_id)
+                            try:
+                                _send_message(
+                                    token,
+                                    chat_id,
+                                    "This bot is not paired yet. Send: /pair <code> — the code is printed "
+                                    "in the bot's terminal.",
+                                )
+                            except Exception as e:
+                                custom_print("warn", f"Pairing hint message warning: {e}. Continuing...")
+                        continue
                     if not _is_allowed_chat(chat_id, allowed_chat_ids):
                         continue
 

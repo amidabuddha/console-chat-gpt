@@ -149,7 +149,7 @@ Overall, this app focuses on providing a user-friendly and customizable experien
 |-|-|
 | enabled | If set to **true**, starts Telegram bot polling loop instead of the terminal chat UI. |
 | bot_token | Telegram bot token from BotFather, in the format `<digits>:<token>`. |
-| allowed_chat_ids | List of chat IDs allowed to use the bot. Leave empty to auto-pair with the first chat that messages the bot; all other chats are denied once paired. |
+| allowed_chat_ids | List of chat IDs allowed to use the bot. Pairing mode activates when this list is empty and no model room mappings (`telegram_chat_id`/`telegram_chat_ids`) are configured: the bot prints a one-time code in its terminal, and the chat that sends `/pair <code>` is claimed and saved here; all other chats are denied. The code rotates every 10 minutes and repeated wrong attempts lock the offending chat out temporarily. |
 | admin_chat_ids | List of chat IDs allowed to run admin-only commands such as `/shutdown`. |
 | debug_context | If **true**, prints Telegram session/memory debug snapshots to terminal logs for troubleshooting context issues. |
 | max_concurrent_updates | Maximum number of Telegram updates processed in parallel. Default is **8** when omitted. Different chats run concurrently, while each chat remains strictly ordered and isolated. |
