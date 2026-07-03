@@ -1517,6 +1517,7 @@ def run_telegram_bot() -> None:
     telegram_debug_context = bool(fetch_variable("telegram", "debug_context", auto_exit=False))
     model_chat_overrides = _build_telegram_model_chat_overrides()
 
+    has_configured_allowed_chats = bool(allowed_chat_ids)
     # Any model-mapped rooms should be accepted without forcing duplicate config entries.
     allowed_chat_ids = sorted(set(allowed_chat_ids + list(model_chat_overrides.keys())))
     if not allowed_chat_ids:
@@ -1525,6 +1526,13 @@ def run_telegram_bot() -> None:
             "No allowed Telegram chats configured (allowed_chat_ids and model room mappings are both empty): "
             "pairing mode is active. Claim the bot by sending /pair with the code printed below; "
             "all other chats are denied until paired.",
+        )
+    elif not has_configured_allowed_chats:
+        custom_print(
+            "warn",
+            f"chat.telegram.allowed_chat_ids is empty but {len(model_chat_overrides)} model-mapped room(s) "
+            "are allowed, so pairing mode is NOT active. Chats other than the mapped rooms are denied. "
+            "Add chat IDs to allowed_chat_ids to allow more chats.",
         )
 
     if fetch_variable("features", "mcp_client", auto_exit=False):
