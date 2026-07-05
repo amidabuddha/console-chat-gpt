@@ -1,3 +1,8 @@
+> **Deprecated / successor:** For new installs, use
+> [tellm](https://github.com/amidabuddha/tellm) instead. It is a small Rust
+> Telegram assistant for Claude, GPT/Grok, Gemini, compatible endpoints, and
+> local Ollama, with per-room model selection and keychain-backed secrets.
+
 <div align="center">
 
 <h1>
