@@ -6,10 +6,10 @@
 - [928cda6] [Improvement] Add repository commit guidance
 
 > Bug Fixes:
+- [dd76f14] [Bugfix] Patch MCP SDK security vulnerabilities
 - [0211931] [Bugfix] Correct Telegram allowlist documentation
 - [6e950c1] [Bugfix] Deny unknown Telegram chats by default with first-contact pairing
 - [beb0fe1] [Bugfix] Update pypdf to 6.13.3
-- [a0e8367] [Bugfix] Remove Telegram draft streaming
 
 
 ---
