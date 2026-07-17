@@ -9,6 +9,6 @@ requests~=2.32.0
 beautifulsoup4~=4.12.3
 markdownify~=1.1.0
 pypdf~=6.13.3
-mcp~=1.23.0
+mcp~=1.28.1
 psutil~=6.1.1
 textual~=1.0.0
