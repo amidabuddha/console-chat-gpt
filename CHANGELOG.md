@@ -4,12 +4,12 @@
 - [a9e560d] [Improvement] Require a pairing code to claim an unpaired Telegram bot
 
 > Bug Fixes:
+- [94b7fc3] [Bugfix] Update pypdf to 6.19.0
 - [c4f1814] [Bugfix] Update pypdf to 6.18.0
 - [1d5e14c] [Bugfix] Update pypdf to 6.15.0
 - [a534930] [Bugfix] Update pypdf to 6.14.2
 - [5cd14fa] [Bugfix] Require secure Pillow release
 - [dd76f14] [Bugfix] Patch MCP SDK security vulnerabilities
-- [0211931] [Bugfix] Correct Telegram allowlist documentation
 
 
 ---
