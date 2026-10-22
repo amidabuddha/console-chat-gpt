@@ -8,7 +8,14 @@
 - Keep automatic changelog/version/formatting commits separate from functional commits unless the user explicitly asks to combine them.
 - If an exploratory change is abandoned or reverted before commit, remove the related code and documentation before committing the remaining work.
 
+## Closure and clean-up
+
+- The app runs from this checkout (`main.py`), and its data lives here too: `app-data/`, `chats/`, `assistants/`, `roles/`, `images/`, `config.toml`, `mcp_config.json` and `remote_mcp_config.json`. Never delete them. Nothing is installed elsewhere.
+- When a change is complete, commit it locally, then remove only reproducible leftovers such as `__pycache__/` directories and `node_modules/`.
+
 ## Push Workflow
+
+- Commit locally as work progresses. Push only when Stefan asks; when a milestone is done, ask once whether to push now or not yet.
 
 - Every push to `main` triggers `.github/workflows/formatting.yml`, which may push a follow-up commit named `Formatting and updating the changelog.` that updates formatting, `CHANGELOG.md`, and `app-data/version.toml`.
 - Before pushing to `main`, fetch `origin/main` and rebase local commits if the remote branch has advanced. Never force-push merely to bypass the automation commit.
