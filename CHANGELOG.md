@@ -1,6 +1,6 @@
 > Improvements:
+- [c94789e] [Improvement] Document closure, clean-up and push policy for agents
 - [efa10f8] [Improvement] Document automated main push workflow
-- [173c252] [Improvement] Explain why pairing mode is inactive with model-mapped rooms
 
 > Bug Fixes:
 - [2c077a7] [Bugfix] Update mcp to 1.30.0
