@@ -25,7 +25,7 @@ _Enjoy seamless interactions with **OpenAI**, **MistralAI**, **Anthropic**, **xA
   <a href="https://github.com/amidabuddha/consoleChatGPT/blob/main/LICENSE.md">
   <img src="https://img.shields.io/github/license/amidabuddha/consoleChatGPT" alt="Released under the Apache license." />
   </a>
-  <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Working on Python 3.10+" />
+  <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Working on Python 3.11+" />
   <img src="https://img.shields.io/github/stars/amidabuddha/consoleChatGPT"/>
   <img src="https://img.shields.io/github/issues/amidabuddha/consoleChatGPT"/>
   <img src="https://img.shields.io/github/forks/amidabuddha/consoleChatGPT"/>
