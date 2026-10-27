@@ -3,6 +3,8 @@
 - [efa10f8] [Improvement] Document automated main push workflow
 
 > Bug Fixes:
+- [90c345e] [Bugfix] Upgrade pypdf to 6.21.3 for security fixes
+- [8fe1085] [Bugfix] Upgrade Pillow to 13.0.0 for security fixes
 - [2c077a7] [Bugfix] Update mcp to 1.30.0
 - [94b7fc3] [Bugfix] Update pypdf to 6.19.0
 - [c4f1814] [Bugfix] Update pypdf to 6.18.0
